@@ -3,17 +3,18 @@
 
 # Group Information
 
-## Group-PX-XX
+## Group-P09-03
 
 ## Members
-* Student Name 1 (sXXXXX)
-* Student Name 2 (sXXXXX)
-* Student Name 3 (sXXXXX)
+* Preeti Goel (s3879991)
+* Ashmit Sachan (s3873827)
+* Kaiyang Zheng (s3992987)
 * Student Name 4 (sXXXXX)
 
 ## Records
 
-* Github repository: https://github.com/xxx
-* Github Project Board : https://xxxx
+* Github repository: https://github.com/cosc2299-2024/team-project-group-p09-03
+* Github Project Board : https://github.com/orgs/cosc2299-2024/projects/19
 
 See [Instructions](INSTRUCTIONS.md)
+
