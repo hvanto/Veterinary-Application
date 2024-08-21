@@ -10,6 +10,8 @@
 * Ashmit Sachan (s3873827)
 * Kaiyang Zheng (s3992987)
 * Aphisith Siphaxay (s3987059)
+* Kai Hei Kong (s3971187)
+* Henry Van Toledo (s3849054)
 
 ## Records
 
