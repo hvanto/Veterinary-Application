@@ -1,0 +1,13 @@
+{
+  "_comment": "This is an example file. This file will be used to populate the DataBase for a new installation.",
+  "_data": {
+    "users": [
+    "s3987059@student.rmit.edu.au",
+    "s3873827@student.rmit.edu.au",
+    "s3849054@student.rmit.edu.au",
+    "s3971187@student.rmit.edu.au",
+    "s3992987@student.rmit.edu.au",
+    "s3879991@student.rmit.edu.au"
+    ]
+  }
+}
