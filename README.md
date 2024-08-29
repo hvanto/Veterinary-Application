@@ -22,6 +22,18 @@
 
 See [Instructions](INSTRUCTIONS.md)
 
+# How to use Tailwind CSS
+Tailwind CSS has already been configured to the application. Make sure you have Node installed on your machine.
+
+You need to compile Tailwind CSS present in the HTML to reflect changes in the Browser using the following command:
+
+```sh
+npx tailwindcss -i ./src/main/resources/static/css/tailwind.css -o ./src/main/resources/static/css/main.css --watch
+```
+
+I am still working on making this process automated and will update this configuration ASAP.
+
+
 # Dockerized Spring Boot Application with MySQL
 
 ## Introduction

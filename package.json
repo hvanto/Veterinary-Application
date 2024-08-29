@@ -1,0 +1,18 @@
+{
+  "name": "team-project-group-p09-03",
+  "version": "1.0.0",
+  "description": "* Preeti Goel (s3879991)\r * Ashmit Sachan (s3873827)\r * Kaiyang Zheng (s3992987)\r * Aphisith Siphaxay (s3987059)\r * Kai Hei Kong (s3971187)\r * Henry Van Toledo (s3849054)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
+  }
+}
