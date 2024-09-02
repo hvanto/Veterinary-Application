@@ -7,7 +7,7 @@ CREATE TABLE articles (
     content TEXT NOT NULL
 );
 
-INSERT INTO Article (title, content) VALUES 
+INSERT INTO articles (title, content) VALUES
 ('How to Care for Your Pet', 'This article explains how to properly care for your pet.'),
 ('Common Pet Illnesses', 'This article discusses common pet illnesses and how to treat them.'),
 ('Understanding Pet Behavior', 'Learn about different pet behaviors and what they mean.');
