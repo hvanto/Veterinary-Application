@@ -554,19 +554,10 @@ video {
   --tw-contain-style:  ;
 }
 
-.min-h-full {
-  min-height: 100%;
+.collapse {
+  visibility: collapse;
 }
 
-.min-w-full {
-  min-width: 100%;
-}
-
-.text-5xl {
-  font-size: 3rem;
-  line-height: 1;
-}
-
-.font-extrabold {
-  font-weight: 800;
+.mr-auto {
+  margin-right: auto;
 }

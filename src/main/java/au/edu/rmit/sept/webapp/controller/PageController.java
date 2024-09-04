@@ -48,5 +48,11 @@ public class PageController {
         model.addAttribute("mainContent", "orderTracking :: content");
         return "layout";
     }
+
+    @GetMapping("/educational-resources")
+    public String educationalResources(Model model) {
+        model.addAttribute("mainContent", "educationalResources :: content");
+        return "layout";
+    }
 }
 
