@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="A vetinarian web application">
+    <meta name="keywords" content="vetinarian, prescription management, medical records, appointment scheduling">
+
+
+    <title>VetCare</title>
+
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+<body>
+    {% comment %} HEADER FRAGMENT {% endcomment %}
+    <header th:replace="fragments/header :: header"></header>
+    
+    {% comment %} MAIN COMPONENT {% endcomment %}
+    <div class="content">
+        
+        <div th:replace="${mainContent}"></div>
+    </div>
+
+    {% comment %} FOOTER FRAGMENT {% endcomment %}
+    <footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>
