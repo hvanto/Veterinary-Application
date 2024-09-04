@@ -1,16 +1,4 @@
-<!doctype html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <title>My Page Title</title>
-    <meta name="A vetinarian web application" content="A vetinarian solution for users for prescription management, medical records and appointment scheduling">
-
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-<!--    <link rel="stylesheet" href="/css/main.css">-->
-</head>
-<body class="min-w-full min-h-full">
-    <div>
-        <h1 class="font-extrabold text-5xl">Main Page</h1>
-    </div>
-</body>
+<div th:fragment="content">
+    <h1>Welcome to VetCare</h1>
+    <p>This is the homepage of our veterinary clinic administration system.</p>
+</div>
