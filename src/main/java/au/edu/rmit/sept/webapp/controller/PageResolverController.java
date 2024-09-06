@@ -21,6 +21,29 @@ public class PageResolverController {
      * @implNote This method is intended to return the home page of the application
      *           and may be modified in the future to handle additional logic or data.
      */
+    @GetMapping("/")
+    public String index(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "home");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
+
+    /**
+     * Handles the request to the home page and provides necessary data to the view.
+     *
+     * @param request   - The HTTP request containing the URL and query data
+     * @param model     - Data object used by Thymeleaf for rendering the view
+     * @return index.html page with "home" content as the main section
+     *
+     * @implNote This method is intended to return the home page of the application
+     *           and may be modified in the future to handle additional logic or data.
+     */
     @GetMapping("/home")
     public String home(HttpServletRequest request, Model model) {
         String requestURL = request.getRequestURL().toString();
@@ -30,7 +53,7 @@ public class PageResolverController {
         model.addAttribute("url", requestURL);
         model.addAttribute("queryString", queryString);
 
-        return "index";  // Return the main layout (index.html)
+        return "index";
     }
 
 
