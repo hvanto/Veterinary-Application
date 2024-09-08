@@ -4,6 +4,7 @@ import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.model.ArticleRss;
 import au.edu.rmit.sept.webapp.repository.ArticleRepository;
 
+import com.rometools.rome.feed.synd.SyndEnclosure;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,17 +33,33 @@ public class ArticleService {
 
     // Fetch and parse RSS feed from an external URL
     public List<ArticleRss> fetchRssFeed() throws Exception {
-        String testLink = "https://feeds.feedburner.com/gopetfriendly";
+        String testLink = "https://www.petmd.com/feed";
         URL url = new URL(testLink);
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader(url));
 
         List<ArticleRss> articles = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         for (SyndEntry entry : feed.getEntries()) {
             ArticleRss article = new ArticleRss();
             article.setTitle(entry.getTitle());
             article.setLink(entry.getLink());
+            article.setAuthor(entry.getAuthor());
+            article.setPublishedDate(entry.getPublishedDate());
+
+            // Set description if not null
+            if (entry.getDescription() != null && !entry.getDescription().getValue().isEmpty()) {
+                article.setDescription(entry.getDescription().getValue());
+            }
+
+            // Get Image from enclosure
+            List<SyndEnclosure> enclosures = entry.getEnclosures();
+            if (!enclosures.isEmpty()) {
+                article.setImageUrl(enclosures.get(0).getUrl());
+            } else {
+                article.setImageUrl("No image available");
+            }
 
             articles.add(article);
         }
