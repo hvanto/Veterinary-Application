@@ -1,21 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
+    <link href="/css/main.css" rel="stylesheet">
     <title>Articles</title>
 </head>
 <body>
-    <h1>Article List</h1>
+    <h1 class="text-3xl w-4/5 m-auto">Article List</h1>
 
     <div th:if="${error}">
         <p th:text="${error}"></p>
     </div>
 
+    <!--
     <ul>
         <li th:each="article : ${articles}">
             <a th:href="${article.link}" target="_blank"
             th:text="${article.title}">Article Title</a>
         </li>
     </ul>
+    -->
+    <div class="flex flex-col items-center">
+        <div th:each="article : ${articles}" class="w-4/5 mb-6 pb-6 border-b border-gray-400 border-opacity-50">
+            <a th:href="${article.link}" target="_blank" class="no-underline">
+                <div class="flex">
+                    <div class="w-1/4">
+                        <img th:src="${article.imageUrl}" alt="Article Image" class="w-full h-auto">
+                    </div>
+                    <div class="flex flex-col justify-between w-3/4 pl-6">
+                        <div>
+                            <h2 th:text="${article.title}" class="font-bold text-2xl mb-2.5"></h2>
+                            <p th:text="${article.description}"></p>
+                        </div>
+                        <div>
+                            <p th:text="${article.author}"></p>
+                            <p th:text="${#dates.format(article.publishedDate, 'dd MMM yyyy')}"></p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 
 </body>
 </html>
