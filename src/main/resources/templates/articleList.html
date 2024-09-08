@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <link href="/css/main.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Articles</title>
 </head>
 <body>
@@ -20,13 +21,13 @@
     </ul>
     -->
     <div class="flex flex-col items-center">
-        <div th:each="article : ${articles}" class="w-4/5 mb-6 pb-6 border-b border-gray-400 border-opacity-50">
+        <div th:each="article : ${articles}" class="flex w-4/5 mb-6 pb-6 border-b border-gray-400 border-opacity-50">
             <a th:href="${article.link}" target="_blank" class="no-underline">
                 <div class="flex">
                     <div class="w-1/4">
                         <img th:src="${article.imageUrl}" alt="Article Image" class="w-full h-auto">
                     </div>
-                    <div class="flex flex-col justify-between w-3/4 pl-6">
+                    <div class="flex flex-col justify-between w-3/4 px-6">
                         <div>
                             <h2 th:text="${article.title}" class="font-bold text-2xl mb-2.5"></h2>
                             <p th:text="${article.description}"></p>
@@ -38,6 +39,17 @@
                     </div>
                 </div>
             </a>
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                </svg>
+            </div>
         </div>
     </div>
 
