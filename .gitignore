@@ -35,3 +35,7 @@ build/
 
 ### Node ###
 node_modules/
+
+
+### Templating ###
+src/main/resources/templates/test.html
