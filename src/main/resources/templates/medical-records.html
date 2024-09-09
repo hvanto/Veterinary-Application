@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records</title>
+    <!-- Link to TailwindCSS compiled stylesheet -->
+    <link href="/static/css/main.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+<div th:fragment="main">
+    <div class="container mx-auto my-10 px-4 max-w-6xl bg-white rounded-lg shadow-lg">
+
+        <!-- If no pet is selected, show pet cards to choose from -->
+        <div th:if="${selectedPet == null}">
+            <div class="text-center py-4">
+                <h2 class="font-bold text-3xl text-gray-800">Select a Pet</h2>
+            </div>
+            <div th:insert="~{fragments/pet-cards :: pet-cards}"></div>
+        </div>
+
+        <!-- If a pet is selected, display its details -->
+        <div th:if="${selectedPet != null}" id="petData" th:attr="data-pet-id=${selectedPet.id}">
+            <div class="text-center py-4">
+                <h2 class="font-bold text-3xl text-gray-800">Medical Records</h2>
+            </div>
+
+            <!-- Pet Card -->
+            <div th:insert="~{fragments/pet-card :: pet-card}"></div>
+
+            <!-- General Health Overview -->
+            <div class="mt-8">
+                <h3 class="font-bold text-xl text-gray-800 cursor-pointer" onclick="toggleSection('generalHealth')">
+                    General Health Overview <i id="generalHealthArrow" class="fas fa-chevron-up"></i>
+                </h3>
+                <div id="generalHealthSection">
+                    <!-- Weight History Section -->
+                    <div th:if="${weightRecords != null && !weightRecords.isEmpty()}" class="mt-8">
+                        <h3 class="font-bold text-xl text-gray-800">Weight History</h3>
+                        <div class="mt-4">
+                            <canvas id="weightChart" class="w-full h-64 bg-gray-50 rounded-lg"></canvas>
+                        </div>
+                    </div>
+
+                    <div th:if="${weightRecords == null || weightRecords.isEmpty()}">
+                        <p class="text-gray-600 mt-2">No weight records available.</p>
+                    </div>
+
+                    <!-- Physical Exams Table -->
+                    <div th:if="${physicalExamList != null && !physicalExamList.isEmpty()}">
+                        <h4 class="font-semibold text-lg mt-4">Physical Exams</h4>
+                        <input type="text" id="physicalExamSearch" placeholder="Search Exams" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('physicalExamTable', 'physicalExamSearch')">
+                        <table id="physicalExamTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                            <thead class="bg-blue-100">
+                            <tr>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('physicalExamTable', 0)">
+                                    Exam Date <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('physicalExamTable', 1)">
+                                    Veterinarian <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('physicalExamTable', 2)">
+                                    Notes <i class="fas fa-sort"></i>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="exam : ${physicalExamList}" class="bg-white hover:bg-gray-100">
+                                <td class="px-6 py-4 border border-gray-300" th:text="${exam.examDate}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${exam.veterinarian}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${exam.notes}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${physicalExamList == null || physicalExamList.isEmpty()}">
+                        <p class="text-gray-600 mt-2">No physical exam history available for this pet.</p>
+                    </div>
+
+                    <!-- Vaccinations Table -->
+                    <div th:if="${vaccinationList != null && !vaccinationList.isEmpty()}">
+                        <h4 class="font-semibold text-lg mt-4">Vaccinations</h4>
+                        <input type="text" id="vaccinationSearch" placeholder="Search Vaccinations" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('vaccinationTable', 'vaccinationSearch')">
+                        <table id="vaccinationTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                            <thead class="bg-blue-100">
+                            <tr>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 0)">
+                                    Vaccine Name <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 1)">
+                                    Vaccination Date <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 2)">
+                                    Administered By <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 3)">
+                                    Next Due Date <i class="fas fa-sort"></i>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="vaccination : ${vaccinationList}" class="bg-white hover:bg-gray-100">
+                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.vaccineName}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.vaccinationDate}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.administeredBy}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.nextDueDate}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${vaccinationList == null || vaccinationList.isEmpty()}">
+                        <p class="text-gray-600 mt-2">No vaccination history available for this pet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical History Section -->
+            <div class="mt-8">
+                <h3 class="font-bold text-xl text-gray-800 cursor-pointer" onclick="toggleSection('medicalHistory')">
+                    Medical History and Treatment Overview <i id="medicalHistoryArrow" class="fas fa-chevron-up"></i>
+                </h3>
+                <div id="medicalHistorySection">
+                    <div th:if="${medicalHistoryList != null && !medicalHistoryList.isEmpty()}">
+                        <h4 class="font-semibold text-lg mt-4">Medical History</h4>
+                        <input type="text" id="medicalHistorySearch" placeholder="Search Medical History" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('medicalHistoryTable', 'medicalHistorySearch')">
+                        <table id="medicalHistoryTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                            <thead class="bg-blue-100">
+                            <tr>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 0)">
+                                    Practitioner <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 1)">
+                                    Treatment <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 2)">
+                                    Veterinarian <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 3)">
+                                    Date <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 4)">
+                                    Notes <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 5)">
+                                    Prescription <i class="fas fa-sort"></i>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="history : ${medicalHistoryList}" class="bg-white hover:bg-gray-100">
+                                <td class="px-6 py-4 border border-gray-300" th:text="${history.practitioner}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${history.treatment}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${history.veterinarian}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${history.eventDate}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${history.notes}"></td>
+                                <td class="px-6 py-4 border border-gray-300">
+                                    <span th:if="${history.prescriptionId != null}">
+                                        <a th:href="@{/prescription/${history.prescriptionId}}" class="text-blue-500">Yes, view details</a>
+                                    </span>
+                                    <span th:if="${history.prescriptionId == null}">
+                                        No Prescription Linked
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${medicalHistoryList == null || medicalHistoryList.isEmpty()}">
+                        <p class="text-gray-600 mt-2">No medical history available for this pet.</p>
+                    </div>
+
+                    <!-- Treatment Plans Section -->
+                    <div th:if="${treatmentPlanList != null && !treatmentPlanList.isEmpty()}">
+                        <h4 class="font-semibold text-lg mt-4">Treatment Plans</h4>
+                        <input type="text" id="treatmentPlanSearch" placeholder="Search Treatment Plans" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('treatmentPlanTable', 'treatmentPlanSearch')">
+                        <table id="treatmentPlanTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                            <thead class="bg-blue-100">
+                            <tr>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 0)">
+                                    Plan Date <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 1)">
+                                    Description <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 2)">
+                                    Practitioner <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 3)">
+                                    Notes <i class="fas fa-sort"></i>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="plan : ${treatmentPlanList}" class="bg-white hover:bg-gray-100">
+                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.planDate}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.description}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.practitioner}"></td>
+                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.notes}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${treatmentPlanList == null || treatmentPlanList.isEmpty()}">
+                        <p class="text-gray-600 mt-2">No treatment plans available for this pet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download and Share Options -->
+            <div class="mt-8 p-6 rounded-lg shadow-md z-10">
+                <h3 class="font-bold text-xl text-gray-800 mb-4">Download and Share Medical Records</h3>
+                <form id="recordActionForm" class="space-y-4">
+                    <input type="hidden" name="selectedPetId" th:value="${selectedPet.id}">
+
+                    <div class="space-y-2">
+                        <label class="block text-blue-600">
+                            <input type="checkbox" name="sections" value="weightRecords" class="mr-2">
+                            Weight Records
+                        </label>
+                        <label class="block text-blue-600">
+                            <input type="checkbox" name="sections" value="physicalExams" class="mr-2">
+                            Physical Exams
+                        </label>
+                        <label class="block text-blue-600">
+                            <input type="checkbox" name="sections" value="vaccinations" class="mr-2">
+                            Vaccination Records
+                        </label>
+                        <label class="block text-blue-600">
+                            <input type="checkbox" name="sections" value="full" checked class="mr-2">
+                            Medical History
+                        </label>
+                        <label class="block text-blue-600">
+                            <input type="checkbox" name="sections" value="treatmentPlans" class="mr-2">
+                            Treatment Plans
+                        </label>
+                    </div>
+
+                    <div class="space-x-4">
+                        <label class="inline-flex items-center text-blue-600">
+                            <input type="radio" name="format" value="pdf" checked class="form-radio text-blue-600">
+                            <span class="ml-2">PDF</span>
+                        </label>
+                        <label class="inline-flex items-center text-blue-600">
+                            <input type="radio" name="format" value="xml" class="form-radio text-blue-600">
+                            <span class="ml-2">XML</span>
+                        </label>
+                    </div>
+
+                    <div class="py-4">
+                        <button type="button" onclick="handleDownload()" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 mx-auto">
+                            Download Medical Records
+                        </button>
+                        <button type="button" onclick="handleShare()" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 mx-auto">
+                            Share Medical Records
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+            <!-- Share Modal -->
+            <div id="shareModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+                    <!-- Modal content -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="font-bold text-xl text-gray-800 mb-4">Share Medical Records</h3>
+                            <form id="shareForm" action="#" method="post" class="space-y-4">
+                                <input type="hidden" name="selectedPetId" th:value="${selectedPet.id}">
+                                <div>
+                                    <label class="block text-blue-600">
+                                        Email Address of Veterinary Professional:
+                                        <input type="email" name="email" class="w-full px-4 py-2 mt-2 border rounded-md" placeholder="example@vet.com" required>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="block text-blue-600">
+                                        Custom Message:
+                                        <textarea name="message" class="w-full px-4 py-2 mt-2 border rounded-md" rows="4" placeholder="Include any additional details..." required></textarea>
+                                    </label>
+                                </div>
+                                <div class="py-4 flex justify-between">
+                                    <button type="submit" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
+                                        Share
+                                    </button>
+                                    <button type="button" onclick="closeShareModal()" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <style>
+        th {
+            white-space: nowrap;
+            text-align: left;
+            padding-right: 1rem;
+        }
+
+        th i {
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+    </style>
+    <!-- Link to FontAwesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve the data-pet-id from the element
+            const selectedPetId = document.getElementById('petData').getAttribute('data-pet-id');
+            console.log("Selected Pet ID:", selectedPetId);
+
+            if (!selectedPetId) {
+                console.error("No pet ID provided.");
+                return;
+            }
+
+            // Fetch weight records for the selected pet
+            function fetchWeightRecords() {
+                const weightRecordsUrl = `/api/weight-records?selectedPetId=${selectedPetId}`;
+
+                axios.get(weightRecordsUrl)
+                    .then(response => {
+                        const weightRecords = response.data;
+
+                        // Log the weight records to ensure the data is correct
+                        console.log("Weight Records:", weightRecords);
+
+                        if (weightRecords.length === 0) {
+                            document.getElementById('noWeightData').style.display = 'block';
+                            return;
+                        }
+
+                        // Process the data for the chart
+                        const dates = weightRecords.map(record => record.recordDate);
+                        const weights = weightRecords.map(record => record.weight);
+
+                        // Display the chart
+                        const ctx = document.getElementById('weightChart').getContext('2d');
+                        drawWeightChart(ctx, dates, weights);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching weight records:", error);
+                    });
+            }
+
+            fetchWeightRecords();
+        });
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId + 'Section');
+            const arrow = document.getElementById(sectionId + 'Arrow');
+            if (section.style.display === "none" || section.style.display === "") {
+                section.style.display = "block";
+                arrow.classList.remove("fa-chevron-down");
+                arrow.classList.add("fa-chevron-up");
+            } else {
+                section.style.display = "none";
+                arrow.classList.remove("fa-chevron-up");
+                arrow.classList.add("fa-chevron-down");
+            }
+        }
+
+        function drawWeightChart(ctx, dates, weights) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Weight Over Time',
+                        data: weights,
+                        borderColor: '#4A90E2',
+                        backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Weight (kg)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filter function for tables
+        function filterTable(tableId, searchInputId) {
+            const input = document.getElementById(searchInputId);
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById(tableId);
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) { // Skip the header row
+                const cells = rows[i].getElementsByTagName('td');
+                let found = false;
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].textContent.toLowerCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+
+        // Sort function for tables by clicking on the column header
+        function sortTableByColumn(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const rows = Array.from(table.rows).slice(1); // Exclude header row
+            const currentSortOrder = table.getAttribute('data-sort-order');
+            const ascending = currentSortOrder === 'asc';
+            const newSortOrder = ascending ? 'desc' : 'asc';
+
+            rows.sort((a, b) => {
+                const cellA = a.cells[columnIndex].textContent.toLowerCase();
+                const cellB = b.cells[columnIndex].textContent.toLowerCase();
+
+                if (cellA < cellB) return ascending ? -1 : 1;
+                if (cellA > cellB) return ascending ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(row => table.appendChild(row));
+            table.setAttribute('data-sort-order', newSortOrder);
+        }
+
+        // Ensure sections are expanded by default
+        document.getElementById('generalHealthSection').style.display = "block";
+        document.getElementById('medicalHistorySection').style.display = "block";
+
+        // Open the share modal
+        function openShareModal() {
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+
+        // Close the share modal
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        // Handle Download Button Click
+        function handleDownload() {
+            document.getElementById('recordActionForm').action = "/download-medical-records";
+            document.getElementById('recordActionForm').submit();
+        }
+
+        // Handle Share Button Click
+        function handleShare() {
+            openShareModal();
+        }
+    </script>
+</div>
+
+</body>
+</html>
