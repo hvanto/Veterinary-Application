@@ -1,6 +1,5 @@
 package au.edu.rmit.sept.webapp.controller;
 
-import au.edu.rmit.sept.webapp.model.ArticleRss;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.service.ArticleService;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,23 +28,14 @@ public class ArticleController {
             return "404"; // Returns a 404 view if the article is not found
         }
     }
-    /*
+
     @GetMapping("/article")
-    public String listAllArticles(Model model) {
+    public String listAllArticles(Model model) throws Exception {
+        // Fetch new RSS articles into the database
+        articleService.fetchRssFeed();
         List<Article> articles = articleService.getAllArticles();
         model.addAttribute("articles", articles);
         return "articleList";
     }
-    */
-    // List articles using RSS feed
-    @GetMapping("/article")
-    public String getArticlesFromRssFeed(Model model) {
-        try {
-            List<ArticleRss> articles = articleService.fetchRssFeed();
-            model.addAttribute("articles", articles);
-        } catch (Exception e) {
-            model.addAttribute("error", "Failed to fetch RSS feed.");
-        }
-        return "articleList";
-    }
+
 }

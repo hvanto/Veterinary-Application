@@ -1,7 +1,6 @@
 package au.edu.rmit.sept.webapp.service;
 
 import au.edu.rmit.sept.webapp.model.Article;
-import au.edu.rmit.sept.webapp.model.ArticleRss;
 import au.edu.rmit.sept.webapp.repository.ArticleRepository;
 
 import com.rometools.rome.feed.synd.SyndEnclosure;
@@ -22,6 +21,8 @@ import java.util.Optional;
 public class ArticleService {
     @Autowired
     private ArticleRepository repository;
+    @Autowired
+    private ArticleRepository articleRepository;
 
     public Optional<Article> getArticleById(Long id) {
         return repository.findById(id);
@@ -32,17 +33,17 @@ public class ArticleService {
     }
 
     // Fetch and parse RSS feed from an external URL
-    public List<ArticleRss> fetchRssFeed() throws Exception {
+    public void fetchRssFeed() throws Exception {
         String testLink = "https://www.petmd.com/feed";
         URL url = new URL(testLink);
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader(url));
 
-        List<ArticleRss> articles = new ArrayList<>();
+        List<Article> articles = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         for (SyndEntry entry : feed.getEntries()) {
-            ArticleRss article = new ArticleRss();
+            Article article = new Article();
             article.setTitle(entry.getTitle());
             article.setLink(entry.getLink());
             article.setAuthor(entry.getAuthor());
@@ -61,9 +62,8 @@ public class ArticleService {
                 article.setImageUrl("No image available");
             }
 
-            articles.add(article);
+            articleRepository.save(article);
         }
 
-        return articles;
     }
 }
