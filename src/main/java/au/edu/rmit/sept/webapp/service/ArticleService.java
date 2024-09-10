@@ -32,8 +32,11 @@ public class ArticleService {
         return repository.findAll();
     }
 
-    // Fetch and parse RSS feed from an external URL
+    // Fetch RSS feed from external URL and save to database
     public void fetchRssFeed() throws Exception {
+        // Delete old RSS feed from the database
+        articleRepository.deleteAll();
+
         String testLink = "https://www.petmd.com/feed";
         URL url = new URL(testLink);
         SyndFeedInput input = new SyndFeedInput();
