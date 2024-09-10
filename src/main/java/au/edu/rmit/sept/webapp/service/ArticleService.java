@@ -9,6 +9,9 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -30,6 +33,13 @@ public class ArticleService {
 
     public List<Article> getAllArticles() {
         return repository.findAll();
+    }
+
+    // Pagination
+    public Page<Article> getArticles(int page) {
+        // Show 10 articles per page
+        Pageable pageable = PageRequest.of(page, 10);
+        return articleRepository.findAll(pageable);
     }
 
     // Fetch RSS feed from external URL and save to database
