@@ -57,5 +57,19 @@
         </div>
     </div>
 
+    <!-- Pagination Controls -->
+    <div class="flex justify-center mb-8">
+        <!-- Get previous page -->
+        <a th:if="${hasPrevious}" th:href="@{/article(page=${currentPage - 1})}">Previous</a>
+
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/article(page=${i})}" th:text="${i + 1}"
+               th:class="${i == currentPage} ? 'text-blue-700 mx-2 underline' : 'mx-2'"></a>
+        </span>
+
+        <!-- Get next page -->
+        <a th:if="${hasNext}" th:href="@{/article(page=${currentPage + 1})}">Next</a>
+    </div>
+
 </body>
 </html>
