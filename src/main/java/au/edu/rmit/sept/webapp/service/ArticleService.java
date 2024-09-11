@@ -15,4 +15,12 @@ public class ArticleService {
     public Optional<Article> getArticleById(Long id) {
         return repository.findById(id);
     }
+
+    public Article saveArticle(Article article) {
+        return repository.save(article);
+    }
+
+    public void deleteArticleById(Long id) {
+        repository.deleteById(id);
+    }
 }
