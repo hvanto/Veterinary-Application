@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "veterinarian")
+public class Veterinarian {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
@@ -21,9 +21,6 @@ public class User {
     private String Image;
 
     private String Password;
-
-    @OneToMany(mappedBy = "user")
-    private List<Appointment> appointments;
 
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -49,12 +46,13 @@ public class User {
     }
 
     // Constructors
-    public User() {}
+    public Veterinarian() {}
 
-    public User(String firstName, String lastName, String email, String password) {
+    public Veterinarian(String firstName, String lastName, String email, String contact, String password) {
         FirstName = firstName;
         LastName = lastName;
         Email = email;
+        Contact = contact;
         Password = password;
     }
 
@@ -125,13 +123,5 @@ public class User {
 
     public void setDeleted(boolean deleted) {
         Deleted = deleted;
-    }
-
-    public List<Appointment> getAppointments() {
-        return appointments;
-    }
-
-    public void setAppointments(List<Appointment> appointments) {
-        this.appointments = appointments;
     }
 }
