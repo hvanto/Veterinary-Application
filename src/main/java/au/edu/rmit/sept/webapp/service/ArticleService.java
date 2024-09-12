@@ -24,11 +24,17 @@ import java.util.Optional;
 public class ArticleService {
     @Autowired
     private ArticleRepository repository;
-    @Autowired
-    private ArticleRepository articleRepository;
 
     public Optional<Article> getArticleById(Long id) {
         return repository.findById(id);
+    }
+
+    public Article saveArticle(Article article) {
+        return repository.save(article);
+    }
+
+    public void deleteArticleById(Long id) {
+        repository.deleteById(id);
     }
 
     public List<Article> getAllArticles() {
@@ -39,13 +45,13 @@ public class ArticleService {
     public Page<Article> getArticles(int page) {
         // Show 10 articles per page
         Pageable pageable = PageRequest.of(page, 10);
-        return articleRepository.findAll(pageable);
+        return repository.findAll(pageable);
     }
 
     // Fetch RSS feed from external URL and save to database
     public void fetchRssFeed() throws Exception {
         // Delete old RSS feed from the database
-        articleRepository.deleteAll();
+        repository.deleteAll();
 
         String testLink = "https://www.petmd.com/feed";
         URL url = new URL(testLink);
@@ -75,8 +81,7 @@ public class ArticleService {
                 article.setImageUrl("No image available");
             }
 
-            articleRepository.save(article);
+            repository.save(article);
         }
-
     }
 }
