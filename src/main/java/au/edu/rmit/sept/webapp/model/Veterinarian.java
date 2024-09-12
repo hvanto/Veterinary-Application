@@ -22,6 +22,18 @@ public class Veterinarian {
 
     private String Password;
 
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    private Clinic clinic;
+
+    @ManyToMany
+    @JoinTable(
+            name = "veterinarian_service",
+            joinColumns = @JoinColumn(name = "veterinarian_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private List<Service> services;
+
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date CreatedOn;

@@ -12,8 +12,8 @@ public class Clinic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @OneToMany(mappedBy = "veterinarian")
-    private List<Veterinarian> veterinarians;
+    @OneToMany(mappedBy = "clinic")
+    private List<Veterinarian> Veterinarians;
 
     private String Name;
     private String Email;
@@ -22,4 +22,87 @@ public class Clinic {
     private Integer OpeningTime;
     private Integer ClosingTime;
     private Integer Contact;
+
+    // Constructors
+    public Clinic() {}
+
+    public Clinic(String name, String email, String address, String location, Integer openingTime, Integer closingTime, Integer contact) {
+        Name = name;
+        Email = email;
+        Address = address;
+        this.location = location;
+        OpeningTime = openingTime;
+        ClosingTime = closingTime;
+        Contact = contact;
+    }
+
+    // Getters and Setters
+
+    public Long getId() {
+        return Id;
+    }
+
+    public List<Veterinarian> getVeterinarians() {
+        return Veterinarians;
+    }
+
+    public void setVeterinarians(List<Veterinarian> veterinarians) {
+        Veterinarians = veterinarians;
+    }
+
+    public String getName() {
+        return Name;
+    }
+
+    public void setName(String name) {
+        Name = name;
+    }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String email) {
+        Email = email;
+    }
+
+    public String getAddress() {
+        return Address;
+    }
+
+    public void setAddress(String address) {
+        Address = address;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Integer getOpeningTime() {
+        return OpeningTime;
+    }
+
+    public void setOpeningTime(Integer openingTime) {
+        OpeningTime = openingTime;
+    }
+
+    public Integer getClosingTime() {
+        return ClosingTime;
+    }
+
+    public void setClosingTime(Integer closingTime) {
+        ClosingTime = closingTime;
+    }
+
+    public Integer getContact() {
+        return Contact;
+    }
+
+    public void setContact(Integer contact) {
+        Contact = contact;
+    }
 }

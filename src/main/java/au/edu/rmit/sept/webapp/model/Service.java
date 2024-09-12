@@ -15,7 +15,7 @@ public class Service {
     private String Title;
     private String Description;
 
-    @ManyToMany(mappedBy = "service")
+    @ManyToMany(mappedBy = "services")  // Refer to the field name in Veterinarian
     private List<Veterinarian> veterinarians;
 
     // Constructors
