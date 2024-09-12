@@ -79,6 +79,18 @@ public class PageResolverController {
         return "index";
     }
 
+    @GetMapping("/signup")
+    public String signup(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "signup");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
 
     /**
      * Returns the correct page based on URL as a fallback

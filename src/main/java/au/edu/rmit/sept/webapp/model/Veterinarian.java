@@ -1,7 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
-
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +20,14 @@ public class Veterinarian {
     private String Image;
 
     private String Password;
+
+    @ManyToMany
+    @JoinTable(
+        name = "veterinarian_service",
+        joinColumns = @JoinColumn(name = "veterinarian_id"),
+        inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private List<Service> services;  // Add this to link to Service entity
 
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -123,5 +130,13 @@ public class Veterinarian {
 
     public void setDeleted(boolean deleted) {
         Deleted = deleted;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Service> services) {
+        this.services = services;
     }
 }

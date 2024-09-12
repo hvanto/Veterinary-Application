@@ -1,8 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
-
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -15,7 +13,7 @@ public class Service {
     private String Title;
     private String Description;
 
-    @ManyToMany(mappedBy = "service")
+    @ManyToMany(mappedBy = "services")  // Updated to match the 'services' field in Veterinarian
     private List<Veterinarian> veterinarians;
 
     // Constructors

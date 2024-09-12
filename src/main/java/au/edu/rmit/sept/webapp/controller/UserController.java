@@ -1,23 +1,30 @@
 package au.edu.rmit.sept.webapp.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-
-
-//IMPORTS OFR USER SERVICE AND USER REPOSITORY
-
-// User Model
 import au.edu.rmit.sept.webapp.model.User;
+import au.edu.rmit.sept.webapp.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/api/users")
 public class UserController {
 
-    // User login
-    @PostMapping("/login")
-    public String login(User user) {
-        // Login logic
+    private final UserService userService;
 
-        // Once user info is recieved, user the user service to authenticate and send to the user table
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
-        return "redirect:/home";
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody User user) {
+        try {
+            // Save user to the database
+            userService.saveUser(user);
+            return ResponseEntity.ok("User signed up successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
