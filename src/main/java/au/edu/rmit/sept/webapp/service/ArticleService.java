@@ -26,12 +26,24 @@ import java.util.Optional;
 @Service
 public class ArticleService {
     @Autowired
-    private ArticleRepository articleRepository;
+    private ArticleRepository repository;
 
     private boolean isFetched = false;
 
     public Optional<Article> getArticleById(Long id) {
-        return articleRepository.findById(id);
+        return repository.findById(id);
+    }
+
+    public void saveArticle(Article article) {
+        repository.save(article);
+    }
+
+    public void deleteArticleById(Long id) {
+        repository.deleteById(id);
+    }
+
+    public List<Article> getAllArticles() {
+        return repository.findAll();
     }
 
     // Pagination
@@ -43,7 +55,7 @@ public class ArticleService {
             }
             // Show 10 articles per page
             Pageable pageable = PageRequest.of(page, 10);
-            return articleRepository.findAll(pageable);
+            return repository.findAll(pageable);
 
         } catch (Exception e) {
             System.err.println("An error occurred while fetching paginated articles: " + e.getMessage());
@@ -59,7 +71,7 @@ public class ArticleService {
         if (!isFetched) {
             try {
                 // Delete old RSS feed from the database
-                articleRepository.deleteAll();
+                repository.deleteAll();
 
                 String testLink = "https://www.petmd.com/feed";
                 URL url = new URL(testLink);
@@ -71,7 +83,7 @@ public class ArticleService {
 
                 for (SyndEntry entry : feed.getEntries()) {
                     Article article = getArticle(entry);
-                    articleRepository.save(article);
+                    repository.save(article);
                 }
                 isFetched = true;
 

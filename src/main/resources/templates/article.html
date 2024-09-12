@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
-    <title th:text="${article.title}">Article</title>
+    <title th:text="${article.title}">Article</title>    
+    <meta http-equiv="refresh" th:attr="content='0; URL=' + ${article.link}">
 </head>
+
 <body>
-    <h1 th:text="${article.title}"></h1>
-    <p th:text="${article.content}"></p>
+    <div>
+        <a th:href="${article.link}" target="_blank" rel="noopener noreferrer">
+            If you are not redirected within a few seconds, click me.
+        </a>
+    </div>
 </body>
+
 </html>

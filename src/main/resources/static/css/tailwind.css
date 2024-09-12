@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.signup-content {
+    height: auto;
+}
+
+.signup-form {
+    background-color: rgb(232, 232, 232);
+    margin: 50px 0;
+}
