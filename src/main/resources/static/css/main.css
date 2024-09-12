@@ -570,7 +570,6 @@ video {
   z-index: 50;
 }
 
-
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
@@ -773,14 +772,6 @@ video {
   align-self: center;
 }
 
-.overflow-x-clip {
-  overflow-x: clip;
-}
-
-.overflow-y-visible {
-  overflow-y: visible;
-}
-
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -810,7 +801,6 @@ video {
 .border-0 {
   border-width: 0px;
 }
-
 
 .border-b {
   border-bottom-width: 1px;
@@ -1265,7 +1255,6 @@ video {
     padding-top: 2rem;
     padding-bottom: 2rem;
   }
-
 }
 
 .rtl\:space-x-reverse:where([dir="rtl"], [dir="rtl"] *) > :not([hidden]) ~ :not([hidden]) {
@@ -1287,5 +1276,4 @@ video {
     --tw-ring-opacity: 1;
     --tw-ring-color: rgb(30 64 175 / var(--tw-ring-opacity));
   }
-
 }
