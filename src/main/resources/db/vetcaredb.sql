@@ -12,3 +12,4 @@ CREATE TABLE articles (
     published_date DATE,
     image_url VARCHAR(255)
 );
+

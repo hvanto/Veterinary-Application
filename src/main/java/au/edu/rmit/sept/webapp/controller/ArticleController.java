@@ -3,6 +3,7 @@ package au.edu.rmit.sept.webapp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -77,5 +78,25 @@ public class ArticleController {
 
         articleService.deleteArticleById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    /*
+    @GetMapping("/article")
+    public String listAllArticles(Model model) throws Exception {
+        // Fetch new RSS articles into the database
+        articleService.fetchRssFeed();
+        List<Article> articles = articleService.getAllArticles();
+        model.addAttribute("articles", articles);
+        return "articleList";
+    }
+    */
+    @GetMapping("/article")
+    public String getArticles(@RequestParam(defaultValue = "0") int page, Model model) {
+        Page<Article> articlePage = articleService.getArticles(page);
+        model.addAttribute("articles", articlePage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", articlePage.getTotalPages());
+        model.addAttribute("hasNext", articlePage.hasNext());
+        model.addAttribute("hasPrevious", articlePage.hasPrevious());
+        return "articleList";
     }
 }

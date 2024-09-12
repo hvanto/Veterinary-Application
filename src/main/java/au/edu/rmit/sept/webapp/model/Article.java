@@ -8,6 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "articles")
@@ -18,8 +21,8 @@ public class Article {
 
     private String title;
     private String link;
-    
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
 
     private String author;
