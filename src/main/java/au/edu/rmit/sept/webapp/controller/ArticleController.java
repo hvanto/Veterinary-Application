@@ -32,6 +32,9 @@ public class ArticleController {
 
     @GetMapping("/article")
     public String getArticles(@RequestParam(defaultValue = "0") int page, Model model) {
+        // Fetch RSS feed only once
+        articleService.fetchRssFeed();
+
         // Get articles from database
         Page<Article> articlePage = articleService.getArticles(page);
 

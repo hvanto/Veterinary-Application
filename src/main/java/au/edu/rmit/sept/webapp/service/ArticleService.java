@@ -28,6 +28,8 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
+    private boolean isFetched = false;
+
     public Optional<Article> getArticleById(Long id) {
         return articleRepository.findById(id);
     }
@@ -53,36 +55,39 @@ public class ArticleService {
 
     // Fetch RSS feed from external URL and save to database
     public void fetchRssFeed() {
-        try {
-            // Delete old RSS feed from the database
-            articleRepository.deleteAll();
+        // Fetch RSS feed only once
+        if (!isFetched) {
+            try {
+                // Delete old RSS feed from the database
+                articleRepository.deleteAll();
 
-            String testLink = "https://www.petmd.com/feed";
-            URL url = new URL(testLink);
-            SyndFeedInput input = new SyndFeedInput();
-            SyndFeed feed = input.build(new XmlReader(url));
+                String testLink = "https://www.petmd.com/feed";
+                URL url = new URL(testLink);
+                SyndFeedInput input = new SyndFeedInput();
+                SyndFeed feed = input.build(new XmlReader(url));
 
-            List<Article> articles = new ArrayList<>();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                List<Article> articles = new ArrayList<>();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-            for (SyndEntry entry : feed.getEntries()) {
-                Article article = getArticle(entry);
-                articleRepository.save(article);
+                for (SyndEntry entry : feed.getEntries()) {
+                    Article article = getArticle(entry);
+                    articleRepository.save(article);
+                }
+                isFetched = true;
+
+            } catch (MalformedURLException e) {
+                System.err.println("The URL is malformed: " + e.getMessage());
+
+            } catch (FeedException e) {
+                System.err.println("Error parsing the RSS feed: " + e.getMessage());
+
+            } catch (IOException e) {
+                System.err.println("Error fetching the RSS feed: " + e.getMessage());
+
+            } catch (Exception e) {
+                System.err.println("An unexpected error occurred: " + e.getMessage());
             }
-
-        } catch (MalformedURLException e) {
-            System.err.println("The URL is malformed: " + e.getMessage());
-
-        } catch (FeedException e) {
-            System.err.println("Error parsing the RSS feed: " + e.getMessage());
-
-        } catch (IOException e) {
-            System.err.println("Error fetching the RSS feed: " + e.getMessage());
-
-        } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
-
     }
 
     private static Article getArticle(SyndEntry entry) {
