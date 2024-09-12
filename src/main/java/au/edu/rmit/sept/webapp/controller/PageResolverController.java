@@ -91,6 +91,18 @@ public class PageResolverController {
         return "index";
     }
 
+    @GetMapping("/login")
+    public String login(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "login");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
 
     /**
      * Returns the correct page based on URL as a fallback

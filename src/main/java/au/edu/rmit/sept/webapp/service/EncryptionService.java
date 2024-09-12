@@ -12,4 +12,9 @@ public class EncryptionService {
     public String encryptPassword(String plainPassword) {
         return passwordEncoder.encode(plainPassword);
     }
+
+    // Method to check if the plain password matches the hashed password
+    public boolean matchesPassword(String plainPassword, String hashedPassword) {
+        return passwordEncoder.matches(plainPassword, hashedPassword);
+    }
 }
