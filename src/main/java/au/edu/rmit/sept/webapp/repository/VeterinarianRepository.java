@@ -1,4 +1,4 @@
 package au.edu.rmit.sept.webapp.repository;
 
-public interface UserRepository {
+public interface VeterinarianRepository {
 }
