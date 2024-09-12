@@ -1,39 +1,44 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
-
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String firstName;
     private String lastName;
-
-    @Column(unique = true)
     private String email;
-
     private String password;
+    private String contact;
 
-    @ElementCollection
-    @CollectionTable(name = "connected_accounts", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "account")
-    private List<String> connectedAccounts;
+    private String image;
 
-    @Column(name = "created_on", updatable = false)
+    @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedOn;
 
     private boolean deleted;
 
     @PrePersist
     protected void onCreate() {
-        createdOn = new Date();
+        this.createdOn = new Date();
+        this.updatedOn = new Date();
+        this.image = "default_profile.png";  // Default image path
+        this.deleted = false;  // Default status is not deleted
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedOn = new Date();
     }
 
     // Getters and Setters
@@ -73,20 +78,28 @@ public class User {
         this.password = password;
     }
 
-    public List<String> getConnectedAccounts() {
-        return connectedAccounts;
+    public String getContact() {
+        return contact;
     }
 
-    public void setConnectedAccounts(List<String> connectedAccounts) {
-        this.connectedAccounts = connectedAccounts;
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public Date getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
+    public Date getUpdatedOn() {
+        return updatedOn;
     }
 
     public boolean isDeleted() {
