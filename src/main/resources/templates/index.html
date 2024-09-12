@@ -1,16 +1,35 @@
 <!doctype html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <title>My Page Title</title>
-    <meta name="description" content="My Page Description">
+    <head>
+        <meta charset="utf-8">
+        <title>My Page Title</title>
+        <meta name="description" content="My Page Description">
 
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-<!--    <link rel="stylesheet" href="/css/main.css">-->
-</head>
-<body class="min-w-full min-h-full">
-    <div>
-        <h1 class="font-extrabold text-5xl">Main Page</h1>
-    </div>
-</body>
+        <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+        <script type="text/javascript" th:src="@{/js/alpine.js}"></script>
+        <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
+    </head>
+    <body class="min-w-full min-h-full">
+        <div th:insert="~{fragments/header :: header}"></div>
+
+        <div th:insert="~{fragments/navigation :: navigation}"></div>
+
+        <h1 x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></h1>
+        <br>
+        <p>Current Page</p>
+        <p th:text="${content}"></p>
+        <br>
+        <p>Current URL</p>
+        <p th:text="${url}"></p>
+        <br>
+        <p>Query String (eg. key=value)</p>
+        <p th:text="${queryString}"></p>
+        <br>
+        <div id="main">
+            <div th:insert="~{${content} :: main}"></div>
+        </div>
+
+        <div th:insert="~{fragments/footer :: footer}"></div>
+    </body>
+</html>
