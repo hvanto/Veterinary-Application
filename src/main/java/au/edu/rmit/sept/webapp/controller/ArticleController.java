@@ -26,27 +26,26 @@ public class ArticleController {
             model.addAttribute("article", article.get());
             return "article"; // Returns the view named "article"
         } else {
-            return "404"; // Returns a 404 view if the article is not found
+            return "pageNotFound"; // Returns a 404 view if the article is not found
         }
     }
-    /*
-    @GetMapping("/article")
-    public String listAllArticles(Model model) throws Exception {
-        // Fetch new RSS articles into the database
-        articleService.fetchRssFeed();
-        List<Article> articles = articleService.getAllArticles();
-        model.addAttribute("articles", articles);
-        return "articleList";
-    }
-    */
+
     @GetMapping("/article")
     public String getArticles(@RequestParam(defaultValue = "0") int page, Model model) {
+        // Get articles from database
         Page<Article> articlePage = articleService.getArticles(page);
+
         model.addAttribute("articles", articlePage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
+
+        // Return page not found if article page is empty
+        if (articlePage.isEmpty()) {
+            return "pageNotFound";
+        }
+
         return "articleList";
     }
 
