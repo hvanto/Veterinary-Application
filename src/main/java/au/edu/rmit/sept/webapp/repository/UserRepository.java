@@ -1,4 +1,8 @@
 package au.edu.rmit.sept.webapp.repository;
 
-public interface UserRepository {
+import au.edu.rmit.sept.webapp.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    // Custom query methods if needed
 }

@@ -1,4 +1,8 @@
 package au.edu.rmit.sept.webapp.repository;
 
-public interface AppointmentRepository {
+import au.edu.rmit.sept.webapp.model.Appointment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+    // Custom query methods if needed
 }
