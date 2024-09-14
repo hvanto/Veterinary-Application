@@ -22,6 +22,8 @@
         </button>
     </form>
 
+    <h2 th:if="${isEmpty}" class="text-3xl font-bold center text-center">No results found.</h2>
+
     <div class="flex flex-col items-center">
         <div th:each="article : ${articles}" class="flex lg:flex-row sm:flex-col lg:w-4/5 sm:w-11/12 mb-6 pb-6 border-b border-gray-400 border-opacity-50">
             <a th:href="${article.link}" target="_blank" class="no-underline">
@@ -83,7 +85,7 @@
         </span>
 
         <!-- Display page numbers for search result -->
-        <span th:if="${keyword != null}"
+        <span th:if="${keyword != null && !isEmpty}"
               th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
             <a th:href="@{/article/search(page=${i}, keyword=${keyword})}" th:text="${i + 1}"
                th:class="${i == currentPage} ? 'text-blue-700 mx-2 underline' : 'mx-2'"></a>

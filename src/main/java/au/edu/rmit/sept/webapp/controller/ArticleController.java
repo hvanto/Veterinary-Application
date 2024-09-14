@@ -95,7 +95,6 @@ public class ArticleController {
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
-        //model.addAttribute("keyword", keyword);
 
         // Return page not found if article page is empty
         if (articlePage.isEmpty()) {
@@ -120,12 +119,7 @@ public class ArticleController {
         model.addAttribute("hasNext", searchResult.hasNext());
         model.addAttribute("hasPrevious", searchResult.hasPrevious());
         model.addAttribute("keyword", keyword);
-
-
-        if (searchResult.isEmpty()) {
-            model.addAttribute("content", "pageNotFound");
-            return "index";
-        }
+        model.addAttribute("isEmpty", searchResult.isEmpty());
 
         model.addAttribute("content","articleList");
         return "index";
