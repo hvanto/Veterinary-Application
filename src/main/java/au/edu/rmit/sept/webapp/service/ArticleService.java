@@ -29,6 +29,10 @@ public class ArticleService {
         return repository.findById(id);
     }
 
+    public Optional<Article> getArticleByLink(String link) {
+        return repository.findByLink(link);
+    }
+
     public Article saveArticle(Article article) {
         return repository.save(article);
     }
@@ -39,6 +43,11 @@ public class ArticleService {
 
     public List<Article> getAllArticles() {
         return repository.findAll();
+    }
+
+    // Check if an article exists by link
+    public boolean articleExists(String link) {
+        return repository.findByLink(link).isPresent();
     }
 
     // Pagination
