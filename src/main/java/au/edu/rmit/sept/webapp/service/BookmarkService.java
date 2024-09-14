@@ -3,12 +3,14 @@ package au.edu.rmit.sept.webapp.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.model.Bookmark;
 import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.repository.BookmarkRepository;
 
+@Service
 public class BookmarkService {
     @Autowired
     private BookmarkRepository bookmarkRepository;
