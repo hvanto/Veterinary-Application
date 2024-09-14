@@ -20,6 +20,7 @@ import au.edu.rmit.sept.webapp.service.ArticleService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.print.DocFlavor.STRING;
@@ -106,6 +107,15 @@ public class ArticleController {
             return "index";
         }
 
+        model.addAttribute("content","articleList");
+        return "index";
+    }
+
+    @GetMapping("/article/search")
+    public String searchArticles(@RequestParam("keyword") String keyword, Model model) {
+        List<Article> articles = articleService.searchArticles(keyword);
+        System.out.println(articles.get(0).getTitle());
+        model.addAttribute("articles", articles);
         model.addAttribute("content","articleList");
         return "index";
     }

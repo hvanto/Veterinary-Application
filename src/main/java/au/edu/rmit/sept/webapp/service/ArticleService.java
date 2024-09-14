@@ -125,4 +125,8 @@ public class ArticleService {
 
         return article;
     }
+
+    public List<Article> searchArticles(String keyword) {
+        return repository.searchArticlesByKeyword(keyword);
+    }
 }
