@@ -2,6 +2,8 @@ package au.edu.rmit.sept.webapp.repository;
 
 
 import au.edu.rmit.sept.webapp.model.Article;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,5 +17,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             "OR LOWER(description) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(author) LIKE LOWER(CONCAT('%', :keyword, '%'))",
             nativeQuery = true)
-    List<Article> searchArticlesByKeyword(@Param("keyword") String keyword);
+    Page<Article> searchArticlesByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

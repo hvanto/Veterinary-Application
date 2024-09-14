@@ -83,12 +83,7 @@ public class ArticleController {
     }
 
     @GetMapping("/article")
-    public String getArticlesPage(@RequestParam(defaultValue = "0") int page, HttpServletRequest request, Model model) {
-        String requestURL = request.getRequestURL().toString();
-        String queryString = request.getQueryString();
-        model.addAttribute("url", requestURL);
-        model.addAttribute("queryString", queryString);
-
+    public String getArticlesPage(@RequestParam(defaultValue = "0") int page, Model model) {
         // Fetch RSS feed only once
         articleService.fetchRssFeed();
 
@@ -100,6 +95,7 @@ public class ArticleController {
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
+        //model.addAttribute("keyword", keyword);
 
         // Return page not found if article page is empty
         if (articlePage.isEmpty()) {
@@ -112,10 +108,25 @@ public class ArticleController {
     }
 
     @GetMapping("/article/search")
-    public String searchArticles(@RequestParam("keyword") String keyword, Model model) {
-        List<Article> articles = articleService.searchArticles(keyword);
-        System.out.println(articles.get(0).getTitle());
-        model.addAttribute("articles", articles);
+    public String searchArticles(@RequestParam("keyword") String keyword,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 Model model) {
+        // Search articles by keywords
+        Page<Article> searchResult = articleService.getSearchResult(keyword, page);
+
+        model.addAttribute("articles", searchResult);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", searchResult.getTotalPages());
+        model.addAttribute("hasNext", searchResult.hasNext());
+        model.addAttribute("hasPrevious", searchResult.hasPrevious());
+        model.addAttribute("keyword", keyword);
+
+
+        if (searchResult.isEmpty()) {
+            model.addAttribute("content", "pageNotFound");
+            return "index";
+        }
+
         model.addAttribute("content","articleList");
         return "index";
     }
