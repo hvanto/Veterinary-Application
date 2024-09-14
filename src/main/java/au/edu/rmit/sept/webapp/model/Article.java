@@ -29,6 +29,17 @@ public class Article {
     private Date publishedDate;
     private String imageUrl;
 
+    public Article() {}
+
+    public Article(String title, String link, String description, String author, Date publishedDate, String imageUrl) {
+        this.title = title;
+        this.link = link;
+        this.description = description;
+        this.author = author;
+        this.publishedDate = publishedDate;
+        this.imageUrl = imageUrl;
+    }
+
     public String getLink() {
         return link;
     }
