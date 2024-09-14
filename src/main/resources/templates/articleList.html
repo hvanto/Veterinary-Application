@@ -73,7 +73,7 @@
 
         <!-- Get previous page for search result -->
         <a th:if="${hasPrevious && keyword != null}"
-           th:href="@{/article/search(page=${currentPage + 1}, keyword=${keyword})}">
+           th:href="@{/article/search(page=${currentPage - 1}, keyword=${keyword})}">
             Previous
         </a>
 
