@@ -10,11 +10,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import au.edu.rmit.sept.webapp.model.Article;
+import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.service.ArticleService;
+import au.edu.rmit.sept.webapp.service.BookmarkService;
+import au.edu.rmit.sept.webapp.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,7 +33,11 @@ import javax.print.DocFlavor.STRING;
 public class ArticleController {
 
     @Autowired
+    private UserService userService;
+    @Autowired
     private ArticleService articleService;
+    @Autowired
+    private BookmarkService bookmarkService;
 
     @GetMapping("/article/{id}")
     public String getArticleById(@PathVariable("id") Long id, Model model) {
@@ -51,7 +61,7 @@ public class ArticleController {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
-        
+
         try {
             date = dateFormat.parse(publishedDate);
         } catch (ParseException e) {
@@ -63,8 +73,8 @@ public class ArticleController {
         article.setLink(link);
         article.setAuthor(author);
         article.setPublishedDate(date);
-        
-        //TODO: make them optional
+
+        // TODO: make them optional
         article.setDescription(description);
         article.setImageUrl(imageUrl);
 
@@ -79,16 +89,16 @@ public class ArticleController {
         articleService.deleteArticleById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-    /*
-    @GetMapping("/article")
-    public String listAllArticles(Model model) throws Exception {
-        // Fetch new RSS articles into the database
-        articleService.fetchRssFeed();
-        List<Article> articles = articleService.getAllArticles();
-        model.addAttribute("articles", articles);
-        return "articleList";
-    }
-    */
+
+    // @GetMapping("/article")
+    // public String listAllArticles(Model model) throws Exception {
+    //     // Fetch new RSS articles into the database
+    //     articleService.fetchRssFeed();
+    //     List<Article> articles = articleService.getAllArticles();
+    //     model.addAttribute("articles", articles);
+    //     return "articleList";
+    // }
+
     @GetMapping("/article")
     public String getArticles(@RequestParam(defaultValue = "0") int page, Model model) {
         Page<Article> articlePage = articleService.getArticles(page);
@@ -98,5 +108,27 @@ public class ArticleController {
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
         return "articleList";
+    }
+
+    @PostMapping("/addBookmark")
+    public ResponseEntity<String> addBookmark(@RequestBody Article requestArticle) {
+        Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
+        Article article = null;
+
+        if (existingArticle.isPresent()) {
+            article = existingArticle.get();
+        } else {
+            // Add article to db if does not already present
+            article = articleService.saveArticle(article);
+        }
+
+        try {
+            // TODO: retrieve user by userId from cookie
+            User user = userService.findFirst().get();
+            bookmarkService.addBookmark(user, article);
+            return ResponseEntity.ok("Bookmark added successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
