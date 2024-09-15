@@ -7,7 +7,7 @@
     <title>Articles</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        function addBookmark(title, link, author, publishedDate, description, imageUrl) {
+        function addBookmark(caller, title, link, author, publishedDate, description, imageUrl) {
             // Construct the article object
             const article = {
                 title: title,
@@ -18,10 +18,22 @@
                 imageUrl: imageUrl
             };
 
-            axios.post('/addBookmark', article)
-                .catch(function (error) {
-                    console.error(error.response.data);
-                });
+            // Toggle between fill states
+            if (caller.getAttribute("fill") === "none") {
+                caller.setAttribute("fill", "solid");
+
+                axios.post('/addBookmark', article)
+                    .catch(function (error) {
+                        console.error(error.response.data);
+                    });
+            } else {
+                caller.setAttribute("fill", "none");
+
+                axios.post('/removeBookmark', article)
+                    .catch(function (error) {
+                        console.error(error.response.data);
+                    });
+            }
         }
     </script>
 </head>
@@ -70,7 +82,8 @@
             <div class="flex lg:flex-col sm:flex-row">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-6 mb-1.5"
-                    th:attr="onclick=|addBookmark('${article.title}', '${article.link}', '${article.author}', '${#dates.format(article.publishedDate, 'yyyy-MM-dd')}', '${article.description}', '${article.imageUrl}')|">
+                    th:attr="fill=${bookmarks.contains(article.link) ? 'solid' : 'none'},
+                             onclick=|addBookmark(this, '${article.title}', '${article.link}', '${article.author}', '${#dates.format(article.publishedDate, 'yyyy-MM-dd')}', '${article.description}', '${article.imageUrl}')|">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                 </svg>
