@@ -1,6 +1,5 @@
 package au.edu.rmit.sept.webapp.model;
 
-import au.edu.rmit.sept.webapp.enums.Weekday;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -21,12 +20,12 @@ public class Clinic {
     private String location;
     private Integer OpeningTime;
     private Integer ClosingTime;
-    private Integer Contact;
+    private Long Contact;
 
     // Constructors
     public Clinic() {}
 
-    public Clinic(String name, String email, String address, String location, Integer openingTime, Integer closingTime, Integer contact) {
+    public Clinic(String name, String email, String address, String location, Integer openingTime, Integer closingTime, Long contact) {
         Name = name;
         Email = email;
         Address = address;
@@ -98,11 +97,11 @@ public class Clinic {
         ClosingTime = closingTime;
     }
 
-    public Integer getContact() {
+    public Long getContact() {
         return Contact;
     }
 
-    public void setContact(Integer contact) {
+    public void setContact(Long contact) {
         Contact = contact;
     }
 }
