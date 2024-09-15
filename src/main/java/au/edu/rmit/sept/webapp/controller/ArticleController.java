@@ -19,15 +19,13 @@ import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.service.ArticleService;
 import au.edu.rmit.sept.webapp.service.BookmarkService;
 import au.edu.rmit.sept.webapp.service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
-
-import javax.print.DocFlavor.STRING;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class ArticleController {
@@ -92,17 +90,24 @@ public class ArticleController {
 
     // @GetMapping("/article")
     // public String listAllArticles(Model model) throws Exception {
-    //     // Fetch new RSS articles into the database
-    //     articleService.fetchRssFeed();
-    //     List<Article> articles = articleService.getAllArticles();
-    //     model.addAttribute("articles", articles);
-    //     return "articleList";
+    // // Fetch new RSS articles into the database
+    // articleService.fetchRssFeed();
+    // List<Article> articles = articleService.getAllArticles();
+    // model.addAttribute("articles", articles);
+    // return "articleList";
     // }
 
     @GetMapping("/article")
     public String getArticles(@RequestParam(defaultValue = "0") int page, Model model) {
+        // TODO: retrieve user by userId from cookie
+        User user = userService.findFirst().get();
+        Set<String> bookmarks = bookmarkService.findByUser(user).stream()
+                .map(bookmark -> bookmark.getArticle().getLink())
+                .collect(Collectors.toSet());
+
         Page<Article> articlePage = articleService.getArticles(page);
         model.addAttribute("articles", articlePage);
+        model.addAttribute("bookmarks", bookmarks);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
@@ -126,6 +131,27 @@ public class ArticleController {
             // TODO: retrieve user by userId from cookie
             User user = userService.findFirst().get();
             bookmarkService.addBookmark(user, article);
+            return ResponseEntity.ok("Bookmark added successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/removeBookmark")
+    public ResponseEntity<String> removeBookmark(@RequestBody Article requestArticle) {
+        Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
+        Article article = null;
+
+        try {
+            article = existingArticle.get();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        try {
+            // TODO: retrieve user by userId from cookie
+            User user = userService.findFirst().get();
+            bookmarkService.removeBookmark(user, article);
             return ResponseEntity.ok("Bookmark added successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
