@@ -11,6 +11,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
+import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class ArticleRepositoryTests {
@@ -25,11 +29,11 @@ public class ArticleRepositoryTests {
 
         // Add custom test data
         Article article1 = new Article("Lorem Ipsum", "https://somelink.com",
-                                    "Dolor amet", "Nullam Volutpat", new Date(),
-                                    "https://imagelink.com");
+                                    "Dolor amet", "Nullam Volutpat",
+                                        new Date(), "https://imagelink.com");
         Article article2 = new Article("Curabitur non justo", "https://somelink.com",
-                                    "Congue tristique", "Donec Maximus", new Date(),
-                                    "https://imagelink.com");
+                                    "Congue tristique", "Donec Maximus",
+                                        new Date(), "https://imagelink.com");
 
         articleRepository.save(article1);
         articleRepository.save(article2);
@@ -42,10 +46,10 @@ public class ArticleRepositoryTests {
          Page<Article> searchResult1 = articleRepository.searchArticlesByKeyword("Curabitur", pageable);
          Page<Article> searchResult2 = articleRepository.searchArticlesByKeyword("abitur", pageable);
 
-        assert(searchResult1.getTotalElements() == 1);
-        assert(searchResult1.getContent().get(0).getTitle().equals("Curabitur non justo"));
-        assert(searchResult2.getTotalElements() == 1);
-        assert(searchResult2.getContent().get(0).getTitle().equals("Curabitur non justo"));
+        assertEquals(1, searchResult1.getTotalElements());
+        assertEquals("Curabitur non justo", searchResult1.getContent().get(0).getTitle());
+        assertEquals(1, searchResult2.getTotalElements());
+        assertEquals("Curabitur non justo", searchResult2.getContent().get(0).getTitle());
 
     }
 
@@ -56,10 +60,10 @@ public class ArticleRepositoryTests {
         Page<Article> searchResult1 = articleRepository.searchArticlesByKeyword("dolor amet", pageable);
         Page<Article> searchResult2 = articleRepository.searchArticlesByKeyword("doLoR a", pageable);
 
-        assert(searchResult1.getTotalElements() == 1);
-        assert(searchResult1.getContent().get(0).getDescription().equals("Dolor amet"));
-        assert(searchResult2.getTotalElements() == 1);
-        assert(searchResult2.getContent().get(0).getDescription().equals("Dolor amet"));
+        assertEquals(1,searchResult1.getTotalElements());
+        assertEquals("Dolor amet", searchResult1.getContent().get(0).getDescription());
+        assertEquals(1,searchResult2.getTotalElements());
+        assertEquals("Dolor amet", searchResult2.getContent().get(0).getDescription());
     }
 
     @Test
@@ -69,10 +73,10 @@ public class ArticleRepositoryTests {
         Page<Article> searchResult1 = articleRepository.searchArticlesByKeyword("Nullam", pageable);
         Page<Article> searchResult2 = articleRepository.searchArticlesByKeyword("am volut", pageable);
 
-        assert(searchResult1.getTotalElements() == 1);
-        assert(searchResult1.getContent().get(0).getAuthor().equals("Nullam Volutpat"));
-        assert(searchResult2.getTotalElements() == 1);
-        assert(searchResult2.getContent().get(0).getAuthor().equals("Nullam Volutpat"));
+        assertEquals(1,searchResult1.getTotalElements());
+        assertEquals("Nullam Volutpat",searchResult1.getContent().get(0).getAuthor());
+        assertEquals(1,searchResult2.getTotalElements());
+        assertEquals("Nullam Volutpat",searchResult2.getContent().get(0).getAuthor());
     }
 
     @Test
@@ -81,7 +85,55 @@ public class ArticleRepositoryTests {
 
         Page<Article> searchResult = articleRepository.searchArticlesByKeyword("asdfghjkl", pageable);
 
-        assert(searchResult.getTotalElements() == 0);
+        assertEquals(0, searchResult.getTotalElements());
+    }
+
+    @Test
+    public void testSearchArticlesByKeyword_LargeDataset() {
+        Pageable pageable = PageRequest.of(0,10);
+
+        // Generate 1000 random articles and store in database
+        for (int i = 0; i < 1000; i++) {
+            Article article = new Article(randomStringGenerator(40),
+                                        "https://somelink.com",
+                                            randomStringGenerator(150),
+                                            randomStringGenerator(20),
+                                            new Date(),
+                                    "https://imagelink.com");
+
+            articleRepository.save(article);
+        }
+
+        // Start timer
+        long startTime = System.currentTimeMillis();
+
+        // Perform search
+        Page<Article> searchResult = articleRepository.searchArticlesByKeyword("Lorem Ipsum", pageable);
+
+        // End timer
+        long endTime = System.currentTimeMillis();
+
+        // Calculate duration
+        long duration = endTime - startTime;
+
+        // Ensure that search takes less than one second
+        assertTrue(duration < 1000, "Search took longer than 1 second: " + duration + "ms");
+        assertEquals(1, searchResult.getTotalElements());
+
+    }
+
+    public static String randomStringGenerator(int length) {
+        final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ";
+        final Random RANDOM = new Random();
+
+        StringBuilder sb = new StringBuilder(length);
+
+        for (int i = 0; i < length; i++) {
+            int index = RANDOM.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(index));
+        }
+
+        return sb.toString();
     }
 
 }
