@@ -14,19 +14,23 @@ public class VeterinarianService {
         this.veterinarianRepository = veterinarianRepository;
     }
 
-    public List<Veterinarian> findAll() {
+    public List<Veterinarian> getAllVeterinarians() {
         return veterinarianRepository.findAll();
     }
 
-    public Optional<Veterinarian> findById(Long id) {
+    public List<Veterinarian> getVeterinariansByClinicId(Long clinicId) {
+        return veterinarianRepository.findAllByClinic_Id(clinicId);
+    }
+
+    public List<Veterinarian> getVeterinariansByServiceId(Long serviceId) {
+        return veterinarianRepository.findAllByServices_Id(serviceId);
+    }
+
+    public List<Veterinarian> getVeterinariansByClinicIdAndServiceId(Long clinicId, Long serviceId) {
+        return veterinarianRepository.findAllByClinic_IdAndServices_Id(clinicId, serviceId);
+    }
+
+    public Optional<Veterinarian> getVeterinarianById(Long id) {
         return veterinarianRepository.findById(id);
-    }
-
-    public Veterinarian save(Veterinarian veterinarian) {
-        return veterinarianRepository.save(veterinarian);
-    }
-
-    public void delete(Long id) {
-        veterinarianRepository.deleteById(id);
     }
 }

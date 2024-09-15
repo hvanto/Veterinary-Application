@@ -1,6 +1,9 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.List;
 
@@ -12,6 +15,7 @@ public class Clinic {
     private Long Id;
 
     @OneToMany(mappedBy = "clinic")
+    @Fetch(FetchMode.JOIN)
     private List<Veterinarian> Veterinarians;
 
     private String Name;

@@ -1,6 +1,8 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.Date;
 import java.util.List;
@@ -15,7 +17,8 @@ public class Service {
     private String Title;
     private String Description;
 
-    @ManyToMany(mappedBy = "services")  // Refer to the field name in Veterinarian
+    @ManyToMany(mappedBy = "services")
+    @Fetch(FetchMode.JOIN)
     private List<Veterinarian> veterinarians;
 
     // Constructors
