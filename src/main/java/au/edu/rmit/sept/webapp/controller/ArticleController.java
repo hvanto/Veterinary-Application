@@ -1,5 +1,6 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +74,7 @@ public class ArticleController {
         article.setAuthor(author);
         article.setPublishedDate(date);
 
-        // TODO: make them optional
+        //TODO: make them optional
         article.setDescription(description);
         article.setImageUrl(imageUrl);
 
@@ -89,31 +90,40 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // @GetMapping("/article")
-    // public String listAllArticles(Model model) throws Exception {
-    // // Fetch new RSS articles into the database
-    // articleService.fetchRssFeed();
-    // List<Article> articles = articleService.getAllArticles();
-    // model.addAttribute("articles", articles);
-    // return "articleList";
-    // }
-
     @GetMapping("/article")
-    public String getArticles(@RequestParam(defaultValue = "0") int page, Model model) {
+    public String getArticlesPage(@RequestParam(defaultValue = "0") int page, HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
         // TODO: retrieve user by userId from cookie
         User user = userService.findFirst().get();
         Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
                 .map(bookmark -> bookmark.getArticle().getLink())
                 .collect(Collectors.toSet());
 
+        // Fetch RSS feed only once
+        articleService.fetchRssFeed();
+
+        // Get articles from database
         Page<Article> articlePage = articleService.getArticles(page);
+
         model.addAttribute("articles", articlePage);
         model.addAttribute("bookmarks", bookmarks);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
-        return "articleList";
+
+        // Return page not found if article page is empty
+        if (articlePage.isEmpty()) {
+            model.addAttribute("content", "pageNotFound");
+            return "index";
+        }
+
+        model.addAttribute("content","articleList");
+        return "index";
     }
 
     @GetMapping("/bookmark")
