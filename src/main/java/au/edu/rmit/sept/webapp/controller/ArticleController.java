@@ -11,24 +11,33 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import au.edu.rmit.sept.webapp.model.Article;
+import au.edu.rmit.sept.webapp.model.Bookmark;
+import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.service.ArticleService;
+import au.edu.rmit.sept.webapp.service.BookmarkService;
+import au.edu.rmit.sept.webapp.service.UserService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
-
-import javax.print.DocFlavor.STRING;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class ArticleController {
 
     @Autowired
+    private UserService userService;
+    @Autowired
     private ArticleService articleService;
+    @Autowired
+    private BookmarkService bookmarkService;
 
     @GetMapping("/article/{id}")
     public String getArticleById(@PathVariable("id") Long id, Model model) {
@@ -88,6 +97,12 @@ public class ArticleController {
         model.addAttribute("url", requestURL);
         model.addAttribute("queryString", queryString);
 
+        // TODO: retrieve user by userId from cookie
+        User user = userService.findFirst().get();
+        Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
+                .map(bookmark -> bookmark.getArticle().getLink())
+                .collect(Collectors.toSet());
+
         // Fetch RSS feed only once
         articleService.fetchRssFeed();
 
@@ -95,6 +110,7 @@ public class ArticleController {
         Page<Article> articlePage = articleService.getArticles(page);
 
         model.addAttribute("articles", articlePage);
+        model.addAttribute("bookmarks", bookmarks);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
@@ -108,5 +124,72 @@ public class ArticleController {
 
         model.addAttribute("content","articleList");
         return "index";
+    }
+
+    @GetMapping("/bookmark")
+    public String getBookmarks(@RequestParam(defaultValue = "0") int page, Model model) {
+        // TODO: Retrieve the user from the session or authentication context
+        User user = userService.findFirst().get();
+    
+        // Fetch paginated bookmarked articles
+        Page<Article> articlePage = bookmarkService.findByUser(user, page).map(Bookmark::getArticle);
+    
+        // Prepare the set of bookmarked article links (for display purposes)
+        Set<String> bookmarks = articlePage.getContent().stream()
+                .map(Article::getLink)
+                .collect(Collectors.toSet());
+    
+        // Add attributes to the model
+        model.addAttribute("articles", articlePage);
+        model.addAttribute("bookmarks", bookmarks);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", articlePage.getTotalPages());
+        model.addAttribute("hasNext", articlePage.hasNext());
+        model.addAttribute("hasPrevious", articlePage.hasPrevious());
+    
+        return "articleList";
+    }
+
+    @PostMapping("/addBookmark")
+    public ResponseEntity<String> addBookmark(@RequestBody Article requestArticle) {
+        Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
+        Article article = null;
+
+        if (existingArticle.isPresent()) {
+            article = existingArticle.get();
+        } else {
+            // Add article to db if does not already present
+            article = articleService.saveArticle(article);
+        }
+
+        try {
+            // TODO: retrieve user by userId from cookie
+            User user = userService.findFirst().get();
+            bookmarkService.addBookmark(user, article);
+            return ResponseEntity.ok("Bookmark added successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/removeBookmark")
+    public ResponseEntity<String> removeBookmark(@RequestBody Article requestArticle) {
+        Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
+        Article article = null;
+
+        try {
+            article = existingArticle.get();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        try {
+            // TODO: retrieve user by userId from cookie
+            User user = userService.findFirst().get();
+            bookmarkService.removeBookmark(user, article);
+            return ResponseEntity.ok("Bookmark added successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
