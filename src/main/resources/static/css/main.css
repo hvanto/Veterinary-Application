@@ -570,6 +570,7 @@ video {
   z-index: 50;
 }
 
+
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
@@ -992,8 +993,22 @@ video {
   line-height: 1.75rem;
 }
 
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
+
+.text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+}
+
 .font-bold {
   font-weight: 700;
+}
+
+.font-extrabold {
+  font-weight: 800;
 }
 
 .font-medium {
