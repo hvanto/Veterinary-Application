@@ -9,11 +9,17 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -58,8 +64,7 @@ public class ArticleService {
     // Pagination
     public Page<Article> getArticles(int page) {
         try {
-            if (page < 0)
-            {
+            if (page < 0) {
                 throw new IllegalArgumentException("page cannot be negative");
             }
             // Show 10 articles per page
@@ -133,5 +138,21 @@ public class ArticleService {
         }
 
         return article;
+    }
+
+    public static String fetchWebpageContent(String url) {
+        try {
+            // Set a reasonable timeout and limit the maximum size
+            Connection connection = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(10 * 1000) // 10 seconds
+                    .maxBodySize(5 * 1024 * 1024) // 5 MB
+                    .followRedirects(true);
+
+            Document doc = connection.get();
+            return doc.html();
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to fetch the webpage content", e);
+        }
     }
 }
