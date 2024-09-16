@@ -99,6 +99,12 @@ public class ArticleController {
                 .map(bookmark -> bookmark.getArticle().getLink())
                 .collect(Collectors.toSet());
 
+        // TODO: retrieve user by userId from cookie
+        User user = userService.findFirst().get();
+        Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
+                .map(bookmark -> bookmark.getArticle().getLink())
+                .collect(Collectors.toSet());
+
         // Fetch RSS feed only once
         articleService.fetchRssFeed();
 
@@ -148,7 +154,7 @@ public class ArticleController {
 
         // Fetch paginated bookmarked articles
         Page<Article> articlePage = bookmarkService.findByUser(user, page).map(Bookmark::getArticle);
-
+    
         // Prepare the set of bookmarked article links (for display purposes)
         Set<String> bookmarks = articlePage.getContent().stream()
                 .map(Article::getLink)
