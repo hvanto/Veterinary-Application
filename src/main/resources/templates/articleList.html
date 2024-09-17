@@ -51,10 +51,10 @@
         <p th:text="${error}"></p>
     </div>
 
-    <form class="flex justify-center lg:w-4/5 sm:w-11/12 mx-auto my-10">
+    <form action="/article/search" method="get" class="flex justify-center lg:w-4/5 sm:w-11/12 mx-auto my-10">
         <div class="lg:w-1/2 sm:w-full">
-            <input type="text" placeholder="Search articles"
-                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <input type="text" placeholder="Search articles" name="keyword" th:value="${keyword}"
+                   class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
         </div>
         <button type="submit"
             class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
@@ -65,6 +65,8 @@
             <span class="sr-only">Search</span>
         </button>
     </form>
+
+    <h2 th:if="${isEmpty}" class="text-3xl font-bold center text-center">No results found.</h2>
 
     <div class="flex flex-col items-center">
         <div th:each="article : ${articles}"
@@ -89,7 +91,7 @@
 
             <div class="flex lg:flex-col sm:flex-row">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5"
-                    th:attr="fill=${bookmarks.contains(article.link) ? 'solid' : 'none'},
+                    th:attr="fill=${bookmarks != null && bookmarks.contains(article.link) ? 'solid' : 'none'},
                              onclick=|addBookmark(this, '${article.title}', '${article.link}', '${article.author}', '${#dates.format(article.publishedDate, 'yyyy-MM-dd')}', '${article.description}', '${article.imageUrl}')|">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
@@ -109,16 +111,45 @@
 
     <!-- Pagination Controls -->
     <div class="flex justify-center mb-8">
-        <!-- Get previous page -->
-        <a th:if="${hasPrevious}" th:href="@{/article(page=${currentPage - 1})}">Previous</a>
 
-        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <!-- Get previous page -->
+        <a th:if="${hasPrevious && keyword == null}"
+           th:href="@{/article(page=${currentPage - 1})}">
+            Previous
+        </a>
+
+        <!-- Get previous page for search result -->
+        <a th:if="${hasPrevious && keyword != null}"
+           th:href="@{/article/search(page=${currentPage - 1}, keyword=${keyword})}">
+            Previous
+        </a>
+
+        <!-- Display page numbers -->
+        <span th:if="${keyword == null}"
+              th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
             <a th:href="@{/article(page=${i})}" th:text="${i + 1}"
                 th:class="${i == currentPage} ? 'text-blue-700 mx-2 underline' : 'mx-2'"></a>
         </span>
 
+        <!-- Display page numbers for search result -->
+        <span th:if="${keyword != null && !isEmpty}"
+              th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/article/search(page=${i}, keyword=${keyword})}" th:text="${i + 1}"
+               th:class="${i == currentPage} ? 'text-blue-700 mx-2 underline' : 'mx-2'"></a>
+        </span>
+
         <!-- Get next page -->
-        <a th:if="${hasNext}" th:href="@{/article(page=${currentPage + 1})}">Next</a>
+        <a th:if="${hasNext && keyword == null}"
+           th:href="@{/article(page=${currentPage + 1})}">
+            Next
+        </a>
+
+        <!-- Get next page for search result -->
+        <a th:if="${hasNext && keyword != null}"
+           th:href="@{/article/search(page=${currentPage + 1}, keyword=${keyword})}">
+            Next
+        </a>
+
     </div>
 </div>
 <!--</body>-->

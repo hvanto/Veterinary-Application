@@ -25,6 +25,7 @@ import au.edu.rmit.sept.webapp.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,18 +92,13 @@ public class ArticleController {
     }
 
     @GetMapping("/article")
-    public String getArticlesPage(@RequestParam(defaultValue = "0") int page, HttpServletRequest request, Model model) {
-        String requestURL = request.getRequestURL().toString();
-        String queryString = request.getQueryString();
-        model.addAttribute("url", requestURL);
-        model.addAttribute("queryString", queryString);
-
+    public String getArticlesPage(@RequestParam(defaultValue = "0") int page, Model model) {
         // TODO: retrieve user by userId from cookie
         User user = userService.findFirst().get();
         Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
                 .map(bookmark -> bookmark.getArticle().getLink())
                 .collect(Collectors.toSet());
-
+        
         // Fetch RSS feed only once
         articleService.fetchRssFeed();
 
@@ -126,11 +122,30 @@ public class ArticleController {
         return "index";
     }
 
+    @GetMapping("/article/search")
+    public String searchArticles(@RequestParam("keyword") String keyword,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 Model model) {
+        // Search articles by keywords
+        Page<Article> searchResult = articleService.getSearchResult(keyword, page);
+
+        model.addAttribute("articles", searchResult);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", searchResult.getTotalPages());
+        model.addAttribute("hasNext", searchResult.hasNext());
+        model.addAttribute("hasPrevious", searchResult.hasPrevious());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("isEmpty", searchResult.isEmpty());
+
+        model.addAttribute("content","articleList");
+        return "index";
+    }
+
     @GetMapping("/bookmark")
     public String getBookmarks(@RequestParam(defaultValue = "0") int page, Model model) {
         // TODO: Retrieve the user from the session or authentication context
         User user = userService.findFirst().get();
-    
+
         // Fetch paginated bookmarked articles
         Page<Article> articlePage = bookmarkService.findByUser(user, page).map(Bookmark::getArticle);
     
@@ -138,7 +153,7 @@ public class ArticleController {
         Set<String> bookmarks = articlePage.getContent().stream()
                 .map(Article::getLink)
                 .collect(Collectors.toSet());
-    
+
         // Add attributes to the model
         model.addAttribute("articles", articlePage);
         model.addAttribute("bookmarks", bookmarks);
@@ -146,7 +161,7 @@ public class ArticleController {
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
-    
+
         return "articleList";
     }
 

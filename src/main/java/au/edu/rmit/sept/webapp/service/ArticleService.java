@@ -55,7 +55,7 @@ public class ArticleService {
         return repository.findByLink(link).isPresent();
     }
 
-    // Pagination
+    // Pagination for all articles
     public Page<Article> getArticles(int page) {
         try {
             if (page < 0)
@@ -65,6 +65,25 @@ public class ArticleService {
             // Show 10 articles per page
             Pageable pageable = PageRequest.of(page, 10);
             return repository.findAll(pageable);
+
+        } catch (Exception e) {
+            System.err.println("An error occurred while fetching paginated articles: " + e.getMessage());
+            // Return an empty page
+            return Page.empty();
+        }
+
+    }
+
+    // Pagination for search results
+    public Page<Article> getSearchResult(String keyword, int page) {
+        try {
+            if (page < 0)
+            {
+                throw new IllegalArgumentException("page cannot be negative");
+            }
+            // Show 10 articles per page
+            Pageable pageable = PageRequest.of(page, 10);
+            return repository.searchArticlesByKeyword(keyword, pageable);
 
         } catch (Exception e) {
             System.err.println("An error occurred while fetching paginated articles: " + e.getMessage());
