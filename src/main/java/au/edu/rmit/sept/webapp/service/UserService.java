@@ -35,11 +35,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    // Find first user in table
-    public Optional<User> findFirst() {
-        return userRepository.findFirstByOrderByIdAsc();
-    }
-
     // Validate user login
     public boolean validateUserCredentials(String email, String plainPassword) throws Exception {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -53,6 +48,6 @@ public class UserService {
             throw new Exception("Invalid credentials");
         }
 
-        return true;
+        return true; 
     }
 }

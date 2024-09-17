@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "articles")
 public class Article {
