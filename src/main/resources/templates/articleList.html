@@ -102,13 +102,16 @@
                     <div class="share-dropdown absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow hidden min-w-max whitespace-nowrap">
                         <ul>
                             <li>
-                                <a href="#" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Email</a>
+                                <a th:href="'mailto:?subject=Check out this article: ' + ${article.title} + '&body=I found this interesting article on: ' + ${article.link}"
+                                   class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Email</a>
                             </li>
                             <li>
-                                <a href="#" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Messenger</a>
+                                <a th:href="'https://www.facebook.com/dialog/send?app_id=YOUR_APP_ID&link=' + ${article.link} + '&redirect_uri=' + ${article.link}"
+                                   target="_blank" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Messenger</a>
                             </li>
                             <li>
-                                <a href="#" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Twitter</a>
+                                <a th:href="'https://twitter.com/intent/tweet?text=Check out this article: ' + ${article.title} + '&url=' + ${article.link}"
+                                   target="_blank" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on X</a>
                             </li>
                         </ul>
                     </div>
