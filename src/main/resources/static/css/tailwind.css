@@ -10,3 +10,16 @@
     background-color: rgb(232, 232, 232);
     margin: 50px 0;
 }
+
+.box {
+    height: 200px;
+    align-content: center;
+    font-weight: bold;
+    font-size: 30px;
+    width: 300px;
+}
+
+.home-content {
+    height: 80vh;
+    padding-top: 3% 10%;
+}
