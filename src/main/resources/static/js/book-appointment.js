@@ -41,7 +41,35 @@ function handleClinicData(data) {
 }
 
 // Define the function to handle service data after the service request is completed
-function handleServiceData(data) {
-    // Perform any specific actions with service data
-    console.log("Processing service data...", data);
+function handleServiceData(services) {
+    const servicesContainer = document.querySelector('#appointment-services .flex-col');
+
+    // Clear existing services, if any
+    servicesContainer.innerHTML = '';
+
+    // Iterate over the services and create checkboxes
+    services.forEach(service => {
+        // Create a new div for each service
+        const serviceDiv = document.createElement('div');
+        serviceDiv.classList.add('flex');
+
+        // Create a checkbox input
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `service-${service.id}`;  // Optionally add an ID for each checkbox
+
+        // Create a label for the checkbox
+        const label = document.createElement('h2');
+        label.classList.add('ml-2', 'text-sm', 'font-semibold', 'text-zinc-500');
+        label.textContent = service.title;
+
+        // Append the checkbox and label to the div
+        serviceDiv.appendChild(checkbox);
+        serviceDiv.appendChild(label);
+
+        // Append the serviceDiv to the services container
+        servicesContainer.appendChild(serviceDiv);
+    });
+
+    console.log("Services processed and added to the DOM.", services);
 }
