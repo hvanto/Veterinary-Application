@@ -72,7 +72,7 @@ public class PageResolverController {
         String requestURL = request.getRequestURL().toString();
         String queryString = request.getQueryString();
 
-        model.addAttribute("content", "login");
+        model.addAttribute("content", "loginUser");
         model.addAttribute("url", requestURL);
         model.addAttribute("queryString", queryString);
 

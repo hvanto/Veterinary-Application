@@ -40,8 +40,8 @@ public class UserService {
         return userRepository.findFirstByOrderByIdAsc();
     }
 
-    // Validate user login
-    public boolean validateUserCredentials(String email, String plainPassword) throws Exception {
+    // Validate user login and return user object if successful
+    public User validateUserCredentials(String email, String plainPassword) throws Exception {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isEmpty()) {
             throw new Exception("Email not found");
@@ -53,6 +53,7 @@ public class UserService {
             throw new Exception("Invalid credentials");
         }
 
-        return true;
+        return user;
     }
+
 }

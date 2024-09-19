@@ -35,14 +35,14 @@ public class UserController {
     }
 
     // Handle login
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User loginRequest) {
+    @PostMapping("/loginUser")
+    public ResponseEntity<User> login(@RequestBody User loginRequest) {
         try {
-            // Validate user credentials
-            userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
-            return ResponseEntity.ok("Login successful");
+            // Validate user credentials and return user if successful
+            User user = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }
