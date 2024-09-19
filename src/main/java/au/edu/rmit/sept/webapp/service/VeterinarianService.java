@@ -33,4 +33,11 @@ public class VeterinarianService {
     public Optional<Veterinarian> getVeterinarianById(Long id) {
         return veterinarianRepository.findById(id);
     }
+
+
+    public List<au.edu.rmit.sept.webapp.model.Service> getServicesByVeterinarianId(Long veterinarianId) {
+        Optional<Veterinarian> veterinarian = veterinarianRepository.findVeterinarianWithServicesById(veterinarianId);
+        // Handle this properly in your controller by returning a proper error message
+        return veterinarian.map(Veterinarian::getServices).orElse(null);
+    }
 }

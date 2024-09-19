@@ -1,6 +1,7 @@
 package au.edu.rmit.sept.webapp.controller;
 
 import au.edu.rmit.sept.webapp.model.Veterinarian;
+import au.edu.rmit.sept.webapp.model.Service;
 import au.edu.rmit.sept.webapp.service.VeterinarianService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,4 +65,15 @@ public class VeterinarianController {
         }
     }
 
+
+    // Get all services by veterinarian ID
+    @PostMapping("/{veterinarianId}/services")
+    public ResponseEntity<?> getServicesByVeterinarianId(@PathVariable Long veterinarianId) {
+        List<Service> services = veterinarianService.getServicesByVeterinarianId(veterinarianId);
+        if (services != null) {
+            return ResponseEntity.ok(services);
+        } else {
+            return ResponseEntity.status(404).body("Veterinarian not found or no services available.");
+        }
+    }
 }

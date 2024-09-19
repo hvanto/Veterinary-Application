@@ -1,6 +1,8 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -14,9 +16,16 @@ public class Clinic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
+//    @OneToMany(mappedBy = "clinic")
+//    @Fetch(FetchMode.JOIN)
+//    @JsonBackReference
+//    private List<Veterinarian> Veterinarians;
+
+
     @OneToMany(mappedBy = "clinic")
     @Fetch(FetchMode.JOIN)
-    private List<Veterinarian> Veterinarians;
+    @JsonManagedReference // Break the infinite loop
+    private List<Veterinarian> veterinarians;
 
     private String Name;
     private String Email;
@@ -46,11 +55,11 @@ public class Clinic {
     }
 
     public List<Veterinarian> getVeterinarians() {
-        return Veterinarians;
+        return veterinarians;
     }
 
     public void setVeterinarians(List<Veterinarian> veterinarians) {
-        Veterinarians = veterinarians;
+        veterinarians = veterinarians;
     }
 
     public String getName() {

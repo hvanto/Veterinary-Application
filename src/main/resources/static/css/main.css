@@ -1042,14 +1042,6 @@ video {
   overflow-y: auto;
 }
 
-.overflow-x-clip {
-  overflow-x: clip;
-}
-
-.overflow-y-visible {
-  overflow-y: visible;
-}
-
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;

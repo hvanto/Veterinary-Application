@@ -1,6 +1,10 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.Date;
 import java.util.List;
@@ -24,6 +28,7 @@ public class Veterinarian {
 
     @ManyToOne
     @JoinColumn(name = "clinic_id")
+    @JsonBackReference // Prevent infinite loop with Clinic
     private Clinic clinic;
 
     @ManyToMany
@@ -32,6 +37,8 @@ public class Veterinarian {
             joinColumns = @JoinColumn(name = "veterinarian_id"),
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference // Serialize services but prevent infinite recursion with veterinarians
     private List<Service> services;
 
     @Column(updatable = false)
@@ -136,5 +143,21 @@ public class Veterinarian {
 
     public void setDeleted(boolean deleted) {
         Deleted = deleted;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Service> services) {
+        this.services = services;
+    }
+
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
     }
 }
