@@ -798,11 +798,14 @@ video {
   min-width: 100%;
 }
 
+<<<<<<< HEAD
 .min-w-max {
   min-width: -moz-max-content;
   min-width: max-content;
 }
 
+=======
+>>>>>>> Issue#413
 .max-w-7xl {
   max-width: 80rem;
 }
@@ -1421,6 +1424,7 @@ video {
   margin: 50px 0;
 }
 
+<<<<<<< HEAD
 .box {
   height: 200px;
   align-content: center;
@@ -1434,6 +1438,8 @@ video {
   padding-top: 3% 10%;
 }
 
+=======
+>>>>>>> Issue#413
 .hover\:bg-blue-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity));
