@@ -1421,6 +1421,19 @@ video {
   margin: 50px 0;
 }
 
+.box {
+  height: 200px;
+  align-content: center;
+  font-weight: bold;
+  font-size: 30px;
+  width: 300px;
+}
+
+.home-content {
+  height: 80vh;
+  padding-top: 3% 10%;
+}
+
 .hover\:bg-blue-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity));
