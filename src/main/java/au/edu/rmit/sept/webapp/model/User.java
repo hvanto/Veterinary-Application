@@ -27,7 +27,7 @@ public class User {
     private Date updatedOn;
 
     @Column(columnDefinition = "TINYINT(1)")
-    private boolean Deleted;
+    private boolean deleted;
 
     @PrePersist
     protected void onCreate() {
