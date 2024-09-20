@@ -37,20 +37,12 @@
             }
         }
         function downloadArticle(link) {
-            axios.post('/downloadArticle', link, {
-                headers: {
-                    'Content-Type': 'text/plain' // Indicate that we're sending plain text
-                }
+            axios.get(`/downloadArticle?link=${link}`, {
+                responseType: 'blob'
             })
-            .then(function (response) {
-                // Create a URL for the binary response (Blob)
-                const url = window.URL.createObjectURL(new Blob([response.data]));
-                const linkElement = document.createElement('a');
-                linkElement.href = url;
-                linkElement.setAttribute('download', 'output.pdf'); // Set the filename
-                document.body.appendChild(linkElement);
-                linkElement.click(); // Trigger the download
-                document.body.removeChild(linkElement); // Clean up after download
+            .then((res) => {
+                var file = window.URL.createObjectURL(res.data);
+                window.location.assign(file);
             })
             .catch(function (error) {
                 console.error(error.response.data);
