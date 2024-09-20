@@ -18,10 +18,6 @@ public class Service {
     private String Title;
     private String Description;
 
-//    @ManyToMany(mappedBy = "services")
-//    @Fetch(FetchMode.JOIN)
-//    private List<Veterinarian> veterinarians;
-
     @ManyToMany(mappedBy = "services")
     @Fetch(FetchMode.JOIN)
     @JsonBackReference // Prevent infinite recursion with Veterinarians

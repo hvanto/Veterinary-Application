@@ -1,0 +1,193 @@
+<div th:fragment="main">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function addBookmark(caller, title, link, author, publishedDate, description, imageUrl) {
+            // Construct the article object
+            const article = {
+                title: title,
+                link: link,
+                author: author,
+                publishedDate: publishedDate,
+                description: description,
+                imageUrl: imageUrl
+            };
+
+            // Toggle between fill states
+            if (caller.getAttribute("fill") === "none") {
+                caller.setAttribute("fill", "solid");
+
+                axios.post('/addBookmark', article)
+                    .catch(function (error) {
+                        console.error(error.response.data);
+                    });
+            } else {
+                caller.setAttribute("fill", "none");
+
+                axios.post('/removeBookmark', article)
+                    .catch(function (error) {
+                        console.error(error.response.data);
+                    });
+            }
+        }
+    </script>
+    <div th:if="${error}">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form action="/article/search" method="get" class="flex justify-center lg:w-4/5 sm:w-11/12 mx-auto my-10">
+        <div class="lg:w-1/2 sm:w-full">
+            <input type="text" placeholder="Search articles" name="keyword" th:value="${keyword}"
+                   class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+        </div>
+        <button type="submit"
+            class="p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+            </svg>
+            <span class="sr-only">Search</span>
+        </button>
+    </form>
+
+    <h2 th:if="${isEmpty}" class="text-3xl font-bold center text-center">No results found.</h2>
+
+    <div class="flex flex-col items-center">
+        <div th:each="article : ${articles}"
+            class="flex lg:flex-row sm:flex-col lg:w-4/5 sm:w-11/12 mb-6 pb-6 border-b border-gray-400 border-opacity-50">
+            <a th:href="${article.link}" target="_blank" class="no-underline">
+                <div class="flex lg:flex-row sm:flex-col">
+                    <div class="lg:w-1/4 sm:w-full">
+                        <img th:src="${article.imageUrl}" alt="Article Image" class="w-full h-auto">
+                    </div>
+                    <div class="flex flex-col justify-between lg:w-3/4 sm:w-full lg:px-6 sm:px-0 lg:mb-0 sm:mb-2.5">
+                        <div>
+                            <h2 th:text="${article.title}" class="font-bold text-2xl mb-2.5 lg:mt-0 sm:mt-2.5"></h2>
+                            <p th:text="${article.description}" class="lg:block sm:hidden"></p>
+                        </div>
+                        <div>
+                            <p th:text="${article.author}"></p>
+                            <p th:text="${#dates.format(article.publishedDate, 'dd MMM yyyy')}"></p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <div class="flex lg:flex-col sm:flex-row">
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5"
+                        th:attr="fill=${bookmarks != null && bookmarks.contains(article.link) ? 'solid' : 'none'},
+                                 onclick=|addBookmark(this, '${article.title}', '${article.link}', '${article.author}', '${#dates.format(article.publishedDate, 'yyyy-MM-dd')}', '${article.description}', '${article.imageUrl}')|">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                    </svg>
+                </button>
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                </button>
+
+
+                <div class="relative inline-block">
+                    <!-- Share button -->
+                    <button class="share-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                        </svg>
+                    </button>
+
+                    <!-- Share button dropdown menu -->
+                    <div class="share-dropdown absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow hidden min-w-max whitespace-nowrap">
+                        <ul>
+                            <li>
+                                <a th:href="'mailto:?subject=Check out this article: ' + ${article.title} + '&body=I found this interesting article on: ' + ${article.link}"
+                                   class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Email</a>
+                            </li>
+                            <li>
+                                <a th:href="'https://www.facebook.com/dialog/send?app_id=YOUR_APP_ID&link=' + ${article.link} + '&redirect_uri=' + ${article.link}"
+                                   target="_blank" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on Messenger</a>
+                            </li>
+                            <li>
+                                <a th:href="'https://twitter.com/intent/tweet?text=Check out this article: ' + ${article.title} + '&url=' + ${article.link}"
+                                   target="_blank" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Share on X</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center mb-8">
+
+        <!-- Get previous page -->
+        <a th:if="${hasPrevious && keyword == null}"
+           th:href="@{/article(page=${currentPage - 1})}">
+            Previous
+        </a>
+
+        <!-- Get previous page for search result -->
+        <a th:if="${hasPrevious && keyword != null}"
+           th:href="@{/article/search(page=${currentPage - 1}, keyword=${keyword})}">
+            Previous
+        </a>
+
+        <!-- Display page numbers -->
+        <span th:if="${keyword == null}"
+              th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/article(page=${i})}" th:text="${i + 1}"
+                th:class="${i == currentPage} ? 'text-blue-700 mx-2 underline' : 'mx-2'"></a>
+        </span>
+
+        <!-- Display page numbers for search result -->
+        <span th:if="${keyword != null && !isEmpty}"
+              th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/article/search(page=${i}, keyword=${keyword})}" th:text="${i + 1}"
+               th:class="${i == currentPage} ? 'text-blue-700 mx-2 underline' : 'mx-2'"></a>
+        </span>
+
+        <!-- Get next page -->
+        <a th:if="${hasNext && keyword == null}"
+           th:href="@{/article(page=${currentPage + 1})}">
+            Next
+        </a>
+
+        <!-- Get next page for search result -->
+        <a th:if="${hasNext && keyword != null}"
+           th:href="@{/article/search(page=${currentPage + 1}, keyword=${keyword})}">
+            Next
+        </a>
+
+    </div>
+
+    <!-- Script to show share button dropdown menu -->
+    <script>
+        const shareButtons = document.querySelectorAll('.share-button');
+        const shareDropdowns = document.querySelectorAll('.share-dropdown');
+
+        // Add event listeners to each share button
+        shareButtons.forEach((button, index) => {
+            const dropdown = shareDropdowns[index];
+
+            // Toggle dropdown when button is clicked
+            button.addEventListener('click', function() {
+                dropdown.classList.toggle('hidden');
+            });
+
+            // Hide dropdown if clicked outside
+            document.addEventListener('click', function(event) {
+                const isClickInside = button.contains(event.target) || dropdown.contains(event.target);
+
+                if (!isClickInside) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</div>
+

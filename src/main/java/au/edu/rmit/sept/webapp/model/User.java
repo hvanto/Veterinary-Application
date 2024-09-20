@@ -1,138 +1,113 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
-
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
-    private String FirstName;
-    private String LastName;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private String contact;
 
-    @Column(unique = true)
-    private String Email;
-    private String Contact;
-    private String Image;
-
-    private String Password;
-
-    @OneToMany(mappedBy = "user")
-    private List<Appointment> appointments;
+    private String image;
 
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date CreatedOn;
+    private Date createdOn;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date UpdatedOn;
+    private Date updatedOn;
 
     @Column(columnDefinition = "TINYINT(1)")
     private boolean Deleted;
 
     @PrePersist
     protected void onCreate() {
-        Contact = "0000000000";
-        Image = "default_profile.png";
-        CreatedOn = new Date();
-        UpdatedOn = new Date();
-        Deleted = false;
+        this.createdOn = new Date();
+        this.updatedOn = new Date();
+        this.image = "default_profile.png";  // Default image path
+        this.deleted = false;  // Default status is not deleted
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedOn = new Date();
-    }
-
-    // Constructors
-    public User() {}
-
-    public User(String firstName, String lastName, String email, String password) {
-        FirstName = firstName;
-        LastName = lastName;
-        Email = email;
-        Password = password;
+        this.updatedOn = new Date();
     }
 
     // Getters and Setters
     public Long getId() {
-        return Id;
-    }
-
-    public Date getCreatedOn() {
-        return CreatedOn;
-    }
-
-    public Date getUpdatedOn() {
-        return UpdatedOn;
+        return id;
     }
 
     public String getFirstName() {
-        return FirstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
-        FirstName = firstName;
+        this.firstName = firstName;
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        LastName = lastName;
+        this.lastName = lastName;
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public void setEmail(String email) {
-        Email = email;
-    }
-
-    public String getContact() {
-        return Contact;
-    }
-
-    public void setContact(String contact) {
-        Contact = contact;
-    }
-
-    public String getImage() {
-        return Image;
-    }
-
-    public void setImage(String image) {
-        Image = image;
+        this.email = email;
     }
 
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     public void setPassword(String password) {
-        Password = password;
+        this.password = password;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public Date getUpdatedOn() {
+        return updatedOn;
     }
 
     public boolean isDeleted() {
-        return Deleted;
+        return deleted;
     }
 
     public void setDeleted(boolean deleted) {
-        Deleted = deleted;
-    }
-
-    public List<Appointment> getAppointments() {
-        return appointments;
-    }
-
-    public void setAppointments(List<Appointment> appointments) {
-        this.appointments = appointments;
+        this.deleted = deleted;
     }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-
 import java.util.Date;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class Veterinarian {
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
     @Fetch(FetchMode.JOIN)
-    @JsonManagedReference // Serialize services but prevent infinite recursion with veterinarians
+    @JsonManagedReference
     private List<Service> services;
 
     @Column(updatable = false)
