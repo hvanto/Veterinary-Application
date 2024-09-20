@@ -107,14 +107,6 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.15.4</version>
 		</dependency>
-
-		<!-- iText for creating pdf from webpage content-->
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>itext7-core</artifactId>
-			<version>8.0.5</version>
-			<type>pom</type>
-		</dependency>
 		</dependencies>
 
 	<build>
