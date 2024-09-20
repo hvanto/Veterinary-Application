@@ -1,4 +1,5 @@
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+    'October', 'November', 'December'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function datepicker() {
@@ -38,7 +39,8 @@ function datepicker() {
                 let selectedDate = new Date(this.year, this.month, date);
                 this.datepickerValue = selectedDate.toDateString();
 
-                this.$refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
+                this.$refs.date.value = selectedDate.getFullYear() + "-" +
+                    ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
 
                 console.log(this.$refs.date.value);
 
