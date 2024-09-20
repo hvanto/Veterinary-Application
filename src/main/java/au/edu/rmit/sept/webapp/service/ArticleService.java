@@ -10,24 +10,34 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
-import org.jsoup.Connection;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ArticleService {
@@ -140,19 +150,65 @@ public class ArticleService {
         return article;
     }
 
-    public static String fetchWebpageContent(String url) {
-        try {
-            // Set a reasonable timeout and limit the maximum size
-            Connection connection = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0")
-                    .timeout(10 * 1000) // 10 seconds
-                    .maxBodySize(5 * 1024 * 1024) // 5 MB
-                    .followRedirects(true);
+    public static void writeZipToStream(String url, ZipOutputStream zos) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        Set<String> downloaded = new HashSet<>();
 
-            Document doc = connection.get();
-            return doc.html();
+        for (Element link : doc.select("link[rel=stylesheet]")) {
+            String absUrl = link.absUrl("href");
+
+            if (!absUrl.startsWith("data:")) {
+                String path = "css/" + getFileName(absUrl);
+
+                if (!downloaded.contains(absUrl)) {
+                    addFileToZip(path, downloadFile(absUrl), zos);
+                    downloaded.add(absUrl);
+                }
+                link.attr("href", path);
+            }
+        }
+
+        for (Element img : doc.select("img")) {
+            String absUrl = img.absUrl("src");
+
+            if (!absUrl.startsWith("data:")) {
+                String path = "img/" + getFileName(absUrl);
+
+                if (!downloaded.contains(absUrl)) {
+                    addFileToZip(path, downloadFile(absUrl), zos);
+                    downloaded.add(absUrl);
+                }
+                img.attr("src", path);
+            }
+        }
+        addFileToZip("article.html", doc.outerHtml().getBytes(), zos);
+    }
+
+    private static String getFileName(String url) {
+        int i = url.lastIndexOf("?");
+        return url.substring(url.lastIndexOf("/") + 1, (i < 0) ? url.length() : i);
+    }
+
+    private static void addFileToZip(String path, byte[] bytes, ZipOutputStream zos) {
+        try {
+            ZipEntry entry = new ZipEntry(path);
+            zos.putNextEntry(entry);
+            zos.write(bytes);
+            zos.closeEntry();
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to fetch the webpage content", e);
+            e.printStackTrace();
+        }
+    }
+
+    private static byte[] downloadFile(String fileUrl) throws IOException {
+        URL url = new URL(fileUrl);
+        try (InputStream in = url.openStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead);
+            }
+            return baos.toByteArray();
         }
     }
 }
