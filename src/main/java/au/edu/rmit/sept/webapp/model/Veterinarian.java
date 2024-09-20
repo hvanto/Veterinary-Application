@@ -1,6 +1,10 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.Date;
 import java.util.List;
 
@@ -21,13 +25,20 @@ public class Veterinarian {
 
     private String Password;
 
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    @JsonBackReference // Prevent infinite loop with Clinic
+    private Clinic clinic;
+
     @ManyToMany
     @JoinTable(
-        name = "veterinarian_service",
-        joinColumns = @JoinColumn(name = "veterinarian_id"),
-        inverseJoinColumns = @JoinColumn(name = "service_id")
+            name = "veterinarian_service",
+            joinColumns = @JoinColumn(name = "veterinarian_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
     )
-    private List<Service> services;  // Add this to link to Service entity
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference
+    private List<Service> services;
 
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,6 +47,7 @@ public class Veterinarian {
     @Temporal(TemporalType.TIMESTAMP)
     private Date UpdatedOn;
 
+    @Column(columnDefinition = "TINYINT(1)")
     private boolean Deleted;
 
     @PrePersist
@@ -138,5 +150,13 @@ public class Veterinarian {
 
     public void setServices(List<Service> services) {
         this.services = services;
+    }
+
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
     }
 }

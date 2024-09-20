@@ -36,6 +36,8 @@ build/
 ### Node ###
 node_modules/
 
-
 ### Templating ###
 src/main/resources/templates/test.html
+
+### Dynamic CSS ###
+src/main/resources/static/css/main.css

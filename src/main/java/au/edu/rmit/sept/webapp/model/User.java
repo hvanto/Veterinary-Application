@@ -26,7 +26,8 @@ public class User {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedOn;
 
-    private boolean deleted;
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean Deleted;
 
     @PrePersist
     protected void onCreate() {
