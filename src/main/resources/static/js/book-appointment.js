@@ -1,75 +1,89 @@
-window.onload = function () {
-    // Get the loading element
-    const loadingElement = document.getElementById('loading');
+document.addEventListener('alpine:init', () => {
+    Alpine.data('clinicServiceData', () => ({
+        clinic: {},
+        services: [],
+        selectedDoctor: null,  // Track selected doctor
+        loading: true,
+        days: ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7'],  // Default days
+        hours: ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM'],  // Default hours
 
-    // Show the loader (remove hidden class if present)
-    loadingElement.classList.remove('hidden');
+        fetchData() {
+            // Fetch clinic and service data
+            const getClinic = () => {
+                return axios.post('/api/clinic/1')
+                    .then(response => {
+                        this.clinic = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching clinic data:', error);
+                    });
+            };
 
-    // Define each axios request and its corresponding success handling function
-    const getClinic = axios.post('/api/clinic/1')
-        .then(response => {
-            console.log('Clinic data:', response.data);
-            // Perform specific action for clinic request
-            handleClinicData(response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching clinic data:', error);
-        });
+            const getServices = () => {
+                return axios.post('/api/clinic/1/services')
+                    .then(response => {
+                        this.services = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching services data:', error);
+                    });
+            };
 
-    const getServices = axios.post('/api/clinic/1/services')
-        .then(response => {
-            console.log('Service data:', response.data);
-            // Perform specific action for service request
-            handleServiceData(response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching service data:', error);
-        });
+            // Generate hours for the booking calendar based on clinic's opening and closing time
+            const generateHours = () => {
+                const openingTime = this.clinic.openingTime || 700;  // Default 7 AM
+                const closingTime = this.clinic.closingTime || 1700; // Default 5 PM
+                this.hours = this.generateHoursArray(openingTime, closingTime);
+            };
 
-    // Wait for all requests to complete
-    Promise.all([getClinic, getServices])
-        .finally(() => {
-            // Hide the loader (add hidden class) when all requests are done
-            loadingElement.classList.add('hidden');
-        });
-}
+            // Load data and generate hours
+            Promise.all([getClinic(), getServices()]).then(() => {
+                generateHours();  // Populate the hours array after fetching the clinic data
+            }).finally(() => {
+                this.loading = false;
+            });
+        },
 
-// Define the function to handle clinic data after the clinic request is completed
-function handleClinicData(data) {
-    // Perform any specific actions with clinic data
-    console.log("Processing clinic data...", data);
-}
+        selectDoctor(doctorId) {
+            this.selectedDoctor = doctorId;
+        },
 
-// Define the function to handle service data after the service request is completed
-function handleServiceData(services) {
-    const servicesContainer = document.querySelector('#appointment-services .flex-col');
+        // Function to generate time slots in 12-hour format based on clinic opening/closing times
+        generateHoursArray(openingTime, closingTime) {
+            const hoursArray = [];
+            let currentHour = openingTime;
 
-    // Clear existing services, if any
-    servicesContainer.innerHTML = '';
+            while (currentHour <= closingTime) {
+                let hours = Math.floor(currentHour / 100);
+                let minutes = currentHour % 100;
 
-    // Iterate over the services and create checkboxes
-    services.forEach(service => {
-        // Create a new div for each service
-        const serviceDiv = document.createElement('div');
-        serviceDiv.classList.add('flex');
+                let ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;  // Convert 24-hour format to 12-hour format
 
-        // Create a checkbox input
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `service-${service.id}`;  // Optionally add an ID for each checkbox
+                hoursArray.push(`${hours}:${minutes === 0 ? '00' : minutes} ${ampm}`);
+                currentHour += 100;  // Increment by 1 hour
+            }
 
-        // Create a label for the checkbox
-        const label = document.createElement('h2');
-        label.classList.add('ml-2', 'text-sm', 'font-semibold', 'text-zinc-500');
-        label.textContent = service.title;
+            return hoursArray;
+        },
 
-        // Append the checkbox and label to the div
-        serviceDiv.appendChild(checkbox);
-        serviceDiv.appendChild(label);
+        // Function to generate 15-minute sub-slots for each hour
+        generateSubSlots(hour) {
+            const subSlots = [];
+            const startHour = parseInt(hour.split(':')[0]);
+            const ampm = hour.split(' ')[1];  // AM or PM
 
-        // Append the serviceDiv to the services container
-        servicesContainer.appendChild(serviceDiv);
-    });
+            // Generate four 15-minute slots for the given hour
+            for (let i = 0; i < 60; i += 15) {
+                const endMinutes = (i + 15) % 60;
+                const endHour = (endMinutes === 0) ? startHour + 1 : startHour;
 
-    console.log("Services processed and added to the DOM.", services);
-}
+                let endTime = `${endHour}:${endMinutes === 0 ? '00' : endMinutes} ${ampm}`;
+
+                subSlots.push(`${startHour}:${i === 0 ? '00' : i} - ${endTime}`);
+            }
+
+            return subSlots;
+        },
+    }));
+});

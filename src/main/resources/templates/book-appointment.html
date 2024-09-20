@@ -6,41 +6,46 @@
     <title>Title</title>
 </head>
 <body>
-    <main class="max-w-screen-2xl mx-auto" th:fragment="main">
+    <main x-data="clinicServiceData" x-init="fetchData()" class="max-w-screen-2xl mx-auto" th:fragment="main">
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script th:src="@{/js/datepicker.js}"></script>
         <script th:src="@{/js/book-appointment.js}"></script>
         <div class="flex">
             <!-- Filter Selections Panel -->
             <div class="basis-1/2 md:basis-1/3 lg:basis-1/5 relative py-6 px-8 border-r border-zinc-100
-                bg-gradient-to-r from-zinc-50 to-zinc-200 overflow-y-auto overflow-x-wrap">
-                <!-- Filter by Available services -->
-                <div class="" id="appointment-services">
+            bg-gradient-to-r from-zinc-50 to-zinc-200 overflow-y-auto overflow-x-wrap">
+
+                <!-- Filter by Available Services -->
+                <div id="appointment-services">
                     <h1 class="uppercase text-xs font-bold text-zinc-500">FILTER BY SERVICES</h1>
-                    <!-- Services -->
+                    <!-- Services Container -->
                     <div class="mt-4 flex flex-col space-y-1">
-                        <!-- Service -->
-                        <div class="flex">
-                            <input type="checkbox">
-                            <h2 class="ml-2 text-sm font-semibold text-zinc-500">Service</h2>
-                        </div>
+                        <!-- Dynamically render services using x-for -->
+                        <template x-for="service in services" :key="service.id">
+                            <div class="flex">
+                                <input type="checkbox" :id="'service-' + service.id">
+                                <h2 class="ml-2 text-sm font-semibold text-zinc-500" x-text="service.title"></h2>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
-                <!-- Filter by Available doctors -->
+                <!-- Filter by Available Doctors -->
                 <div class="mt-10 max-h-[50%]">
                     <h1 class="uppercase text-xs font-bold text-zinc-500">FILTER BY DOCTORS</h1>
-                    <!-- Doctors -->
+                    <!-- Doctors Container -->
                     <div class="mt-4 flex flex-col space-y-4">
-                        <!-- Doctor -->
-                        <div class="flex">
-                            <input type="checkbox">
-                            <img th:src="@{/assets/profile_picture.jpg}" alt="Doctor Profile Picture" class="ml-2 h-9 rounded-full">
-                            <div class="ml-3 text-sm font-semibold text-zinc-500">
-                                <h2 class="pt-2">Dr. John Doe</h2>
-<!--                                <h3 class="text-xs">Doctor's Qualification</h3>-->
+                        <!-- Dynamically render doctors from clinic data -->
+                        <template x-for="doctor in clinic.veterinarians" :key="doctor.id">
+                            <div class="flex">
+                                <input type="radio" :id="'doctor-' + doctor.id" name="doctor">
+                                <img :src="'/assets/profile_picture.jpg'" alt="Doctor Profile Picture" class="ml-2 h-9 rounded-full">
+                                <div class="ml-3 text-sm font-semibold text-zinc-500">
+                                    <h2 class="pt-2" x-text="'Dr. ' + doctor.firstName + ' ' + doctor.lastName"></h2> <!-- Just using doctor.id for example -->
+                                    <!-- You can access other doctor fields as per your need -->
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -66,8 +71,10 @@
                                 All Services
                             </button>
                         </div>
-                        <div class="my-auto">
-                            <span class="text-md font-bold">Clinic:</span> VetCare Praharan
+                        <div class="my-auto flex">
+                            <span class="text-md font-bold mr-2">Clinic:</span>
+                            <span x-text="clinic.name"></span>
+                            (<strong x-text="clinic.location" class="text-xs my-auto"></strong>)
                         </div>
                     </div>
 
@@ -172,10 +179,8 @@
                                                                 </template>
                                                             </div>
                                                         </div>
-
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -188,41 +193,46 @@
                             <div class="grid-cols-7 grid-cols-6 grid-cols-5 grid-cols-4 grid-cols-3 grid-cols-2"></div>
 
                             <!-- Booking calendar view -->
-                            <div class=" relative">
-                                <div class="grid grid-cols-8 border-t border-gray-200 sticky top-0 left-0 w-full" data-booking-calendar-dates="true">
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-1="true"></div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-2="true">Jan 7</div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-3="true">Jan 8</div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-4="true">Jan 9</div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-5="true">Jan 10</div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-6="true">Jan 11</div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-7="true">Jan 12</div>
-                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" data-booking-calendar-col-8="true">Jan 13</div>
+                            <div class="relative">
+                                <!-- Overlay to block calendar access until a doctor is selected -->
+                                <div x-show="!selectedDoctor" class="absolute inset-0 bg-gray-200 opacity-75 flex items-start justify-center z-10">
+                                    <p class="text-lg font-bold text-gray-700 pt-24">Please select a doctor to view available slots.</p>
                                 </div>
-                                <div class="grid-cols-8 md:grid w-full overflow-x-auto">
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex items-start" data-booking-calendar-col-1="true">
-                                        <span class="text-xs font-semibold text-gray-400">08:00 am</span>
-                                    </div>
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" data-booking-calendar-col-2="true"></div>
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" data-booking-calendar-col-3="true"></div>
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" data-booking-calendar-col-4="true"></div>
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" data-booking-calendar-col-5="true"></div>
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" data-booking-calendar-col-6="true"></div>
-                                    <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" data-booking-calendar-col-7="true">
-                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">
-                                            <p class="text-xs font-semibold text-blue-600">08:00 - 08:15</p>
+
+                                <!-- Header for the days -->
+                                <div class="grid grid-cols-8 border-t border-gray-200 sticky top-0 left-0 w-full bg-gradient-to-l from-zinc-50 to-zinc-200">
+                                    <!-- Empty header for the time column -->
+                                    <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900"></div>
+
+                                    <!-- Dynamically render day headers -->
+                                    <template x-for="day in days" :key="day">
+                                        <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" x-text="day"></div>
+                                    </template>
+                                </div>
+
+                                <!-- Grid for time slots and available appointments -->
+                                <div class="w-full overflow-x-auto">
+                                    <!-- Iterate through hours and generate rows for time slots and days -->
+                                    <template x-for="(hour, index) in hours" :key="index">
+                                        <div class="grid grid-cols-8">
+                                            <!-- First column for time slot -->
+                                            <div class="h-36 p-2 border-t border-r border-gray-200 flex items-center justify-center">
+                                                <span class="text-xs font-semibold text-gray-400" x-text="hour"></span>
+                                            </div>
+
+                                            <!-- Generate the next 7 columns for each day for that time slot -->
+                                            <template x-for="day in days" :key="`day-${day}-hour-${hour}`">
+                                                <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" :data-booking-calendar-col="day">
+                                                    <!-- Generate 15-minute time slots dynamically for each day -->
+                                                    <template x-for="slot in generateSubSlots(hour)" :key="slot">
+                                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">
+                                                            <p class="text-xs font-semibold text-blue-600" x-text="slot"></p>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
                                         </div>
-                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">
-                                            <p class="text-xs font-semibold text-blue-600">08:15 - 08:30</p>
-                                        </div>
-                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">
-                                            <p class="text-xs font-semibold text-blue-600">08:30 - 08:45</p>
-                                        </div>
-                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">
-                                            <p class="text-xs font-semibold text-blue-600">08:45 - 09:00</p>
-                                        </div>
-                                    </div>
-                                    <div class="h-36 p-2 border-t border-gray-200 transition-all hover:bg-zinc-200" data-booking-calendar-col-8="true"></div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -230,6 +240,13 @@
                 </div>
             </div>
         </div>
+
+        <!-- Loading Spinner Section -->
+        <section id="loading" x-show="loading" class="w-screen h-screen absolute top-0 left-0 z-50 bg-zinc-300 bg-opacity-20">
+            <div class="absolute top-1/2 left-1/2 -translate-y-2/3 -translate-x-1/2 scale-50">
+                <img class="animate-spin-slow" th:src="@{/assets/loader_3.png}" alt="loader">
+            </div>
+        </section>
     </main>
 </body>
 </html>

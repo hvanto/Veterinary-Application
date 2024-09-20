@@ -7,7 +7,7 @@
         <meta name="description" content="My Page Description">
 
         <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
-        <script type="text/javascript" th:src="@{/js/alpine.js}"></script>
+        <script defer type="text/javascript" th:src="@{/js/alpine.js}"></script>
         <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
     </head>
     <body class="min-w-full min-h-full">
@@ -20,11 +20,5 @@
         </div>
 
         <div th:insert="~{fragments/footer :: footer}"></div>
-
-        <section id="loading" class="w-screen h-screen absolute top-0 left-0 z-50 bg-zinc-300 bg-opacity-20 hidden">
-            <div class="absolute top-1/2 left-1/2 -translate-y-2/3 -translate-x-1/2 scale-50">
-                <img class="animate-spin-slow" th:src="@{/assets/loader_3.png}" alt="loader">
-            </div>
-        </section>
     </body>
 </html>
