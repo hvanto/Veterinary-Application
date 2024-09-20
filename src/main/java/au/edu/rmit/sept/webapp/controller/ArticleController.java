@@ -1,8 +1,10 @@
 package au.edu.rmit.sept.webapp.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -19,11 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.model.Bookmark;
@@ -34,6 +32,9 @@ import au.edu.rmit.sept.webapp.service.UserService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -42,6 +43,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 public class ArticleController {
@@ -64,54 +67,23 @@ public class ArticleController {
         }
     }
 
-    @PostMapping("/downloadArticle")
-    public ResponseEntity<InputStreamResource> downloadArticle(@RequestBody String link) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    @GetMapping("/downloadArticle")
+    public ResponseEntity<StreamingResponseBody> downloadArticle(@RequestParam String link,
+            HttpServletResponse response)
+            throws Exception {
 
-        // Create pdf of webpage from link
-        try {
-            // Fetch the webpage content
-            String decodedLink = URLDecoder.decode(link, StandardCharsets.UTF_8.name());
-            String html = Jsoup.connect(link).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3").get().html();
+        response.setContentType("application/zip");
+        response.setHeader(
+                "Content-Disposition",
+                "attachment;filename=download.zip");
 
-            System.out.println(html);
+        StreamingResponseBody stream = out -> {
+            try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
+                ArticleService.writeZipToStream(link, zos);
+            }
+        };
 
-            // Create PDF of webpage from the HTML content
-            ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
-            
-            PdfWriter writer = new PdfWriter(pdfOutputStream);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document = new Document(pdfDoc);
-
-            // Add the webpage content to the PDF
-            document.add(new Paragraph("Webpage content from: " + link)); // Optional header
-            document.add(new Paragraph(Jsoup.parse(html).text())); // Add the extracted text from HTML
-            document.close();
-
-            // Write PDF to byte array output stream
-            byteArrayOutputStream.write(pdfOutputStream.toByteArray());
-
-        } catch (Exception e) {
-            e.printStackTrace(); // Log the error and handle the exception
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        // Prepare the response
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        InputStreamResource resource = new InputStreamResource(inputStream);
-
-        String filename = "output.pdf";
-        filename = filename.replaceAll("_+", "_").replaceAll("^_|_$", ""); // Further sanitize
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-        headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(byteArrayOutputStream.size())
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(resource);
+        return ResponseEntity.ok().body(stream);
     }
 
     @PostMapping("/article/add")
