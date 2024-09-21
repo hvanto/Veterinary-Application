@@ -3,10 +3,9 @@ package au.edu.rmit.sept.webapp.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
-import java.util.List;
 
 /**
- * @implNote    1.Pet column will be added to this Entity after the pet table has been created.
+ * @implNote 1. Pet column will be added to this Entity after the pet table has been created.
  */
 @Entity
 @Table(name = "appointment")
@@ -14,13 +13,24 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date DateTime;
+
+    // Appointment date
+    @Temporal(TemporalType.DATE)
+    private Date appointmentDate;
+
+    // Start and End times for the appointment
+    @Temporal(TemporalType.TIME)
+    private Date StartTime;
+
+    @Temporal(TemporalType.TIME)
+    private Date EndTime;
+
     private String Notes;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
     @ManyToOne
     @JoinColumn(name = "veterinarian_id")
     private Veterinarian veterinarian;
@@ -47,8 +57,10 @@ public class Appointment {
     public Appointment() {
     }
 
-    public Appointment(Date dateTime, String notes, User user, Veterinarian veterinarian) {
-        DateTime = dateTime;
+    public Appointment(Date appointmentDate, Date startTime, Date endTime, String notes, User user, Veterinarian veterinarian) {
+        this.appointmentDate = appointmentDate;
+        StartTime = startTime;
+        EndTime = endTime;
         Notes = notes;
         this.user = user;
         this.veterinarian = veterinarian;
@@ -59,20 +71,28 @@ public class Appointment {
         return Id;
     }
 
-    public Date getCreatedOn() {
-        return CreatedOn;
+    public Date getAppointmentDate() {
+        return appointmentDate;
     }
 
-    public Date getUpdatedOn() {
-        return UpdatedOn;
+    public void setAppointmentDate(Date appointmentDate) {
+        this.appointmentDate = appointmentDate;
     }
 
-    public Date getDateTime() {
-        return DateTime;
+    public Date getStartTime() {
+        return StartTime;
     }
 
-    public void setDateTime(Date dateTime) {
-        DateTime = dateTime;
+    public void setStartTime(Date startTime) {
+        StartTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return EndTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        EndTime = endTime;
     }
 
     public String getNotes() {
@@ -97,5 +117,13 @@ public class Appointment {
 
     public void setVeterinarian(Veterinarian veterinarian) {
         this.veterinarian = veterinarian;
+    }
+
+    public Date getCreatedOn() {
+        return CreatedOn;
+    }
+
+    public Date getUpdatedOn() {
+        return UpdatedOn;
     }
 }

@@ -7,7 +7,6 @@
 </head>
 <body>
     <main x-data="clinicServiceData" x-init="[fetchData(), datepicker.initDate(), datepicker.getNoOfDays()]" class="max-w-screen-2xl mx-auto" th:fragment="main">
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script th:src="@{/js/book-appointment.js}"></script>
         <div class="flex">
             <!-- Filter Selections Panel -->
@@ -88,7 +87,7 @@
                                     <h6 class="text-sm leading-8 font-medium text-gray-900" x-text="'Today: ' + getFormattedDate()"></h6>
                                 </div>
                                 <!-- Booking Controls -->
-                                <div class="flex items-center gap-px rounded-lg bg-gray-100 p-1">
+                                <div class="flex items-center gap-px rounded-lg bg-gray-100 p-1 z-30">
                                     <div class="antialiased z-20 mr-4">
                                         <div x-cloak>
                                             <div class="container">
@@ -122,22 +121,25 @@
                                                                     <span x-text="datepicker.year" class="ml-1 text-lg text-gray-600 font-normal"></span>
                                                                 </div>
                                                                 <div>
+                                                                    <!-- Update button for previous month -->
                                                                     <button
                                                                             type="button"
                                                                             class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                                            :class="{'cursor-not-allowed opacity-25': datepicker.month == 0 }"
-                                                                            :disabled="datepicker.month == 0 ? true : false"
-                                                                            @click="datepicker.month--; datepicker.getNoOfDays()">
-                                                                        <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            :class="{'cursor-not-allowed opacity-25': datepicker.month == 0 && datepicker.year == new Date().getFullYear() }"
+                                                                            :disabled="datepicker.month == 0 && datepicker.year == new Date().getFullYear() ? true : false"
+                                                                            @click="datepicker.prevMonth()">
+                                                                        <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24" stroke="#000000">
                                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                                                         </svg>
                                                                     </button>
+
+                                                                    <!-- Update button for next month -->
                                                                     <button
                                                                             type="button"
                                                                             class="transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 rounded-full"
-                                                                            :class="{'cursor-not-allowed opacity-25': datepicker.month == 11 }"
-                                                                            :disabled="datepicker.month == 11 ? true : false"
-                                                                            @click="datepicker.month++; datepicker.getNoOfDays()">
+                                                                            :class="{'cursor-not-allowed opacity-25': datepicker.year == new Date().getFullYear() + 1 && datepicker.month == 11 }"
+                                                                            :disabled="datepicker.year == new Date().getFullYear() + 1 && datepicker.month == 11 ? true : false"
+                                                                            @click="datepicker.nextMonth()">
                                                                         <svg class="h-6 w-6 text-gray-500 inline-flex" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                                                         </svg>
@@ -178,8 +180,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button class="rounded-lg py-2 px-4 text-sm font-medium text-gray-500 transition-all duration-300 hover:bg-white hover:text-sky-900">Day</button>
-                                    <button class="rounded-lg py-2 px-4 text-sm font-medium text-sky-900 bg-white transition-all duration-300 hover:bg-white">Week</button>
+
+<!--                                    <button class="rounded-lg py-2 px-4 text-sm font-medium text-gray-500 transition-all duration-300 hover:bg-white hover:text-sky-900">Day</button>-->
+<!--                                    <button class="rounded-lg py-2 px-4 text-sm font-medium text-sky-900 bg-white transition-all duration-300 hover:bg-white">Week</button>-->
                                 </div>
                             </div>
 
@@ -195,7 +198,7 @@
 
                                     <!-- Dynamically render day headers -->
                                     <template x-for="day in days" :key="day">
-                                        <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" x-text="day"></div>
+                                        <div class="p-3.5 flex items-center justify-center text-sm font-medium text-gray-900" x-text="day + ' ' + String(year).slice(-2)"></div>
                                     </template>
 
                                     <!-- Previous week/day -->
@@ -228,9 +231,27 @@
                                             <template x-for="day in days" :key="`day-${day}-hour-${hour}`">
                                                 <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" :data-booking-calendar-col="day">
                                                     <!-- Generate 15-minute time slots dynamically for each day -->
-                                                    <template x-for="slot in generateSubSlots(hour)" :key="slot">
-                                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">
-                                                            <p class="text-xs font-semibold text-blue-600" x-text="slot"></p>
+<!--                                                    <template x-for="slot in generateSubSlots(hour, day)" :key="slot.time">-->
+<!--                                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">-->
+<!--                                                            <p class="text-xs font-semibold text-blue-600" x-text="slot.time"></p>-->
+<!--                                                        </div>-->
+<!--                                                    </template>-->
+
+                                                    <template x-for="slot in generateSubSlots(hour, day)" :key="slot.time">
+                                                        <div
+                                                                class="rounded p-1.5 mb-1 border-l-2"
+                                                                :class="{
+                                                                'border-zinc-300 bg-zinc-200 hidden': slot.type === 'break',
+                                                                'border-sky-600 bg-sky-200': slot.type === 'available',
+                                                                'border-red-600 bg-red-200': slot.type === 'booked'
+                                                            }">
+                                                            <p class="text-xs font-semibold"
+                                                               :class="{
+                                                                       'text-zinc-600': slot.type === 'break',
+                                                                       'text-sky-600': slot.type === 'available',
+                                                                       'text-red-600': slot.type === 'booked'
+                                                                   }"
+                                                               x-text="slot.type === 'break' ? '' : slot.time"></p>
                                                         </div>
                                                     </template>
                                                 </div>
