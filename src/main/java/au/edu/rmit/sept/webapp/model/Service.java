@@ -1,6 +1,11 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -13,7 +18,9 @@ public class Service {
     private String Title;
     private String Description;
 
-    @ManyToMany(mappedBy = "services")  // Updated to match the 'services' field in Veterinarian
+    @ManyToMany(mappedBy = "services")
+    @Fetch(FetchMode.JOIN)
+    @JsonBackReference // Prevent infinite recursion with Veterinarians
     private List<Veterinarian> veterinarians;
 
     // Constructors

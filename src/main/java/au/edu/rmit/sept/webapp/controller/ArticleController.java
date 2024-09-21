@@ -1,6 +1,8 @@
 package au.edu.rmit.sept.webapp.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.model.Bookmark;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 public class ArticleController {
@@ -49,6 +53,25 @@ public class ArticleController {
         } else {
             return "error"; // Returns a 404 view if the article is not found
         }
+    }
+
+    @GetMapping("/downloadArticle")
+    public ResponseEntity<StreamingResponseBody> downloadArticle(@RequestParam String link,
+            HttpServletResponse response)
+            throws Exception {
+
+        response.setContentType("application/zip");
+        response.setHeader(
+                "Content-Disposition",
+                "attachment;filename=download.zip");
+
+        StreamingResponseBody stream = out -> {
+            try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
+                ArticleService.writeZipToStream(link, zos);
+            }
+        };
+
+        return ResponseEntity.ok().body(stream);
     }
 
     @PostMapping("/article/add")
@@ -75,7 +98,7 @@ public class ArticleController {
         article.setAuthor(author);
         article.setPublishedDate(date);
 
-        //TODO: make them optional
+        // TODO: make them optional
         article.setDescription(description);
         article.setImageUrl(imageUrl);
 
@@ -118,7 +141,7 @@ public class ArticleController {
             return "index";
         }
 
-        model.addAttribute("content","articleList");
+        model.addAttribute("content", "articleList");
         return "index";
     }
 
@@ -148,7 +171,7 @@ public class ArticleController {
 
         // Fetch paginated bookmarked articles
         Page<Article> articlePage = bookmarkService.findByUser(user, page).map(Bookmark::getArticle);
-    
+
         // Prepare the set of bookmarked article links (for display purposes)
         Set<String> bookmarks = articlePage.getContent().stream()
                 .map(Article::getLink)
