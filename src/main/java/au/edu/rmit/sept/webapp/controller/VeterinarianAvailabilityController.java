@@ -21,9 +21,9 @@ public class VeterinarianAvailabilityController {
 
     // Fetch availability by veterinarian ID
     @PostMapping("/{veterinarianId}")
-    public ResponseEntity<?> getAvailabilityByVeterinarianId(@PathVariable Long veterinarianId) {
+    public ResponseEntity<?> getAvailabilityByVeterinarianId(@PathVariable String veterinarianId) {
         try {
-            List<VeterinarianAvailability> availability = veterinarianAvailabilityService.getAvailabilityByVeterinarianId(veterinarianId);
+            List<VeterinarianAvailability> availability = veterinarianAvailabilityService.getAvailabilityByVeterinarianId(Long.valueOf(veterinarianId));
             return ResponseEntity.ok(availability);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
