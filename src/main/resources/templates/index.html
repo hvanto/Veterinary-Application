@@ -9,7 +9,6 @@
     <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
 </head>
 <body class="min-w-full min-h-full">
-    <div th:insert="~{fragments/header :: header}"></div>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
     <head>
@@ -22,7 +21,6 @@
         <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
     </head>
     <body class="min-w-full min-h-full">
-        <div th:insert="~{fragments/header :: header}"></div>
 
     <div th:insert="~{fragments/navigation :: navigation}"></div>
 
@@ -35,79 +33,149 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             updateNavigation();
+            populateUserProfile();
         });
     
-        // Listen for the 'storage' event to update the navigation dynamically
-        window.addEventListener('storage', updateNavigation);
+        // Global function to show the corresponding section based on the button clicked
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = ['account-details', 'security-settings', 'payment-settings', 'notification-preferences'];
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    section.classList.add('hidden');
+                }
+            });
+    
+            // Show the selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            } else {
+                console.error(`Section with ID "${sectionId}" not found.`);
+            }
+        }
+    
+        // Function to populate the profile picture, user name, and account details
+        function populateUserProfile() {
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+            const profileUsername = document.getElementById('profile-username');
+    
+            if (user) {
+                if (profileUsername) {
+                    profileUsername.textContent = `${user.firstName} ${user.lastName}`;
+                }
+    
+                // Populate account details with placeholders
+                document.getElementById('first-name').placeholder = user.firstName || 'First Name';
+                document.getElementById('last-name').placeholder = user.lastName || 'Last Name';
+                document.getElementById('email').placeholder = user.email || 'Email';
+                document.getElementById('mobile').placeholder = user.contact || 'Mobile';
+            }
+        }
     
         function updateNavigation() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
     
-            const profileInfo = document.getElementById('profile-info'); // This element is now hidden or removed
-            const profileName = document.getElementById('profile-name');
-            const profileEmail = document.getElementById('profile-email');
             const signupButton = document.getElementById('signup-button');
             const loginButton = document.getElementById('login-button');
             const userMenuButton = document.getElementById('user-menu-button');
     
-            // Dropdown elements for username and email
-            const navUsername = document.getElementById('nav-username');
-            const navEmail = document.getElementById('nav-email');
-    
-            // Debugging: Check if user data is loaded correctly
             console.log('Loaded user:', user);
     
             if (user && user.firstName) {
-                // Show profile information and hide signup/login buttons
                 signupButton.classList.add('hidden');
                 loginButton.classList.add('hidden');
                 userMenuButton.classList.remove('hidden');
-    
-                // Set profile details in the dropdown
-                if (navUsername && navEmail) {
-                    navUsername.textContent = `${user.firstName} ${user.lastName}`;
-                    navEmail.textContent = user.email;
-                    console.log('Username and email set in dropdown:', `${user.firstName} ${user.lastName}`, user.email);
-                } else {
-                    console.error('Dropdown elements not found or not rendered correctly.');
-                }
             } else {
-                // Hide profile information and show signup/login buttons
                 signupButton.classList.remove('hidden');
                 loginButton.classList.remove('hidden');
                 userMenuButton.classList.add('hidden');
-    
-                // Reset dropdown details to default values
-                if (navUsername && navEmail) {
-                    navUsername.textContent = 'User Name';
-                    navEmail.textContent = 'email@example.com';
-                }
             }
         }
     
         function logoutUser() {
-            // Clear localStorage
             localStorage.removeItem('loggedInUser');
-            
-            // Trigger the update navigation on logout
             window.dispatchEvent(new Event('storage'));
-    
-            // Reload the page to update the navigation
             window.location.reload();
         }
-
-
-        // Function to show the corresponding section based on the button clicked
-        function showSection(sectionId) {
-            // Hide all sections
-            document.getElementById('account-details').classList.add('hidden');
-            document.getElementById('security-settings').classList.add('hidden');
-            document.getElementById('payment-settings').classList.add('hidden');
-            document.getElementById('notification-preferences').classList.add('hidden');
-
-            // Show the selected section
-            document.getElementById(sectionId).classList.remove('hidden');
+    
+        // Function to handle form submission and update user details
+        function updateAccountDetails(event) {
+            event.preventDefault();
+    
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    
+            const updatedUser = {
+                id: user.id,
+                firstName: document.getElementById('first-name').value || user.firstName,
+                lastName: document.getElementById('last-name').value || user.lastName,
+                email: document.getElementById('email').value || user.email,
+                contact: document.getElementById('mobile').value || user.contact
+            };
+    
+            fetch('/api/users/update', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedUser),
+            })
+            .then(response => response.json())
+            .then(data => {
+                localStorage.setItem('loggedInUser', JSON.stringify(data));
+                alert('Account details updated successfully!');
+                window.location.href = '/';
+            })
+            .catch((error) => {
+                console.error('Error updating account details:', error);
+                alert('Failed to update account details.');
+            });
         }
+
+
+
+    // Function to handle password update
+    function updatePassword(event) {
+        event.preventDefault();
+
+        const user = JSON.parse(localStorage.getItem('loggedInUser'));
+        const newPassword = document.getElementById('new-password').value;
+
+        if (!newPassword) {
+            alert('Please enter a new password.');
+            return;
+        }
+
+        // Send password update request to backend
+        fetch('/api/users/updatePassword', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: user.id, password: newPassword }),
+        })
+        .then(response => {
+            // Check if response is JSON before parsing
+            if (response.ok) {
+                return response.json();
+            } else {
+                // If not a JSON response, throw an error with response text
+                return response.text().then(text => {
+                    throw new Error(text);
+                });
+            }
+        })
+        .then(data => {
+            alert('Password updated successfully!');
+            document.getElementById('new-password').value = ''; // Clear the input
+        })
+        .catch((error) => {
+            console.error('Error updating password:', error.message);
+            alert('Failed to update password. ' + error.message);
+        });
+    }
+
     </script>
     
     

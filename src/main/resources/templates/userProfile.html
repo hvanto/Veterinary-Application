@@ -9,8 +9,8 @@
         <!-- Left Section - Profile -->
         <aside class="w-1/3 bg-black text-white p-8 rounded-md">
             <div class="flex flex-col items-center">
-                <img src="/path/to/profile_picture.jpg" alt="Profile Picture" class="w-32 h-32 rounded-full mb-4">
-                <h2 id="profile-username" class="text-lg font-semibold mb-6">[USER NAME]</h2>
+                <h2 class="text-2xl font-semibold mb-4">Welcome!</h2>
+                <h2 id="profile-username" class="text-lg font-semibold mb-6"></h2>
                 <ul class="w-full space-y-4">
                     <li>
                         <button onclick="showSection('account-details')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Account Details</button>
@@ -33,7 +33,7 @@
             <!-- Account Details Section -->
             <div id="account-details" class="">
                 <h2 class="text-2xl font-semibold mb-4">Account Details</h2>
-                <form>
+                <form id="updateAccountForm" onsubmit="updateAccountDetails(event)">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label for="first-name" class="block text-sm font-medium text-gray-700">First Name:</label>
@@ -59,33 +59,68 @@
             <!-- Security Settings Section -->
             <div id="security-settings" class="hidden">
                 <h2 class="text-2xl font-semibold mb-4">Security Settings</h2>
-                <form>
+                <form id="updatePasswordForm" onsubmit="updatePassword(event)">
                     <div class="mb-4">
-                        <label for="password" class="block text-sm font-medium text-gray-700">Change Password:</label>
-                        <input type="password" id="password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        <label for="new-password" class="block text-sm font-medium text-gray-700">New Password:</label>
+                        <input type="password" id="new-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
                     </div>
-                    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Update Security</button>
+                    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Update Password</button>
                 </form>
             </div>
 
             <!-- Payment Settings Section -->
             <div id="payment-settings" class="hidden">
                 <h2 class="text-2xl font-semibold mb-4">Payment Settings</h2>
-                <p>Manage your payment options and methods here.</p>
-                <!-- Payment form or details can go here -->
+                <form>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="card-number" class="block text-sm font-medium text-gray-700">Card Number:</label>
+                            <input type="text" id="card-number" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div>
+                            <label for="expiry-date" class="block text-sm font-medium text-gray-700">Expiry Date:</label>
+                            <input type="text" id="expiry-date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm" placeholder="MM/YY">
+                        </div>
+                        <div>
+                            <label for="cvv" class="block text-sm font-medium text-gray-700">CVV:</label>
+                            <input type="text" id="cvv" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm" placeholder="123">
+                        </div>
+                        <div>
+                            <label for="name-on-card" class="block text-sm font-medium text-gray-700">Name on Card:</label>
+                            <input type="text" id="name-on-card" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save Payment Info</button>
+                </form>
             </div>
 
             <!-- Notification Preferences Section -->
             <div id="notification-preferences" class="hidden">
                 <h2 class="text-2xl font-semibold mb-4">Notification Preferences</h2>
-                <p>Adjust your notification settings to receive updates and alerts.</p>
-                <!-- Notification settings form can go here -->
+                <form>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="appointment-reminders" class="mr-2">
+                            <label for="appointment-reminders" class="text-sm font-medium text-gray-700">Appointment Reminders</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="prescription-confirmations" class="mr-2">
+                            <label for="prescription-confirmations" class="text-sm font-medium text-gray-700">Prescription Confirmations</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="delivery-notifications" class="mr-2">
+                            <label for="delivery-notifications" class="text-sm font-medium text-gray-700">Delivery Notifications</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="advertisements" class="mr-2">
+                            <label for="advertisements" class="text-sm font-medium text-gray-700">Advertisements</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save Preferences</button>
+                </form>
             </div>
         </section>
     </main>
 
-    <script>
-
-    </script>
 </body>
 </html>
