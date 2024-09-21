@@ -1,4 +1,15 @@
 <!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>VetCare</title>
+    <meta name="description" content="My Page Description">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+    <script type="text/javascript" th:src="@{/js/alpine.js}"></script>
+    <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
+</head>
+<body class="min-w-full min-h-full">
+    <div th:insert="~{fragments/header :: header}"></div>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
     <head>
@@ -13,12 +24,92 @@
     <body class="min-w-full min-h-full">
         <div th:insert="~{fragments/header :: header}"></div>
 
-        <div th:insert="~{fragments/navigation :: navigation}"></div>
+    <div th:insert="~{fragments/navigation :: navigation}"></div>
 
-        <div id="main">
-            <div th:insert="~{${content} :: main}"></div>
-        </div>
+    <div id="main">
+        <div th:insert="~{${content} :: main}"></div>
+    </div>
 
-        <div th:insert="~{fragments/footer :: footer}"></div>
-    </body>
+    <div th:insert="~{fragments/footer :: footer}"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavigation();
+        });
+    
+        // Listen for the 'storage' event to update the navigation dynamically
+        window.addEventListener('storage', updateNavigation);
+    
+        function updateNavigation() {
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    
+            const profileInfo = document.getElementById('profile-info'); // This element is now hidden or removed
+            const profileName = document.getElementById('profile-name');
+            const profileEmail = document.getElementById('profile-email');
+            const signupButton = document.getElementById('signup-button');
+            const loginButton = document.getElementById('login-button');
+            const userMenuButton = document.getElementById('user-menu-button');
+    
+            // Dropdown elements for username and email
+            const navUsername = document.getElementById('nav-username');
+            const navEmail = document.getElementById('nav-email');
+    
+            // Debugging: Check if user data is loaded correctly
+            console.log('Loaded user:', user);
+    
+            if (user && user.firstName) {
+                // Show profile information and hide signup/login buttons
+                signupButton.classList.add('hidden');
+                loginButton.classList.add('hidden');
+                userMenuButton.classList.remove('hidden');
+    
+                // Set profile details in the dropdown
+                if (navUsername && navEmail) {
+                    navUsername.textContent = `${user.firstName} ${user.lastName}`;
+                    navEmail.textContent = user.email;
+                    console.log('Username and email set in dropdown:', `${user.firstName} ${user.lastName}`, user.email);
+                } else {
+                    console.error('Dropdown elements not found or not rendered correctly.');
+                }
+            } else {
+                // Hide profile information and show signup/login buttons
+                signupButton.classList.remove('hidden');
+                loginButton.classList.remove('hidden');
+                userMenuButton.classList.add('hidden');
+    
+                // Reset dropdown details to default values
+                if (navUsername && navEmail) {
+                    navUsername.textContent = 'User Name';
+                    navEmail.textContent = 'email@example.com';
+                }
+            }
+        }
+    
+        function logoutUser() {
+            // Clear localStorage
+            localStorage.removeItem('loggedInUser');
+            
+            // Trigger the update navigation on logout
+            window.dispatchEvent(new Event('storage'));
+    
+            // Reload the page to update the navigation
+            window.location.reload();
+        }
+
+
+        // Function to show the corresponding section based on the button clicked
+        function showSection(sectionId) {
+            // Hide all sections
+            document.getElementById('account-details').classList.add('hidden');
+            document.getElementById('security-settings').classList.add('hidden');
+            document.getElementById('payment-settings').classList.add('hidden');
+            document.getElementById('notification-preferences').classList.add('hidden');
+
+            // Show the selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+    </script>
+    
+    
+</body>
 </html>

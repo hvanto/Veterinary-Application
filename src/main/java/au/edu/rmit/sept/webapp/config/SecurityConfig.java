@@ -16,9 +16,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((requests) -> requests
-                .anyRequest().permitAll() 
+                .requestMatchers("/login", "/signup", "/home", "/").permitAll() // Updated method
+                .anyRequest().permitAll()
             )
-            .csrf().disable() 
+            .sessionManagement()
+                .sessionFixation().none()
+            .and()
+            .csrf().disable()
             .headers().frameOptions().disable();
 
         return http.build();
@@ -28,4 +32,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    
 }

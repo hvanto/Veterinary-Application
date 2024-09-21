@@ -72,7 +72,19 @@ public class PageResolverController {
         String requestURL = request.getRequestURL().toString();
         String queryString = request.getQueryString();
 
-        model.addAttribute("content", "login");
+        model.addAttribute("content", "loginUser");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
+    @GetMapping("/userProfile")
+    public String userProfile(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "userProfile");
         model.addAttribute("url", requestURL);
         model.addAttribute("queryString", queryString);
 
