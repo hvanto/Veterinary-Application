@@ -5,7 +5,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-    <main class="max-w-screen-2xl mx-auto flex justify-center items-center h-screen signup-content">
+    <main th:fragment="main" class="max-w-screen-2xl mx-auto flex justify-center items-center h-screen signup-content">
+        
         <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md signup-form">
             <h1 class="text-2xl font-semibold text-center mb-6">Sign Up</h1>
             <form id="signupForm" class="space-y-6" onsubmit="return false">
@@ -57,7 +58,7 @@
             </form>
 
             <!-- Response Message -->
-            <div id="responseMessage" class="text-center mt-6 text-red-600"></div>
+            <div id="responseMessage" class="text-center mt-6"></div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -150,13 +151,22 @@
                 // Submit form data via Axios
                 axios.post('/api/users/signup', formData)
                     .then(function (response) {
-                        document.getElementById('responseMessage').innerText = response.data;
+                        const responseMessage = document.getElementById('responseMessage');
+                        responseMessage.innerText = "User signed up successfully!";
+                        responseMessage.classList.add('text-green-600');
+                        
+                        // Redirect to /login after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 2000);
                     })
                     .catch(function (error) {
                         if (error.response.data === 'Email already exists') {
                             document.getElementById('emailTakenError').classList.remove('hidden');
                         } else {
-                            document.getElementById('responseMessage').innerText = "Error: " + error.response.data;
+                            const responseMessage = document.getElementById('responseMessage');
+                            responseMessage.innerText = "Error: " + error.response.data;
+                            responseMessage.classList.add('text-red-600');
                         }
                     });
             }

@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -35,14 +38,40 @@ public class UserController {
     }
 
     // Handle login
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User loginRequest) {
+    @PostMapping("/loginUser")
+    public ResponseEntity<User> login(@RequestBody User loginRequest) {
         try {
-            // Validate user credentials
-            userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
-            return ResponseEntity.ok("Login successful");
+            // Validate user credentials and return user if successful
+            User user = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // Update user details in the database
+    @PutMapping("/update")
+    public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
+        try {
+            // Update user details in the database
+            User user = userService.updateUser(updatedUser);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // Handle password update
+    @PutMapping("/updatePassword")
+    public ResponseEntity<Map<String, String>> updatePassword(@RequestBody User user) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            userService.updatePassword(user.getId(), user.getPassword());
+            response.put("message", "Password updated successfully!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", "Failed to update password: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

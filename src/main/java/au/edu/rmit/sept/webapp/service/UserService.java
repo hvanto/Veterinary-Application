@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
     private final EncryptionService encryptionService;
 
@@ -40,8 +39,8 @@ public class UserService {
         return userRepository.findFirstByOrderByIdAsc();
     }
 
-    // Validate user login
-    public boolean validateUserCredentials(String email, String plainPassword) throws Exception {
+    // Validate user login and return user object if successful
+    public User validateUserCredentials(String email, String plainPassword) throws Exception {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isEmpty()) {
             throw new Exception("Email not found");
@@ -53,6 +52,41 @@ public class UserService {
             throw new Exception("Invalid credentials");
         }
 
-        return true;
+        return user;
     }
+
+    // Update user details in the database
+    public User updateUser(User updatedUser) throws Exception {
+        Optional<User> existingUserOptional = userRepository.findById(updatedUser.getId());
+
+        if (existingUserOptional.isEmpty()) {
+            throw new Exception("User not found");
+        }
+
+        User existingUser = existingUserOptional.get();
+
+        // Update user details
+        existingUser.setFirstName(updatedUser.getFirstName());
+        existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setContact(updatedUser.getContact());
+
+        // Save the updated user to the database
+        return userRepository.save(existingUser);
+    }
+
+    // Update password with hashing
+    public void updatePassword(Long userId, String newPassword) throws Exception {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new Exception("User not found");
+        }
+
+        User user = userOptional.get();
+        user.setPassword(encryptionService.encryptPassword(newPassword)); // Hash the new password
+        userRepository.save(user);
+    }
+
+
+
 }

@@ -27,8 +27,7 @@ import java.io.IOException;
 
 
 /**
- * @author ashmit-sachan
- * @version 1.0
+ * Handles page routing and resolves the necessary view templates.
  */
 @Controller
 public class PageResolverController {
@@ -53,7 +52,7 @@ public class PageResolverController {
 
     @Autowired
     private FileGenerationService fileGenerationService;
-
+  
     /**
      * Handles the request to the home page and provides necessary data to the view.
      *
@@ -93,16 +92,6 @@ public class PageResolverController {
     }
 
 
-    /**
-     * Handles the request to the home page and provides necessary data to the view.
-     *
-     * @param request   - The HTTP request containing the URL and query data
-     * @param model     - Data object used by Thymeleaf for rendering the view
-     * @return index.html page with "home" content as the main section
-     *
-     * @implNote This method is intended to return the home page of the application
-     *           and may be modified in the future to handle additional logic or data.
-     */
     @GetMapping("/book-appointment")
     public String bookAppointment(HttpServletRequest request, Model model) {
         String requestURL = request.getRequestURL().toString();
@@ -132,13 +121,12 @@ public class PageResolverController {
         String requestURL = request.getRequestURL().toString();
         String queryString = request.getQueryString();
 
-        model.addAttribute("content", "login");
+        model.addAttribute("content", "loginUser");
         model.addAttribute("url", requestURL);
         model.addAttribute("queryString", queryString);
 
         return "index";
     }
-
     /**
      * Displays the medical records page for the selected pet.
      * If no pet is selected, a dropdown list of the user's pets is displayed.
@@ -187,7 +175,17 @@ public class PageResolverController {
 
         return "index";
     }
+  
+    @GetMapping("/userProfile")
+    public String userProfile(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
 
+        model.addAttribute("content", "userProfile");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+    }
+  
     /**
      * Fetches weight records for a selected pet via API.
      * @param selectedPetId The ID of the selected pet.
@@ -244,4 +242,27 @@ public class PageResolverController {
                 .contentType("pdf".equalsIgnoreCase(format) ? MediaType.APPLICATION_PDF : MediaType.APPLICATION_XML)
                 .body(new InputStreamResource(inputStream));
     }
+    // @GetMapping("/prescription")
+    // public String prescription(HttpServletRequest request, Model model) {
+    //     String requestURL = request.getRequestURL().toString();
+    //     String queryString = request.getQueryString();
+
+    //     model.addAttribute("content", "prescription");
+    //     model.addAttribute("url", requestURL);
+    //     model.addAttribute("queryString", queryString);
+
+    //     return "index";
+    // }
+
+    // @GetMapping("/medical-records")
+    // public String medicalRecords(HttpServletRequest request, Model model) {
+    //     String requestURL = request.getRequestURL().toString();
+    //     String queryString = request.getQueryString();
+
+    //     model.addAttribute("content", "medical-records");
+    //     model.addAttribute("url", requestURL);
+    //     model.addAttribute("queryString", queryString);
+
+    //     return "index";
+    // }
 }

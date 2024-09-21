@@ -9,19 +9,29 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ArticleService {
@@ -55,8 +65,26 @@ public class ArticleService {
         return repository.findByLink(link).isPresent();
     }
 
-    // Pagination
+    // Pagination for all articles
     public Page<Article> getArticles(int page) {
+        try {
+            if (page < 0) {
+                throw new IllegalArgumentException("page cannot be negative");
+            }
+            // Show 10 articles per page
+            Pageable pageable = PageRequest.of(page, 10);
+            return repository.findAll(pageable);
+
+        } catch (Exception e) {
+            System.err.println("An error occurred while fetching paginated articles: " + e.getMessage());
+            // Return an empty page
+            return Page.empty();
+        }
+
+    }
+
+    // Pagination for search results
+    public Page<Article> getSearchResult(String keyword, int page) {
         try {
             if (page < 0)
             {
@@ -64,7 +92,7 @@ public class ArticleService {
             }
             // Show 10 articles per page
             Pageable pageable = PageRequest.of(page, 10);
-            return repository.findAll(pageable);
+            return repository.searchArticlesByKeyword(keyword, pageable);
 
         } catch (Exception e) {
             System.err.println("An error occurred while fetching paginated articles: " + e.getMessage());
@@ -133,5 +161,67 @@ public class ArticleService {
         }
 
         return article;
+    }
+
+    public static void writeZipToStream(String url, ZipOutputStream zos) throws IOException {
+        Document doc = Jsoup.connect(url).get();
+        Set<String> downloaded = new HashSet<>();
+
+        for (Element link : doc.select("link[rel=stylesheet]")) {
+            String absUrl = link.absUrl("href");
+
+            if (!absUrl.startsWith("data:")) {
+                String path = "css/" + getFileName(absUrl);
+
+                if (!downloaded.contains(absUrl)) {
+                    addFileToZip(path, downloadFile(absUrl), zos);
+                    downloaded.add(absUrl);
+                }
+                link.attr("href", path);
+            }
+        }
+
+        for (Element img : doc.select("img")) {
+            String absUrl = img.absUrl("src");
+
+            if (!absUrl.startsWith("data:")) {
+                String path = "img/" + getFileName(absUrl);
+
+                if (!downloaded.contains(absUrl)) {
+                    addFileToZip(path, downloadFile(absUrl), zos);
+                    downloaded.add(absUrl);
+                }
+                img.attr("src", path);
+            }
+        }
+        addFileToZip("article.html", doc.outerHtml().getBytes(), zos);
+    }
+
+    private static String getFileName(String url) {
+        int i = url.lastIndexOf("?");
+        return url.substring(url.lastIndexOf("/") + 1, (i < 0) ? url.length() : i);
+    }
+
+    private static void addFileToZip(String path, byte[] bytes, ZipOutputStream zos) {
+        try {
+            ZipEntry entry = new ZipEntry(path);
+            zos.putNextEntry(entry);
+            zos.write(bytes);
+            zos.closeEntry();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static byte[] downloadFile(String fileUrl) throws IOException {
+        URL url = new URL(fileUrl);
+        try (InputStream in = url.openStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead);
+            }
+            return baos.toByteArray();
+        }
     }
 }
