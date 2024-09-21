@@ -37,43 +37,36 @@
 
         <script>
             function loginUser(event) {
-                // Prevent default form submission behavior
                 event.preventDefault();
 
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
 
-                // Prepare the form data
                 const formData = {
                     email: email,
                     password: password
                 };
-
-                // Clear existing user data in localStorage before login
-                localStorage.removeItem("loggedInUser");
 
                 // Submit form data via Axios
                 axios.post('/api/users/loginUser', formData)
                     .then(function (response) {
                         const user = response.data;
 
-                        // Check if user object contains expected fields
                         if (user && user.firstName && user.email) {
-                            // Store the new user data in localStorage
-                            localStorage.setItem("loggedInUser", JSON.stringify(user));
+                            // Store the user data in localStorage
+                            localStorage.setItem('loggedInUser', JSON.stringify(user));
 
-                            // Reload the page to update the navigation
-                            location.reload();
+                            // Dispatch a custom event to inform other scripts of the login
+                            window.dispatchEvent(new Event('storage'));
+
+                            // Redirect to home page to refresh navigation
+                            window.location.href = '/';
                         } else {
                             document.getElementById('responseMessage').innerText = "Login failed: User data incomplete.";
                         }
                     })
                     .catch(function (error) {
-                        if (error.response && error.response.data) {
-                            document.getElementById('responseMessage').innerText = `Error: ${JSON.stringify(error.response.data)}`;
-                        } else {
-                            document.getElementById('responseMessage').innerText = "An unexpected error occurred.";
-                        }
+                        document.getElementById('responseMessage').innerText = "An unexpected error occurred.";
                     });
             }
         </script>

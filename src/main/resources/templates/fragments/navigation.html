@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>VetCare</title>
+    <title>VetCare Navigation</title>
 </head>
 <body>
     <nav class="bg-zinc-50 border border-b-2 border-zinc-200" th:fragment="navigation">
@@ -37,10 +37,9 @@
 
             <!-- Signup, Login, and Profile Buttons -->
             <div class="flex items-center space-x-4 md:order-2">
-                <!-- Profile Info - Hidden by default -->
+                <!-- Profile Info (Hidden/Removed) -->
                 <div id="profile-info" class="hidden">
-                    <span id="profile-name" class="text-sm font-medium text-zinc-900"></span>
-                    <span id="profile-email" class="text-sm text-zinc-500 truncate"></span>
+                    <!-- This div can be removed or left hidden -->
                 </div>
 
                 <!-- Signup Button -->
@@ -49,8 +48,8 @@
                 <!-- Login Button -->
                 <a id="login-button" th:href="@{/login}" class="text-sm font-medium text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300">Login</a>
 
-                <!-- User Profile Button - Hidden by default -->
-                <button type="button" class="hidden flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="user-menu-button"
+                <!-- User Profile Button -->
+                <button type="button" class="flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="user-menu-button"
                         aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                     <img class="w-10 h-10 rounded-full" th:src="@{/assets/profile_picture.jpg}" alt="user photo">
                 </button>
@@ -64,10 +63,7 @@
                 </div>
                 <ul class="py-2" aria-labelledby="user-menu-button">
                     <li>
-                        <a href="#" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="#" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Settings</a>
+                        <a th:href="@{/userProfile}" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Settings</a>
                     </li>
                     <li>
                         <a href="#" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100" onclick="logoutUser()">Logout</a>
@@ -76,44 +72,5 @@
             </div>
         </div>
     </nav>
-
-    <script>
-        // Function to display the logged-in user's information and toggle elements
-        function displayUserInfo() {
-            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-
-            console.log('Logged in user:', loggedInUser); // Debugging line
-
-            if (loggedInUser) {
-                // Show profile info and user icon, hide login/signup buttons
-                document.getElementById('profile-info').classList.remove('hidden');
-                document.getElementById('user-menu-button').classList.remove('hidden');
-                document.getElementById('signup-button').classList.add('hidden');
-                document.getElementById('login-button').classList.add('hidden');
-
-                // Display user name and email
-                document.getElementById('profile-name').innerText = loggedInUser.firstName;
-                document.getElementById('profile-email').innerText = loggedInUser.email;
-                document.getElementById('nav-username').innerText = loggedInUser.firstName + ' ' + loggedInUser.lastName;
-                document.getElementById('nav-email').innerText = loggedInUser.email;
-            } else {
-                // Show login and signup buttons, hide profile info and user icon
-                console.log('No logged in user found.');
-                document.getElementById('signup-button').classList.remove('hidden');
-                document.getElementById('login-button').classList.remove('hidden');
-                document.getElementById('profile-info').classList.add('hidden');
-                document.getElementById('user-menu-button').classList.add('hidden');
-            }
-        }
-
-        // Run the displayUserInfo function when the page loads
-        document.addEventListener('DOMContentLoaded', displayUserInfo);
-
-        // Logout function
-        function logoutUser() {
-            localStorage.removeItem('loggedInUser');
-            window.location.href = "/";
-        }
-    </script>
 </body>
 </html>
