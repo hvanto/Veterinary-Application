@@ -9,9 +9,9 @@ document.addEventListener('alpine:init', () => {
         selectedDoctor: null,
         doctorAvailability: null,
         loading: true,
-        days: ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7'],
+        days: [],
         year: new Date().getFullYear(),
-        hours: ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM'],
+        hours: [],
 
         fetchData() {
             const getClinic = () => {

@@ -1,14 +1,4 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <title>VetCare</title>
-    <meta name="description" content="My Page Description">
-    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
-    <script type="text/javascript" th:src="@{/js/alpine.js}"></script>
-    <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
-</head>
-<body class="min-w-full min-h-full">
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
     <head>
@@ -31,154 +21,152 @@
 
     <div th:insert="~{fragments/footer :: footer}"></div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            updateNavigation();
-            populateUserProfile();
-        });
-    
-        // Global function to show the corresponding section based on the button clicked
-        function showSection(sectionId) {
-            // Hide all sections
-            const sections = ['account-details', 'security-settings', 'payment-settings', 'notification-preferences'];
-            sections.forEach(id => {
-                const section = document.getElementById(id);
-                if (section) {
-                    section.classList.add('hidden');
-                }
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                updateNavigation();
+                populateUserProfile();
             });
-    
-            // Show the selected section
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-            } else {
-                console.error(`Section with ID "${sectionId}" not found.`);
-            }
-        }
-    
-        // Function to populate the profile picture, user name, and account details
-        function populateUserProfile() {
-            const user = JSON.parse(localStorage.getItem('loggedInUser'));
-            const profileUsername = document.getElementById('profile-username');
-    
-            if (user) {
-                if (profileUsername) {
-                    profileUsername.textContent = `${user.firstName} ${user.lastName}`;
+
+            // Global function to show the corresponding section based on the button clicked
+            function showSection(sectionId) {
+                // Hide all sections
+                const sections = ['account-details', 'security-settings', 'payment-settings', 'notification-preferences'];
+                sections.forEach(id => {
+                    const section = document.getElementById(id);
+                    if (section) {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                // Show the selected section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                } else {
+                    console.error(`Section with ID "${sectionId}" not found.`);
                 }
-    
-                // Populate account details with placeholders
-                document.getElementById('first-name').placeholder = user.firstName || 'First Name';
-                document.getElementById('last-name').placeholder = user.lastName || 'Last Name';
-                document.getElementById('email').placeholder = user.email || 'Email';
-                document.getElementById('mobile').placeholder = user.contact || 'Mobile';
             }
-        }
-    
-        function updateNavigation() {
-            const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    
-            const signupButton = document.getElementById('signup-button');
-            const loginButton = document.getElementById('login-button');
-            const userMenuButton = document.getElementById('user-menu-button');
-    
-            console.log('Loaded user:', user);
-    
-            if (user && user.firstName) {
-                signupButton.classList.add('hidden');
-                loginButton.classList.add('hidden');
-                userMenuButton.classList.remove('hidden');
-            } else {
-                signupButton.classList.remove('hidden');
-                loginButton.classList.remove('hidden');
-                userMenuButton.classList.add('hidden');
+
+            // Function to populate the profile picture, user name, and account details
+            function populateUserProfile() {
+                const user = JSON.parse(localStorage.getItem('loggedInUser'));
+                const profileUsername = document.getElementById('profile-username');
+
+                if (user) {
+                    if (profileUsername) {
+                        profileUsername.textContent = `${user.firstName} ${user.lastName}`;
+                    }
+
+                    // Populate account details with placeholders
+                    document.getElementById('first-name').placeholder = user.firstName || 'First Name';
+                    document.getElementById('last-name').placeholder = user.lastName || 'Last Name';
+                    document.getElementById('email').placeholder = user.email || 'Email';
+                    document.getElementById('mobile').placeholder = user.contact || 'Mobile';
+                }
             }
-        }
-    
-        function logoutUser() {
-            localStorage.removeItem('loggedInUser');
-            window.dispatchEvent(new Event('storage'));
-            window.location.reload();
-        }
-    
-        // Function to handle form submission and update user details
-        function updateAccountDetails(event) {
+
+            function updateNavigation() {
+                const user = JSON.parse(localStorage.getItem('loggedInUser'));
+
+                const signupButton = document.getElementById('signup-button');
+                const loginButton = document.getElementById('login-button');
+                const userMenuButton = document.getElementById('user-menu-button');
+
+                console.log('Loaded user:', user);
+
+                if (user && user.firstName) {
+                    signupButton.classList.add('hidden');
+                    loginButton.classList.add('hidden');
+                    userMenuButton.classList.remove('hidden');
+                } else {
+                    signupButton.classList.remove('hidden');
+                    loginButton.classList.remove('hidden');
+                    userMenuButton.classList.add('hidden');
+                }
+            }
+
+            function logoutUser() {
+                localStorage.removeItem('loggedInUser');
+                window.dispatchEvent(new Event('storage'));
+                window.location.reload();
+            }
+
+            // Function to handle form submission and update user details
+            function updateAccountDetails(event) {
+                event.preventDefault();
+
+                const user = JSON.parse(localStorage.getItem('loggedInUser'));
+
+                const updatedUser = {
+                    id: user.id,
+                    firstName: document.getElementById('first-name').value || user.firstName,
+                    lastName: document.getElementById('last-name').value || user.lastName,
+                    email: document.getElementById('email').value || user.email,
+                    contact: document.getElementById('mobile').value || user.contact
+                };
+
+                fetch('/api/users/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedUser),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    localStorage.setItem('loggedInUser', JSON.stringify(data));
+                    alert('Account details updated successfully!');
+                    window.location.href = '/';
+                })
+                .catch((error) => {
+                    console.error('Error updating account details:', error);
+                    alert('Failed to update account details.');
+                });
+            }
+
+
+
+        // Function to handle password update
+        function updatePassword(event) {
             event.preventDefault();
-    
+
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    
-            const updatedUser = {
-                id: user.id,
-                firstName: document.getElementById('first-name').value || user.firstName,
-                lastName: document.getElementById('last-name').value || user.lastName,
-                email: document.getElementById('email').value || user.email,
-                contact: document.getElementById('mobile').value || user.contact
-            };
-    
-            fetch('/api/users/update', {
+            const newPassword = document.getElementById('new-password').value;
+
+            if (!newPassword) {
+                alert('Please enter a new password.');
+                return;
+            }
+
+            // Send password update request to backend
+            fetch('/api/users/updatePassword', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(updatedUser),
+                body: JSON.stringify({ id: user.id, password: newPassword }),
             })
-            .then(response => response.json())
+            .then(response => {
+                // Check if response is JSON before parsing
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    // If not a JSON response, throw an error with response text
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+            })
             .then(data => {
-                localStorage.setItem('loggedInUser', JSON.stringify(data));
-                alert('Account details updated successfully!');
-                window.location.href = '/';
+                alert('Password updated successfully!');
+                document.getElementById('new-password').value = ''; // Clear the input
             })
             .catch((error) => {
-                console.error('Error updating account details:', error);
-                alert('Failed to update account details.');
+                console.error('Error updating password:', error.message);
+                alert('Failed to update password. ' + error.message);
             });
         }
 
-
-
-    // Function to handle password update
-    function updatePassword(event) {
-        event.preventDefault();
-
-        const user = JSON.parse(localStorage.getItem('loggedInUser'));
-        const newPassword = document.getElementById('new-password').value;
-
-        if (!newPassword) {
-            alert('Please enter a new password.');
-            return;
-        }
-
-        // Send password update request to backend
-        fetch('/api/users/updatePassword', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: user.id, password: newPassword }),
-        })
-        .then(response => {
-            // Check if response is JSON before parsing
-            if (response.ok) {
-                return response.json();
-            } else {
-                // If not a JSON response, throw an error with response text
-                return response.text().then(text => {
-                    throw new Error(text);
-                });
-            }
-        })
-        .then(data => {
-            alert('Password updated successfully!');
-            document.getElementById('new-password').value = ''; // Clear the input
-        })
-        .catch((error) => {
-            console.error('Error updating password:', error.message);
-            alert('Failed to update password. ' + error.message);
-        });
-    }
-
-    </script>
-    
-    
-</body>
+        </script>
+    </body>
 </html>

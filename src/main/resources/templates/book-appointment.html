@@ -230,13 +230,6 @@
                                             <!-- Generate the next 7 columns for each day for that time slot -->
                                             <template x-for="day in days" :key="`day-${day}-hour-${hour}`">
                                                 <div class="h-36 p-2 border-t border-r border-gray-200 flex flex-col transition-all hover:bg-zinc-200" :data-booking-calendar-col="day">
-                                                    <!-- Generate 15-minute time slots dynamically for each day -->
-<!--                                                    <template x-for="slot in generateSubSlots(hour, day)" :key="slot.time">-->
-<!--                                                        <div class="rounded p-1.5 border-l-2 border-blue-600 bg-blue-50 mb-1">-->
-<!--                                                            <p class="text-xs font-semibold text-blue-600" x-text="slot.time"></p>-->
-<!--                                                        </div>-->
-<!--                                                    </template>-->
-
                                                     <template x-for="slot in generateSubSlots(hour, day)" :key="slot.time">
                                                         <div
                                                                 class="rounded p-1.5 mb-1 border-l-2"
