@@ -1,5 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +22,10 @@ public class Pet {
     @Column(name = "image_path") // Map to "image_path" column in the database
     private String imagePath;
 
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference // Prevent infinite loop with Clinic
+    private User user;
 
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
@@ -48,8 +52,8 @@ public class Pet {
     public String getImagePath() {
         return imagePath;
     }
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
     public Date getDateOfBirth() {
         return dateOfBirth;
@@ -61,7 +65,6 @@ public class Pet {
         long diff = new Date().getTime() - dateOfBirth.getTime();
         return (int) (diff / (1000L * 60 * 60 * 24 * 365));
     }
-
 
     // Setters
     public void setId(Long id) {
@@ -88,8 +91,8 @@ public class Pet {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;

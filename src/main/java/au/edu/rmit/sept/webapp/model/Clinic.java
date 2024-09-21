@@ -16,12 +16,6 @@ public class Clinic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-//    @OneToMany(mappedBy = "clinic")
-//    @Fetch(FetchMode.JOIN)
-//    @JsonBackReference
-//    private List<Veterinarian> Veterinarians;
-
-
     @OneToMany(mappedBy = "clinic")
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference // Break the infinite loop

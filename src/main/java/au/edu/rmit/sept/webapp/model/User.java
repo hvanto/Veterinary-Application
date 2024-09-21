@@ -1,7 +1,12 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -22,6 +27,11 @@ public class User {
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
+
+    @OneToMany(mappedBy = "user")
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference // Break the infinite loop
+    private List<Pet> pets;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedOn;
@@ -109,5 +119,13 @@ public class User {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public List<Pet> getPets() {
+        return pets;
+    }
+
+    public void setPets(List<Pet> pets) {
+        this.pets = pets;
     }
 }
