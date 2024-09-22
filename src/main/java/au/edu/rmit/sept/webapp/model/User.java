@@ -157,4 +157,10 @@ public class User {
     public void setAppointments(List<Appointment> appointments) {
         this.appointments = appointments;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
 }

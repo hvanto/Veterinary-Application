@@ -1,0 +1,94 @@
+package au.edu.rmit.sept.webapp;
+
+import au.edu.rmit.sept.webapp.model.*;
+import au.edu.rmit.sept.webapp.service.FileGenerationService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+public class FileGenerationServiceTests {
+
+    private FileGenerationService fileGenerationService;
+
+    private Pet testPet;
+    private List<MedicalHistory> medicalHistoryList;
+    private List<PhysicalExam> physicalExamList;
+    private List<Vaccination> vaccinationList;
+    private List<TreatmentPlan> treatmentPlanList;
+    private List<WeightRecord> weightRecordList;
+
+    @BeforeEach
+    public void setUp() {
+        fileGenerationService = new FileGenerationService();
+
+        // Create mock objects for testing
+        User user = new User();
+        user.setId(1L);
+        user.setFirstName("John");
+        user.setLastName("Smith");
+
+        testPet = new Pet();
+        testPet.setId(1L);
+        testPet.setName("Buddy");
+        testPet.setUser(user);
+
+        // Create mock lists
+        medicalHistoryList = Collections.singletonList(new MedicalHistory(testPet, "Dr. Smith", "Checkup", "Dr. Smith", new java.util.Date(), "All good", null));
+        physicalExamList = Collections.singletonList(new PhysicalExam(testPet, LocalDate.of(2023, 1, 1), "Dr. Smith", "Healthy"));
+        vaccinationList = Collections.singletonList(new Vaccination(testPet, "Rabies", new java.util.Date(), "Dr. Smith", new java.util.Date()));
+        treatmentPlanList = Collections.singletonList(new TreatmentPlan(testPet, LocalDate.of(2023, 1, 1), "Routine checkup", "Dr. Smith", "No issues found", null));
+        weightRecordList = Collections.singletonList(new WeightRecord(testPet, new java.util.Date(), 12.5));
+    }
+
+    @Test
+    public void testGenerateXML() throws IOException {
+        // Test generating XML with all sections
+        List<String> sections = Arrays.asList("full", "physicalExams", "vaccinations", "treatmentPlans", "weightRecords");
+        ByteArrayInputStream xmlStream = fileGenerationService.generateXML(testPet, medicalHistoryList, physicalExamList, vaccinationList, treatmentPlanList, weightRecordList, sections);
+
+        // Verify the XML content
+        assertNotNull(xmlStream);
+        byte[] xmlBytes = xmlStream.readAllBytes();
+        assertTrue(xmlBytes.length > 0);
+
+        // Check for specific content in the XML
+        String xmlContent = new String(xmlBytes);
+        assertTrue(xmlContent.contains("<Pet name=\"Buddy\">"));
+        assertTrue(xmlContent.contains("<WeightRecords>"));
+        assertTrue(xmlContent.contains("<MedicalHistory>"));
+        assertTrue(xmlContent.contains("<PhysicalExams>"));
+        assertTrue(xmlContent.contains("<Vaccinations>"));
+        assertTrue(xmlContent.contains("<TreatmentPlans>"));
+    }
+
+    @Test
+    public void testGenerateXML_EmptySections() throws IOException {
+        // Test generating XML with no sections
+        List<String> sections = Collections.emptyList();
+        ByteArrayInputStream xmlStream = fileGenerationService.generateXML(testPet, medicalHistoryList, physicalExamList, vaccinationList, treatmentPlanList, weightRecordList, sections);
+
+        // Verify the XML content
+        assertNotNull(xmlStream);
+        byte[] xmlBytes = xmlStream.readAllBytes();
+        assertTrue(xmlBytes.length > 0);
+
+        // Check that the XML does not contain specific sections
+        String xmlContent = new String(xmlBytes);
+        assertTrue(xmlContent.contains("<Pet name=\"Buddy\">"));
+        assertFalse(xmlContent.contains("<WeightRecords>"));
+        assertFalse(xmlContent.contains("<MedicalHistory>"));
+        assertFalse(xmlContent.contains("<PhysicalExams>"));
+        assertFalse(xmlContent.contains("<Vaccinations>"));
+        assertFalse(xmlContent.contains("<TreatmentPlans>"));
+    }
+}
