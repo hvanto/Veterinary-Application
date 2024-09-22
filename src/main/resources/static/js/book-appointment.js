@@ -23,6 +23,7 @@ document.addEventListener('alpine:init', () => {
         clinic: {},
         services: [],
         user: user,
+        userPets: user.pets,
         selectedDoctor: null,
         doctorAvailability: null,
         loading: true,
@@ -31,7 +32,9 @@ document.addEventListener('alpine:init', () => {
         hours: [],
         selectedSlot: null,
         selectedDay: null,
+        selectedPetId: null,
         showModal: false,
+        petSelectDropdownOpen: false,
 
         fetchData() {
             const getClinic = () => {
@@ -103,15 +106,63 @@ document.addEventListener('alpine:init', () => {
                     window.location.href = '/login'
                 }, 3000);
             } else {
-                // console.log("User: ", user.id);
-                // console.log("Day: ", day, ", slot: ", slot);
-                // console.log("Year: ", this.year);
-                // console.log("Veterinarian: ", this.selectedDoctor);
-
                 this.selectedSlot = slot;
                 this.selectedDay = day;
+                // console.log(this.user.pets[0] ? this.user.pets[0].id : false);
+                // console.log(this.user.pets[0]);
+                // console.log(this.user.pets[0].id);
+                this.selectedPetId = this.user.pets[0] ? this.user.pets[0].id : false;
                 this.showModal = true;
             }
+        },
+
+        bookAppointmentConfirm(pet) {
+            const startTime = String(this.selectedSlot.time).split(' - ')[0];
+            const endTime = String(this.selectedSlot.time).split(' - ')[1];
+            // console.log("User: ", user.id);
+            // console.log("Day: ", this.selectedDay);
+            // console.log("Start Time: ", startTime);
+            // console.log("End Time: ", endTime);
+            // console.log("Year: ", this.year);
+            // console.log("Veterinarian: ", this.selectedDoctor.id);
+            // console.log("Pet: ", this.selectedPetId);
+
+            const appointmentData = {
+                user: this.user.id,
+                veterinarian: this.selectedDoctor.id,
+                pet: this.selectedPetId,
+                startTime: startTime,
+                endTime: endTime,
+                day: this.selectedDay,
+                year: this.year
+            }
+
+            // console.log(appointmentData);
+
+            axios.post('/api/appointments/create', null, {
+                params: appointmentData
+            })
+                .then(function (response) {
+                    // console.log('Appointment created successfully:', response.data);
+                    // Redirect or show success message
+                    alert('Appointment created successfully!');
+                })
+                .catch(function (error) {
+                    // console.error('Error creating appointment:', error.response);
+                    // Show error message
+                    alert('Failed to create appointment.');
+                });
+        },
+
+        getAppointments(veterinarianId, day, year) {
+            axios.post(`/api/appointments/veterinarian/${veterinarianId}/day/${encodeURIComponent(day)}/year/${year}`)
+                .then(function (response) {
+                    return response.data;
+                })
+                .catch(function (error) {
+                    console.error('Error fetching appointments:', error.response);
+                    return error.response;
+                });
         },
 
         generateHoursArray(openingTime, closingTime) {
@@ -201,6 +252,9 @@ document.addEventListener('alpine:init', () => {
 
                     minutes += dayAvailability.slotDuration;
                 }
+
+                // console.log(this.selectedDoctor.id, day, this.year);
+                // console.log(this.getAppointments(this.selectedDoctor.id, day, this.year));
             }
 
             return subSlots;
