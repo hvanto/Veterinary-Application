@@ -134,4 +134,12 @@ public class Appointment {
     public Date getUpdatedOn() {
         return UpdatedOn;
     }
+
+    public Pet getPet() {
+        return pet;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
+    }
 }

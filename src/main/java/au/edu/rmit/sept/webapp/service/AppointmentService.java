@@ -1,4 +1,68 @@
 package au.edu.rmit.sept.webapp.service;
 
+import au.edu.rmit.sept.webapp.model.Appointment;
+import au.edu.rmit.sept.webapp.model.User;
+import au.edu.rmit.sept.webapp.model.Veterinarian;
+import au.edu.rmit.sept.webapp.model.Pet;
+import au.edu.rmit.sept.webapp.repository.AppointmentRepository;
+import au.edu.rmit.sept.webapp.repository.UserRepository;
+import au.edu.rmit.sept.webapp.repository.VeterinarianRepository;
+import au.edu.rmit.sept.webapp.repository.PetRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+@Service
 public class AppointmentService {
+
+    private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
+    private final VeterinarianRepository veterinarianRepository;
+    private final PetRepository petRepository;
+
+    @Autowired
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VeterinarianRepository veterinarianRepository, PetRepository petRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.userRepository = userRepository;
+        this.veterinarianRepository = veterinarianRepository;
+        this.petRepository = petRepository;
+    }
+
+    public Appointment createAppointment(String day, String year, String startTime, String endTime, Long userId, Long veterinarianId, Long petId, String notes) throws Exception {
+        // Convert day, year, startTime, endTime to Date types
+        String dateString = day + " " + year;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        Date appointmentDate = dateFormat.parse(dateString);
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        Date start = timeFormat.parse(startTime);
+        Date end = timeFormat.parse(endTime);
+
+        // Fetch user, veterinarian, and pet from the repositories
+        User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
+        Veterinarian veterinarian = veterinarianRepository.findById(veterinarianId).orElseThrow(() -> new Exception("Veterinarian not found"));
+        Pet pet = petRepository.findById(petId).orElseThrow(() -> new Exception("Pet not found"));
+
+        // Create new appointment object
+        Appointment appointment = new Appointment(appointmentDate, start, end, notes, user, veterinarian);
+        appointment.setPet(pet);
+
+        // Save the appointment
+        return appointmentRepository.save(appointment);
+    }
+
+
+    // Method to find appointments by veterinarian and date
+    public List<Appointment> getAppointmentsByVeterinarianAndDay(Long veterinarianId, String day, String year) throws Exception {
+        // Convert day and year to Date format
+        String dateString = day + " " + year;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        Date appointmentDate = dateFormat.parse(dateString);
+
+        // Call the repository to get appointments
+        return appointmentRepository.findByVeterinarianIdAndAppointmentDate(veterinarianId, appointmentDate);
+    }
 }

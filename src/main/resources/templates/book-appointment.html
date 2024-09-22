@@ -273,7 +273,7 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
 
-             class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+             class="relative z-40" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <!-- Background backdrop -->
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
@@ -328,10 +328,29 @@
                                     <span x-text="`${selectedDay} ${year}`" class="text-sm"></span>
                                 </div>
                             </template>
+
+                            <template x-if="selectedPetId" class="">
+                                <div class="flex items-center">
+                                    <span class="font-light text-sm mr-4">Select Pet:</span>
+                                    <select name="pet" id="pet" x-model="selectedPetId">
+                                        <template x-for="pet in userPets" :key="pet.id">
+                                            <option :value="pet.id" x-text="pet.name"></option>
+                                        </template>
+                                    </select>
+                                    <button @click="window.location.href = `${addPetURL}`" type="button" class="ml-10 w-28 justify-center rounded-md bg-sky-700 px-3 py-2 text-xs h-8 font-semibold text-white shadow-sm hover:bg-sky-900">Add New Pet</button>
+                                </div>
+                            </template>
+
+                            <template x-if="!selectedPetId" class="">
+                                <div class="flex items-center">
+                                    <span class="font-light text-sm mr-10">Add your first pet</span>
+                                    <button @click="window.location.href = `${addPetURL}`" type="button" class="inline-flex w-full justify-center rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-900 sm:ml-3 sm:w-auto">Add Pet</button>
+                                </div>
+                            </template>
                         </div>
                         <!-- Modal Actions -->
                         <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                            <button @click="bookAppointmentConfirm()" type="button" class="inline-flex w-full justify-center rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-900 sm:ml-3 sm:w-auto">Confirm and Book</button>
+                            <button @click="bookAppointmentConfirm($refs.pet)" type="button" class="inline-flex w-full justify-center rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-900 sm:ml-3 sm:w-auto">Confirm and Book</button>
                             <button @click="showModal = false" type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancel</button>
                         </div>
                     </div>
