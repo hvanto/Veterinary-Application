@@ -1,74 +1,104 @@
 package au.edu.rmit.sept.webapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 
 @Entity
+@Table(name = "pet")
 public class Pet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "gender")
     private String gender;
+
+    @Column(name = "species")
     private String species;
+
+    @Column(name = "breed")
     private String breed;
+
+    @Column(name = "microchipped", nullable = false)
     private boolean microchipped;
+
+    @Column(name = "notes")
     private String notes;
 
-    @Column(name = "image_path") // Map to "image_path" column in the database
+    @Column(name = "image_path")
     private String imagePath;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference("user-pets")
+    @JsonBackReference // Prevent infinite loop with User
     private User user;
 
     @Temporal(TemporalType.DATE)
+    @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
-    @Fetch(FetchMode.JOIN)
-    @JsonManagedReference("pet-appointments")
-    private List<Appointment> appointments;
+    // Default constructor
+    public Pet() {}
+
+    // Constructor for seeding data
+    public Pet(User user, String name, String species, String breed, String gender, boolean microchipped, String notes, String imagePath, LocalDate dateOfBirth) {
+        this.user = user;
+        this.name = name;
+        this.species = species;
+        this.breed = breed;
+        this.gender = gender;
+        this.microchipped = microchipped;
+        this.notes = notes;
+        this.imagePath = imagePath;
+        this.dateOfBirth = java.sql.Date.valueOf(dateOfBirth);
+    }
 
     // Getters
     public Long getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
+
     public String getGender() {
         return gender;
     }
+
     public String getSpecies() {
         return species;
     }
+
     public String getBreed() {
         return breed;
     }
+
+    public boolean isMicrochipped() {
+        return microchipped;
+    }
+
     public String getNotes() {
         return notes;
     }
+
     public String getImagePath() {
         return imagePath;
     }
+
     public User getUser() {
         return user;
     }
+
     public Date getDateOfBirth() {
         return dateOfBirth;
-    }
-    public List<Appointment> getAppointments() {
-        return appointments;
     }
 
     public int getAge() {
@@ -83,41 +113,40 @@ public class Pet {
     public void setId(Long id) {
         this.id = id;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public void setGender(String gender) {
         this.gender = gender;
     }
+
     public void setSpecies(String species) {
         this.species = species;
     }
+
     public void setBreed(String breed) {
         this.breed = breed;
     }
+
     public void setMicrochipped(boolean microchipped) {
         this.microchipped = microchipped;
     }
+
     public void setNotes(String notes) {
         this.notes = notes;
     }
+
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
+
     public void setUser(User user) {
         this.user = user;
     }
+
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
-    public void setAppointments(List<Appointment> appointments) {
-        this.appointments = appointments;
-    }
-
-    // Other Methods
-    public boolean isMicrochipped() {
-        return microchipped;
-    }
 }
-
-//INSERT INTO `vetcaredb`.`pet` (`id`, `breed`, `gender`, `image_path`, `microchipped`, `name`, `species`, `user_id`) VALUES ('2', 'Indian', 'Female', 'default.png', b'1', 'Kellogs', 'Cat', '2')
