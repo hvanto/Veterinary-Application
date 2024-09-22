@@ -1,5 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -29,11 +30,18 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference("user-appointments")
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "veterinarian_id")
+    @JsonBackReference("veterinarian-appointments")
     private Veterinarian veterinarian;
+
+    @ManyToOne
+    @JoinColumn(name = "pet_id")
+    @JsonBackReference("pet-appointments")
+    private Pet pet;
 
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -125,5 +133,13 @@ public class Appointment {
 
     public Date getUpdatedOn() {
         return UpdatedOn;
+    }
+
+    public Pet getPet() {
+        return pet;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
     }
 }

@@ -18,7 +18,7 @@ public class Clinic {
 
     @OneToMany(mappedBy = "clinic")
     @Fetch(FetchMode.JOIN)
-    @JsonManagedReference // Break the infinite loop
+    @JsonManagedReference("clinic-veterinarians")
     private List<Veterinarian> veterinarians;
 
     private String Name;

@@ -40,6 +40,8 @@ public class UserController {
     // Handle login
     @PostMapping("/loginUser")
     public ResponseEntity<User> login(@RequestBody User loginRequest) {
+        System.out.println(loginRequest);
+
         try {
             // Validate user credentials and return user if successful
             User user = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());

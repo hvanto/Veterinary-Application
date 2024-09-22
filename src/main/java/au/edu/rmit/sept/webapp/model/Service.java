@@ -1,6 +1,7 @@
 package au.edu.rmit.sept.webapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -20,7 +21,8 @@ public class Service {
 
     @ManyToMany(mappedBy = "services")
     @Fetch(FetchMode.JOIN)
-    @JsonBackReference // Prevent infinite recursion with Veterinarians
+//    @JsonBackReference("veterinarian-services")
+    @JsonIgnore // Ignore this field during serialization to prevent circular references
     private List<Veterinarian> veterinarians;
 
     // Constructors
