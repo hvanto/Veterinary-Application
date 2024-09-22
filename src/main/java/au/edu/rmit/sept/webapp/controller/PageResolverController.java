@@ -12,6 +12,7 @@ import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.model.PhysicalExam;
 import au.edu.rmit.sept.webapp.model.Vaccination;
 import au.edu.rmit.sept.webapp.model.TreatmentPlan;
+import au.edu.rmit.sept.webapp.model.Prescription;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import au.edu.rmit.sept.webapp.model.WeightRecord;
@@ -52,6 +53,9 @@ public class PageResolverController {
 
     @Autowired
     private FileGenerationService fileGenerationService;
+
+    @Autowired
+    private PrescriptionService prescriptionService;
   
     /**
      * Handles the request to the home page and provides necessary data to the view.
@@ -243,17 +247,17 @@ public class PageResolverController {
                 .contentType("pdf".equalsIgnoreCase(format) ? MediaType.APPLICATION_PDF : MediaType.APPLICATION_XML)
                 .body(new InputStreamResource(inputStream));
     }
-    // @GetMapping("/prescription")
-    // public String prescription(HttpServletRequest request, Model model) {
-    //     String requestURL = request.getRequestURL().toString();
-    //     String queryString = request.getQueryString();
+    @GetMapping("/prescription")
+    public String prescription(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
 
-    //     model.addAttribute("content", "prescription");
-    //     model.addAttribute("url", requestURL);
-    //     model.addAttribute("queryString", queryString);
+        model.addAttribute("content", "prescription");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
 
-    //     return "index";
-    // }
+        return "index";
+    }
 
     // @GetMapping("/medical-records")
     // public String medicalRecords(HttpServletRequest request, Model model) {
