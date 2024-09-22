@@ -62,11 +62,11 @@
                             // Redirect to home page to refresh navigation
                             window.location.href = '/';
                         } else {
-                            document.getElementById('responseMessage').innerText = "Login failed: User data incomplete.";
+                            document.getElementById('responseMessage').innerText = "Login failed: User data incorrect.";
                         }
                     })
                     .catch(function (error) {
-                        document.getElementById('responseMessage').innerText = "An unexpected error occurred.";
+                        document.getElementById('responseMessage').innerText = "Inccorect password or email.";
                     });
             }
         </script>

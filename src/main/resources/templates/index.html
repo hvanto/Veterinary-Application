@@ -67,17 +67,28 @@
 
             function updateNavigation() {
                 const user = JSON.parse(localStorage.getItem('loggedInUser'));
-
+            
                 const signupButton = document.getElementById('signup-button');
                 const loginButton = document.getElementById('login-button');
                 const userMenuButton = document.getElementById('user-menu-button');
-
+                const navUsername = document.getElementById('nav-username');
+                const navEmail = document.getElementById('nav-email');
+            
                 console.log('Loaded user:', user);
-
+            
                 if (user && user.firstName) {
                     signupButton.classList.add('hidden');
                     loginButton.classList.add('hidden');
                     userMenuButton.classList.remove('hidden');
+            
+                    // Update navigation with the user's details
+                    if (navUsername) {
+                        navUsername.textContent = `${user.firstName} ${user.lastName}`;
+                    }
+            
+                    if (navEmail) {
+                        navEmail.textContent = user.email;
+                    }
                 } else {
                     signupButton.classList.remove('hidden');
                     loginButton.classList.remove('hidden');
