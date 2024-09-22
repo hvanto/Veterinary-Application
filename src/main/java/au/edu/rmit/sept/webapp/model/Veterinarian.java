@@ -27,7 +27,7 @@ public class Veterinarian {
 
     @ManyToOne
     @JoinColumn(name = "clinic_id")
-    @JsonBackReference // Prevent infinite loop with Clinic
+    @JsonBackReference("clinic-veterinarians")
     private Clinic clinic;
 
     @ManyToMany
@@ -37,8 +37,13 @@ public class Veterinarian {
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
     @Fetch(FetchMode.JOIN)
-    @JsonManagedReference
+//    @JsonManagedReference("veterinarian-services")
     private List<Service> services;
+
+    @OneToMany(mappedBy = "veterinarian", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference("veterinarian-appointments")
+    private List<Appointment> appointments;
 
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -158,5 +163,13 @@ public class Veterinarian {
 
     public void setClinic(Clinic clinic) {
         this.clinic = clinic;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 }

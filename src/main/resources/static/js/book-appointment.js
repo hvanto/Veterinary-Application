@@ -3,15 +3,35 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'Ju
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 document.addEventListener('alpine:init', () => {
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+
+    if (!user) {
+        Toastify({
+            text: "Login to book appointment!",
+            close: true,
+            destination: "/signin",
+            gravity: 'top',
+            position: 'right',
+        }).showToast();
+
+        setTimeout(() => {
+            window.location.href = '/login'
+        }, 2000);
+    }
+
     Alpine.data('clinicServiceData', () => ({
         clinic: {},
         services: [],
+        user: user,
         selectedDoctor: null,
         doctorAvailability: null,
         loading: true,
         days: [],
         year: new Date().getFullYear(),
         hours: [],
+        selectedSlot: null,
+        selectedDay: null,
+        showModal: false,
 
         fetchData() {
             const getClinic = () => {
@@ -66,7 +86,32 @@ document.addEventListener('alpine:init', () => {
                 this.loading = false;
             });
 
-            this.selectedDoctor = event.target.value;
+            this.selectedDoctor = this.clinic.veterinarians.filter(vet => Number(vet.id) === Number(event.target.value))[0];
+        },
+
+        bookAppointment(day, slot) {
+            if (!user) {
+                Toastify({
+                    text: "Login to book appointment!",
+                    close: true,
+                    destination: "/signin",
+                    gravity: 'top',
+                    position: 'right',
+                }).showToast();
+
+                setTimeout(() => {
+                    window.location.href = '/login'
+                }, 3000);
+            } else {
+                // console.log("User: ", user.id);
+                // console.log("Day: ", day, ", slot: ", slot);
+                // console.log("Year: ", this.year);
+                // console.log("Veterinarian: ", this.selectedDoctor);
+
+                this.selectedSlot = slot;
+                this.selectedDay = day;
+                this.showModal = true;
+            }
         },
 
         generateHoursArray(openingTime, closingTime) {
@@ -144,7 +189,8 @@ document.addEventListener('alpine:init', () => {
                         (startHour > breakStartHour && startHour < breakEndHour)          // In between break hours
                     );
 
-                    const endTime = `${nextHour}:${endMinutes === 0 ? '00' : endMinutes} ${ampm}`;
+                    // const endTime = `${nextHour}:${endMinutes === 0 ? '00' : endMinutes} ${ampm}`;
+                    const endTime = `${nextHour}:${endMinutes === 0 ? '00' : endMinutes}`;
                     const slotTime = `${startHour}:${minutes === 0 ? '00' : minutes} - ${endTime}`;
 
                     if (isWithinBreakTime && !(startHour === breakEndHour && minutes >= breakEndMinutes)) {

@@ -30,8 +30,13 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @Fetch(FetchMode.JOIN)
-    @JsonManagedReference // Break the infinite loop
+    @JsonManagedReference("user-pets")
     private List<Pet> pets;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference("user-appointments")
+    private List<Appointment> appointments;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedOn;
@@ -50,6 +55,22 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         this.updatedOn = new Date();
+    }
+
+    public User() {
+    }
+
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public User(String firstName, String lastName, String email, String password, String contact) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.contact = contact;
     }
 
     // Getters and Setters
@@ -127,5 +148,13 @@ public class User {
 
     public void setPets(List<Pet> pets) {
         this.pets = pets;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 }

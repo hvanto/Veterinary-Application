@@ -1,7 +1,11 @@
 package au.edu.rmit.sept.webapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import java.util.Date;
 import java.util.List;
 
@@ -24,11 +28,16 @@ public class Pet {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference // Prevent infinite loop with Clinic
+    @JsonBackReference("user-pets")
     private User user;
 
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference("pet-appointments")
+    private List<Appointment> appointments;
 
     // Getters
     public Long getId() {
@@ -58,6 +67,10 @@ public class Pet {
     public Date getDateOfBirth() {
         return dateOfBirth;
     }
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
     public int getAge() {
         if (dateOfBirth == null) {
             return 0;
@@ -97,9 +110,14 @@ public class Pet {
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
 
     // Other Methods
     public boolean isMicrochipped() {
         return microchipped;
     }
 }
+
+//INSERT INTO `vetcaredb`.`pet` (`id`, `breed`, `gender`, `image_path`, `microchipped`, `name`, `species`, `user_id`) VALUES ('2', 'Indian', 'Female', 'default.png', b'1', 'Kellogs', 'Cat', '2')
