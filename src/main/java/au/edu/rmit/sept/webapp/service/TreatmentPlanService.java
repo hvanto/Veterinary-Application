@@ -18,16 +18,12 @@ public class TreatmentPlanService {
         return treatmentPlanRepository.findByPetId(petId);
     }
 
-    public TreatmentPlan createTreatmentPlan(TreatmentPlan treatmentPlan) {
-        return treatmentPlanRepository.save(treatmentPlan);
-    }
-
     public Optional<TreatmentPlan> getTreatmentPlanById(Long id) {
         return treatmentPlanRepository.findById(id);
     }
 
-    public TreatmentPlan updateTreatmentPlan(TreatmentPlan updatedPlan) {
-        return treatmentPlanRepository.save(updatedPlan);
+    public void save(TreatmentPlan plan) {
+        treatmentPlanRepository.save(plan);
     }
 
     public void deleteTreatmentPlan(Long id) {

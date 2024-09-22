@@ -26,16 +26,7 @@ public class MedicalHistoryService {
         return medicalHistoryRepository.findByPetIdOrderByEventDateDesc(petId);
     }
 
-    public MedicalHistory saveMedicalHistory(MedicalHistory medicalHistory) {
-        return medicalHistoryRepository.save(medicalHistory);
-    }
-
-    public void deleteMedicalHistory(Long id) {
-        medicalHistoryRepository.deleteById(id);
-    }
-
-    // Additional method to find by prescriptionId if needed
-    public List<MedicalHistory> findByPrescriptionId(Long prescriptionId) {
-        return medicalHistoryRepository.findByPrescriptionId(prescriptionId);
+    public void save(MedicalHistory history4) {
+        medicalHistoryRepository.save(history4);
     }
 }

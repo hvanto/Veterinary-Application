@@ -4,111 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Records</title>
-    <!-- Link to TailwindCSS compiled stylesheet -->
     <link href="/static/css/main.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-<div th:fragment="main">
+<div th:fragment="main" x-data="medicalRecordsData()" x-init="init()">
     <div class="container mx-auto my-10 px-4 max-w-6xl bg-white rounded-lg shadow-lg">
 
+        <!-- Login prompt -->
+        <div x-show="!isAuthenticated" class="flex flex-col items-center justify-center h-72">
+            <div class="bg-blue-50 text-blue-900 font-bold rounded-md border border-blue-200 p-3 text-center max-w-lg mx-auto shadow">
+                <p class="text-xl mb-3">You need to log in to view medical records.</p>
+                <a href="/login" class="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded transition duration-300">
+                    Click here to log in
+                </a>
+            </div>
+        </div>
+
         <!-- If no pet is selected, show pet cards to choose from -->
-        <div th:if="${selectedPet == null}">
+        <div x-show="isAuthenticated && !selectedPet">
             <div class="text-center py-4">
                 <h2 class="font-bold text-3xl text-gray-800">Select a Pet</h2>
             </div>
-            <div th:insert="~{fragments/pet-cards :: pet-cards}"></div>
+            <div class="flex flex-wrap justify-center gap-6 p-4 bg-gray-50 rounded-lg">
+                <template x-for="pet in pets" :key="pet.id">
+                    <div @click="fetchMedicalRecords(pet.id)"
+                         class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
+                        <div class="block">
+                            <div class="bg-blue-100 p-4">
+                                <h3 class="text-xl font-semibold text-gray-800" x-text="pet.name"></h3>
+                            </div>
+                            <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                                <img :src="pet.imagePath ? '/assets/' + pet.imagePath : '/assets/default.png'" alt="Pet Image" class="object-contain h-full w-full">
+                            </div>
+                            <div class="p-4 text-center">
+                                <p class="text-gray-600" x-text="pet.species"></p>
+                                <p class="text-gray-600">Breed: <span x-text="pet.breed"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
 
-        <!-- If a pet is selected, display its details -->
-        <div th:if="${selectedPet != null}" id="petData" th:attr="data-pet-id=${selectedPet.id}">
-            <div class="text-center py-4">
-                <h2 class="font-bold text-3xl text-gray-800">Medical Records</h2>
+        <!-- If a pet is selected, display its details and medical history -->
+        <div x-show="isAuthenticated && selectedPet" id="petData" :data-pet-id="selectedPet.id">
+            <div class="flex justify-center mb-8">
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full">
+                    <div class="bg-blue-100 p-4">
+                        <h3 class="text-xl font-semibold text-gray-800" x-text="selectedPet.name"></h3>
+                    </div>
+                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                        <img :src="selectedPet.imagePath ? '/assets/' + selectedPet.imagePath : '/assets/default.png'" alt="Pet Image" class="object-contain h-full w-full">
+                    </div>
+                    <div class="p-4 text-center">
+                        <p class="text-gray-600" x-text="selectedPet.species"></p>
+                        <p class="text-gray-600">Breed: <span x-text="selectedPet.breed"></span></p>
+                        <p class="text-gray-600">Gender: <span x-text="selectedPet.gender"></span></p>
+                        <p class="text-gray-600">Date Of Birth: <span x-text="formattedDateOfBirth"></span> years</p>
+                        <p class="text-gray-600">Microchipped: <span x-text="selectedPet.microchipped ? 'Yes' : 'No'"></span></p>
+                        <p class="text-gray-600">Notes: <span x-text="selectedPet.notes"></span></p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Pet Card -->
-            <div th:insert="~{fragments/pet-card :: pet-card}"></div>
-
             <!-- General Health Overview -->
-            <div class="mt-8">
-                <h3 class="font-bold text-xl text-gray-800 cursor-pointer" onclick="toggleSection('generalHealth')">
-                    General Health Overview <i id="generalHealthArrow" class="fas fa-chevron-up"></i>
+            <div class="mt-8" x-show="selectedPet">
+                <h3 class="font-bold text-xl text-gray-800 cursor-pointer" @click="toggleSection('generalHealth')">
+                    General Health Overview <i :class="generalHealthOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
                 </h3>
-                <div id="generalHealthSection">
-                    <!-- Weight History Section -->
-                    <div th:if="${weightRecords != null && !weightRecords.isEmpty()}" class="mt-8">
+                <div x-show="generalHealthOpen">
+                    <div x-show="weightRecords.length > 0" class="mt-8">
                         <h3 class="font-bold text-xl text-gray-800">Weight History</h3>
                         <div class="mt-4">
                             <canvas id="weightChart" class="w-full h-64 bg-gray-50 rounded-lg"></canvas>
                         </div>
                     </div>
-
-                    <div th:if="${weightRecords == null || weightRecords.isEmpty()}">
+                    <div x-show="weightRecords.length === 0">
                         <p class="text-gray-600 mt-2">No weight records available.</p>
                     </div>
 
                     <!-- Physical Exams Table -->
-                    <div th:if="${physicalExamList != null && !physicalExamList.isEmpty()}">
+                    <div x-show="physicalExamList.length > 0">
                         <h4 class="font-semibold text-lg mt-4">Physical Exams</h4>
-                        <input type="text" id="physicalExamSearch" placeholder="Search Exams" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('physicalExamTable', 'physicalExamSearch')">
-                        <table id="physicalExamTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                        <input type="text" x-model="searchPhysicalExam" placeholder="Search Exams" class="px-4 py-2 border rounded-md mb-2">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
                             <thead class="bg-blue-100">
                             <tr>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('physicalExamTable', 0)">
-                                    Exam Date <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('examDate')">
+                                    Exam Date <i :class="`fas ${getSortIcon('examDate')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('physicalExamTable', 1)">
-                                    Veterinarian <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('veterinarian')">
+                                    Veterinarian <i :class="`fas ${getSortIcon('veterinarian')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('physicalExamTable', 2)">
-                                    Notes <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('notes')">
+                                    Notes <i :class="`fas ${getSortIcon('notes')}`"></i>
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="exam : ${physicalExamList}" class="bg-white hover:bg-gray-100">
-                                <td class="px-6 py-4 border border-gray-300" th:text="${exam.examDate}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${exam.veterinarian}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${exam.notes}"></td>
-                            </tr>
+                            <template x-for="exam in filteredPhysicalExams" :key="exam.id">
+                                <tr class="bg-white hover:bg-gray-100">
+                                    <td class="px-6 py-4 border border-gray-300" x-text="exam.examDate"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="exam.veterinarian"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="exam.notes"></td>
+                                </tr>
+                            </template>
                             </tbody>
                         </table>
                     </div>
-                    <div th:if="${physicalExamList == null || physicalExamList.isEmpty()}">
+                    <div x-show="physicalExamList.length === 0">
                         <p class="text-gray-600 mt-2">No physical exam history available for this pet.</p>
                     </div>
 
                     <!-- Vaccinations Table -->
-                    <div th:if="${vaccinationList != null && !vaccinationList.isEmpty()}">
+                    <div x-show="vaccinationList.length > 0">
                         <h4 class="font-semibold text-lg mt-4">Vaccinations</h4>
-                        <input type="text" id="vaccinationSearch" placeholder="Search Vaccinations" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('vaccinationTable', 'vaccinationSearch')">
-                        <table id="vaccinationTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                        <input type="text" x-model="searchVaccination" placeholder="Search Vaccinations" class="px-4 py-2 border rounded-md mb-2">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
                             <thead class="bg-blue-100">
                             <tr>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 0)">
-                                    Vaccine Name <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('vaccineName')">
+                                    Vaccine Name <i :class="`fas ${getSortIcon('vaccineName')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 1)">
-                                    Vaccination Date <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('vaccinationDate')">
+                                    Vaccination Date <i :class="`fas ${getSortIcon('vaccinationDate')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 2)">
-                                    Administered By <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('administeredBy')">
+                                    Administered By <i :class="`fas ${getSortIcon('administeredBy')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('vaccinationTable', 3)">
-                                    Next Due Date <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('nextDueDate')">
+                                    Next Due Date <i :class="`fas ${getSortIcon('nextDueDate')}`"></i>
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="vaccination : ${vaccinationList}" class="bg-white hover:bg-gray-100">
-                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.vaccineName}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.vaccinationDate}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.administeredBy}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${vaccination.nextDueDate}"></td>
-                            </tr>
+                            <template x-for="vaccination in filteredVaccinations" :key="vaccination.id">
+                                <tr class="bg-white hover:bg-gray-100">
+                                    <td class="px-6 py-4 border border-gray-300" x-text="vaccination.vaccineName"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="vaccination.vaccinationDate"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="vaccination.administeredBy"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="vaccination.nextDueDate"></td>
+                                </tr>
+                            </template>
                             </tbody>
                         </table>
                     </div>
-                    <div th:if="${vaccinationList == null || vaccinationList.isEmpty()}">
+                    <div x-show="vaccinationList.length === 0">
                         <p class="text-gray-600 mt-2">No vaccination history available for this pet.</p>
                     </div>
                 </div>
@@ -116,91 +157,93 @@
 
             <!-- Medical History Section -->
             <div class="mt-8">
-                <h3 class="font-bold text-xl text-gray-800 cursor-pointer" onclick="toggleSection('medicalHistory')">
-                    Medical History and Treatment Overview <i id="medicalHistoryArrow" class="fas fa-chevron-up"></i>
+                <h3 class="font-bold text-xl text-gray-800 cursor-pointer" @click="toggleSection('medicalHistory')">
+                    Medical History and Treatment Overview <i :class="medicalHistoryOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
                 </h3>
-                <div id="medicalHistorySection">
-                    <div th:if="${medicalHistoryList != null && !medicalHistoryList.isEmpty()}">
+                <div x-show="medicalHistoryOpen">
+                    <div x-show="medicalHistoryList.length > 0">
                         <h4 class="font-semibold text-lg mt-4">Medical History</h4>
-                        <input type="text" id="medicalHistorySearch" placeholder="Search Medical History" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('medicalHistoryTable', 'medicalHistorySearch')">
-                        <table id="medicalHistoryTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                        <input type="text" x-model="searchMedicalHistory" placeholder="Search Medical History" class="px-4 py-2 border rounded-md mb-2">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
                             <thead class="bg-blue-100">
                             <tr>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 0)">
-                                    Practitioner <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('practitioner')">
+                                    Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 1)">
-                                    Treatment <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('treatment')">
+                                    Treatment <i :class="`fas ${getSortIcon('treatment')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 2)">
-                                    Veterinarian <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('veterinarian')">
+                                    Veterinarian <i :class="`fas ${getSortIcon('veterinarian')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 3)">
-                                    Date <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('eventDate')">
+                                    Date <i :class="`fas ${getSortIcon('eventDate')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 4)">
-                                    Notes <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('notes')">
+                                    Notes <i :class="`fas ${getSortIcon('notes')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('medicalHistoryTable', 5)">
-                                    Prescription <i class="fas fa-sort"></i>
-                                </th>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700">Prescription</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="history : ${medicalHistoryList}" class="bg-white hover:bg-gray-100">
-                                <td class="px-6 py-4 border border-gray-300" th:text="${history.practitioner}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${history.treatment}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${history.veterinarian}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${history.eventDate}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${history.notes}"></td>
-                                <td class="px-6 py-4 border border-gray-300">
-                                    <span th:if="${history.prescriptionId != null}">
-                                        <a th:href="@{/prescription/${history.prescriptionId}}" class="text-blue-500">Yes, view details</a>
-                                    </span>
-                                    <span th:if="${history.prescriptionId == null}">
-                                        No Prescription Linked
-                                    </span>
-                                </td>
-                            </tr>
+                            <template x-for="history in filteredMedicalHistory" :key="history.id">
+                                <tr class="bg-white hover:bg-gray-100">
+                                    <td class="px-6 py-4 border border-gray-300" x-text="history.practitioner"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="history.treatment"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="history.veterinarian"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="history.eventDate"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="history.notes"></td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <span x-show="history.prescriptionId">
+                                            <a :href="'/prescription/' + history.prescriptionId" class="text-blue-500">Yes, view details</a>
+                                        </span>
+                                        <span x-show="!history.prescriptionId">
+                                            No Prescription Linked
+                                        </span>
+                                    </td>
+                                </tr>
+                            </template>
                             </tbody>
                         </table>
                     </div>
-                    <div th:if="${medicalHistoryList == null || medicalHistoryList.isEmpty()}">
+                    <div x-show="medicalHistoryList.length === 0">
                         <p class="text-gray-600 mt-2">No medical history available for this pet.</p>
                     </div>
 
                     <!-- Treatment Plans Section -->
-                    <div th:if="${treatmentPlanList != null && !treatmentPlanList.isEmpty()}">
+                    <div x-show="treatmentPlanList.length > 0">
                         <h4 class="font-semibold text-lg mt-4">Treatment Plans</h4>
-                        <input type="text" id="treatmentPlanSearch" placeholder="Search Treatment Plans" class="px-4 py-2 border rounded-md mb-2" onkeyup="filterTable('treatmentPlanTable', 'treatmentPlanSearch')">
-                        <table id="treatmentPlanTable" class="min-w-full table-auto border-collapse border border-gray-300 mt-2" data-sort-order="asc">
+                        <input type="text" x-model="searchTreatmentPlan" placeholder="Search Treatment Plans" class="px-4 py-2 border rounded-md mb-2">
+                        <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
                             <thead class="bg-blue-100">
                             <tr>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 0)">
-                                    Plan Date <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('planDate')">
+                                    Plan Date <i :class="`fas ${getSortIcon('planDate')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 1)">
-                                    Description <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('description')">
+                                    Description <i :class="`fas ${getSortIcon('description')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 2)">
-                                    Practitioner <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('practitioner')">
+                                    Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" onclick="sortTableByColumn('treatmentPlanTable', 3)">
-                                    Notes <i class="fas fa-sort"></i>
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('notes')">
+                                    Notes <i :class="`fas ${getSortIcon('notes')}`"></i>
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="plan : ${treatmentPlanList}" class="bg-white hover:bg-gray-100">
-                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.planDate}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.description}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.practitioner}"></td>
-                                <td class="px-6 py-4 border border-gray-300" th:text="${plan.notes}"></td>
-                            </tr>
+                            <template x-for="plan in filteredTreatmentPlans" :key="plan.id">
+                                <tr class="bg-white hover:bg-gray-100">
+                                    <td class="px-6 py-4 border border-gray-300" x-text="plan.planDate"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="plan.description"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="plan.practitioner"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="plan.notes"></td>
+                                </tr>
+                            </template>
                             </tbody>
                         </table>
                     </div>
-                    <div th:if="${treatmentPlanList == null || treatmentPlanList.isEmpty()}">
+                    <div x-show="treatmentPlanList.length === 0">
                         <p class="text-gray-600 mt-2">No treatment plans available for this pet.</p>
                     </div>
                 </div>
@@ -210,7 +253,7 @@
             <div class="mt-8 p-6 rounded-lg shadow-md z-10">
                 <h3 class="font-bold text-xl text-gray-800 mb-4">Download and Share Medical Records</h3>
                 <form id="recordActionForm" class="space-y-4">
-                    <input type="hidden" name="selectedPetId" th:value="${selectedPet.id}">
+                    <input type="hidden" name="selectedPetId" :value="selectedPet ? selectedPet.id : ''">
 
                     <div class="space-y-2">
                         <label class="block text-blue-600">
@@ -247,16 +290,15 @@
                     </div>
 
                     <div class="py-4 flex justify-center space-x-4">
-                        <button type="button" onclick="handleDownload()" class="w-1/3 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
+                        <button type="button" @click="handleDownload()" class="w-1/3 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
                             Download Medical Records
                         </button>
-                        <button type="button" onclick="handleShare()" class="w-1/3 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
+                        <button type="button" @click="openShareModal()" class="w-1/3 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
                             Share Medical Records
                         </button>
                     </div>
                 </form>
             </div>
-
 
             <!-- Share Modal -->
             <div id="shareModal" class="fixed z-10 inset-0 overflow-y-auto hidden flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -266,8 +308,8 @@
                 <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <h3 class="font-bold text-xl text-gray-800 mb-4">Share Medical Records</h3>
-                        <form id="shareForm" action="#" method="post" class="space-y-4">
-                            <input type="hidden" name="selectedPetId" th:value="${selectedPet.id}">
+                        <form id="shareForm" class="space-y-4">
+                            <input type="hidden" name="selectedPetId" :value="selectedPet ? selectedPet.id : ''">
                             <div>
                                 <label class="block text-blue-600">
                                     Email Address of Veterinary Professional:
@@ -284,7 +326,7 @@
                                 <button type="submit" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
                                     Share
                                 </button>
-                                <button type="button" onclick="closeShareModal()" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
+                                <button type="button" @click="closeShareModal()" class="w-1/2 bg-white text-gray-800 font-bold py-2 px-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105">
                                     Cancel
                                 </button>
                             </div>
@@ -307,172 +349,32 @@
             font-size: 0.875rem;
             vertical-align: middle;
         }
+
+        .bg-primary {
+            background-color: #4CAF50;
+        }
+
+        .hover\:bg-primary-dark:hover {
+            background-color: #388E3C;
+        }
+
+        .bg-blue-50 {
+            background-color: #f0f4ff;
+        }
+
+        .text-blue-900 {
+            color: #1a3a5c;
+        }
+
+        .rounded-md {
+            border-radius: 8px;
+        }
     </style>
-    <!-- Link to FontAwesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.1.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Retrieve the data-pet-id from the element
-            const selectedPetId = document.getElementById('petData').getAttribute('data-pet-id');
-            console.log("Selected Pet ID:", selectedPetId);
-
-            if (!selectedPetId) {
-                console.error("No pet ID provided.");
-                return;
-            }
-
-            // Fetch weight records for the selected pet
-            function fetchWeightRecords() {
-                const weightRecordsUrl = `/api/weight-records?selectedPetId=${selectedPetId}`;
-
-                axios.get(weightRecordsUrl)
-                    .then(response => {
-                        const weightRecords = response.data;
-
-                        // Log the weight records to ensure the data is correct
-                        console.log("Weight Records:", weightRecords);
-
-                        if (weightRecords.length === 0) {
-                            document.getElementById('noWeightData').style.display = 'block';
-                            return;
-                        }
-
-                        // Process the data for the chart
-                        const dates = weightRecords.map(record => record.recordDate);
-                        const weights = weightRecords.map(record => record.weight);
-
-                        // Display the chart
-                        const ctx = document.getElementById('weightChart').getContext('2d');
-                        drawWeightChart(ctx, dates, weights);
-                    })
-                    .catch(error => {
-                        console.error("Error fetching weight records:", error);
-                    });
-            }
-
-            fetchWeightRecords();
-        });
-
-        function toggleSection(sectionId) {
-            const section = document.getElementById(sectionId + 'Section');
-            const arrow = document.getElementById(sectionId + 'Arrow');
-            if (section.style.display === "none" || section.style.display === "") {
-                section.style.display = "block";
-                arrow.classList.remove("fa-chevron-down");
-                arrow.classList.add("fa-chevron-up");
-            } else {
-                section.style.display = "none";
-                arrow.classList.remove("fa-chevron-up");
-                arrow.classList.add("fa-chevron-down");
-            }
-        }
-
-        function drawWeightChart(ctx, dates, weights) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Weight Over Time',
-                        data: weights,
-                        borderColor: '#4A90E2',
-                        backgroundColor: 'rgba(74, 144, 226, 0.2)',
-                        borderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            }
-                        },
-                        y: {
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'Weight (kg)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Filter function for tables
-        function filterTable(tableId, searchInputId) {
-            const input = document.getElementById(searchInputId);
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById(tableId);
-            const rows = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < rows.length; i++) { // Skip the header row
-                const cells = rows[i].getElementsByTagName('td');
-                let found = false;
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].textContent.toLowerCase().includes(filter)) {
-                        found = true;
-                        break;
-                    }
-                }
-                rows[i].style.display = found ? '' : 'none';
-            }
-        }
-
-        // Sort function for tables by clicking on the column header
-        function sortTableByColumn(tableId, columnIndex) {
-            const table = document.getElementById(tableId);
-            const rows = Array.from(table.rows).slice(1); // Exclude header row
-            const currentSortOrder = table.getAttribute('data-sort-order');
-            const ascending = currentSortOrder === 'asc';
-            const newSortOrder = ascending ? 'desc' : 'asc';
-
-            rows.sort((a, b) => {
-                const cellA = a.cells[columnIndex].textContent.toLowerCase();
-                const cellB = b.cells[columnIndex].textContent.toLowerCase();
-
-                if (cellA < cellB) return ascending ? -1 : 1;
-                if (cellA > cellB) return ascending ? 1 : -1;
-                return 0;
-            });
-
-            rows.forEach(row => table.appendChild(row));
-            table.setAttribute('data-sort-order', newSortOrder);
-        }
-
-        // Ensure sections are expanded by default
-        document.getElementById('generalHealthSection').style.display = "block";
-        document.getElementById('medicalHistorySection').style.display = "block";
-
-        // Open the share modal
-        function openShareModal() {
-            document.getElementById('shareModal').classList.remove('hidden');
-        }
-
-        // Close the share modal
-        function closeShareModal() {
-            document.getElementById('shareModal').classList.add('hidden');
-        }
-
-        // Handle Download Button Click
-        function handleDownload() {
-            document.getElementById('recordActionForm').action = "/download-medical-records";
-            document.getElementById('recordActionForm').submit();
-        }
-
-        // Handle Share Button Click
-        function handleShare() {
-            openShareModal();
-        }
-    </script>
+    <script th:src="@{/js/medical-records.js}"></script>
 </div>
-
 </body>
 </html>

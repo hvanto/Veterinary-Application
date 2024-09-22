@@ -9,6 +9,5 @@ import java.util.List;
 @Repository
 public interface VaccinationRepository extends JpaRepository<Vaccination, Long> {
 
-    // Custom query to find all vaccinations by pet ID
-    List<Vaccination> findByMedicalHistoryPetId(Long petId);
+    List<Vaccination> findByPetId(Long petId);
 }
