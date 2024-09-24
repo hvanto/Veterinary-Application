@@ -106,15 +106,15 @@ public class PageResolverController {
         return "index";
     }
 
-    // @GetMapping("/prescription")
-    // public String prescription(HttpServletRequest request, Model model) {
-    //     String requestURL = request.getRequestURL().toString();
-    //     String queryString = request.getQueryString();
+     @GetMapping("/prescription")
+     public String prescription(HttpServletRequest request, Model model) {
+         String requestURL = request.getRequestURL().toString();
+         String queryString = request.getQueryString();
 
-    //     model.addAttribute("content", "prescription");
-    //     model.addAttribute("url", requestURL);
-    //     model.addAttribute("queryString", queryString);
+         model.addAttribute("content", "prescription");
+         model.addAttribute("url", requestURL);
+         model.addAttribute("queryString", queryString);
 
-    //     return "index";
-    // }
+         return "index";
+     }
 }
