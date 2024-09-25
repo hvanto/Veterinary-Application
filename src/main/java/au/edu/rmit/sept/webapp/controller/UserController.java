@@ -3,6 +3,7 @@ package au.edu.rmit.sept.webapp.controller;
 import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class UserController {
     }
 
     // Handle signup
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> signup(@RequestBody User user) {
         try {
             // Check if email already exists
@@ -38,10 +39,8 @@ public class UserController {
     }
 
     // Handle login
-    @PostMapping("/loginUser")
+    @PostMapping(value = "/loginUser", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> login(@RequestBody User loginRequest) {
-        System.out.println(loginRequest);
-
         try {
             // Validate user credentials and return user if successful
             User user = userService.validateUserCredentials(loginRequest.getEmail(), loginRequest.getPassword());
@@ -52,7 +51,7 @@ public class UserController {
     }
 
     // Update user details in the database
-    @PutMapping("/update")
+    @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
         try {
             // Update user details in the database
@@ -64,7 +63,7 @@ public class UserController {
     }
 
     // Handle password update
-    @PutMapping("/updatePassword")
+    @PutMapping(value = "/updatePassword", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> updatePassword(@RequestBody User user) {
         Map<String, String> response = new HashMap<>();
         try {

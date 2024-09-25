@@ -1,6 +1,7 @@
 package au.edu.rmit.sept.webapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -37,15 +38,17 @@ public class Pet {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference // Prevent infinite loop with User
+    @JsonBackReference("user-pets") // Ensure this matches the reference in the User class
     private User user;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
     // Default constructor
-    public Pet() {}
+    public Pet() {
+    }
 
     // Constructor for seeding data
     public Pet(User user, String name, String species, String breed, String gender, boolean microchipped, String notes, String imagePath, LocalDate dateOfBirth) {

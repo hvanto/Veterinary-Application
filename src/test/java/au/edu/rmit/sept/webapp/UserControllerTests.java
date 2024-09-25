@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -51,6 +52,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isOk())
                 .andExpect(content().string("User signed up successfully!"));
     }
@@ -78,10 +80,10 @@ public class UserControllerTests {
         mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Email already exists"));
     }
-    
 
     @Test
     public void login_IncorrectPassword() throws Exception {
@@ -103,6 +105,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/api/users/loginUser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(loginJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(""));
     }
@@ -118,17 +121,18 @@ public class UserControllerTests {
         user.setContact("1234567890");
         user.setImage("default_profile.png");
         userService.saveUser(user);
-    
+
         // Create JSON payload for login
         String loginJson = "{"
                 + "\"email\":\"john.doe@example.com\","
                 + "\"password\":\"password123\""
                 + "}";
-    
+
         // Perform login request and expect success with dynamic field handling
         mockMvc.perform(post("/api/users/loginUser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(loginJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
@@ -139,8 +143,6 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$.updatedOn").exists()) // Check that updatedOn exists
                 .andExpect(jsonPath("$.deleted").value(false));
     }
-    
-
 
     @Test
     public void login_EmailNotFound() throws Exception {
@@ -154,6 +156,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/api/users/loginUser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(loginJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(""));
     }
@@ -182,6 +185,7 @@ public class UserControllerTests {
         mockMvc.perform(put("/api/users/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is("Johnny")))
                 .andExpect(jsonPath("$.lastName", is("Doey")))
@@ -209,6 +213,7 @@ public class UserControllerTests {
         mockMvc.perform(put("/api/users/updatePassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatePasswordJson))
+                .andDo(print()) // Print the request and response
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Password updated successfully!")));
     }

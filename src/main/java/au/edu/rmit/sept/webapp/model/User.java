@@ -1,5 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
@@ -24,6 +25,7 @@ public class User {
 
     private String image;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
@@ -38,6 +40,7 @@ public class User {
     @JsonManagedReference("user-appointments")
     private List<Appointment> appointments;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedOn;
 
@@ -161,6 +164,4 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
-
-
 }
