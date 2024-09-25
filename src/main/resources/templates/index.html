@@ -181,6 +181,62 @@
         });
     }
 
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateNavigation();
+        populateUserProfile();
+        fetchNotifications(); // Fetch notifications when the page loads
+    });
+    
+    // Fetch and display notifications in the mailbox
+    function fetchNotifications() {
+        fetch('/api/notifications')
+            .then(response => response.json())
+            .then(notifications => {
+                const notificationList = document.getElementById('notification-list');
+                const notificationCount = document.getElementById('notification-count');
+                
+                // Clear previous notifications
+                notificationList.innerHTML = '';
+                
+                if (notifications.length > 0) {
+                    // Display the notification count if there are unread notifications
+                    const unreadCount = notifications.filter(notification => !notification.read).length;
+                    if (unreadCount > 0) {
+                        notificationCount.textContent = unreadCount;
+                        notificationCount.classList.remove('hidden');
+                    } else {
+                        notificationCount.classList.add('hidden');
+                    }
+    
+                    // Populate notifications
+                    notifications.forEach(notification => {
+                        const li = document.createElement('li');
+                        li.textContent = notification.message;
+                        li.classList.add('px-4', 'py-2', 'text-sm', 'text-zinc-700', 'cursor-pointer', notification.read ? 'text-gray-500' : 'text-black');
+                        li.onclick = () => markAsRead(notification.id);
+                        notificationList.appendChild(li);
+                    });
+                } else {
+                    // Show a message when there are no notifications
+                    const li = document.createElement('li');
+                    li.textContent = 'No new notifications';
+                    li.classList.add('px-4', 'py-2', 'text-sm', 'text-zinc-700');
+                    notificationList.appendChild(li);
+                }
+            })
+            .catch(error => console.error('Error fetching notifications:', error));
+    }
+    
+    // Mark a notification as read and refresh the list
+    function markAsRead(id) {
+        fetch(`/api/notifications/markAsRead/${id}`, { method: 'POST' })
+            .then(() => fetchNotifications()) // Refresh notifications after marking as read
+            .catch(error => console.error('Error marking notification as read:', error));
+    }
+    
+
     </script>
     </body>
 </html>
