@@ -38,27 +38,30 @@
         <script>
             function loginUser(event) {
                 event.preventDefault();
-
+            
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
-
+            
                 const formData = {
                     email: email,
                     password: password
                 };
-
+            
                 // Submit form data via Axios
                 axios.post('/api/users/loginUser', formData)
                     .then(function (response) {
                         const user = response.data;
-
+            
                         if (user && user.firstName && user.email) {
                             // Store the user data in localStorage
                             localStorage.setItem('loggedInUser', JSON.stringify(user));
-
+            
+                            // Fetch notifications for the logged-in user
+                            fetchNotifications();
+            
                             // Dispatch a custom event to inform other scripts of the login
                             window.dispatchEvent(new Event('storage'));
-
+            
                             // Redirect to home page to refresh navigation
                             window.location.href = '/';
                         } else {
@@ -69,6 +72,7 @@
                         document.getElementById('responseMessage').innerText = "Incorrect email or password.";
                     });
             }
+            
         </script>
     </main>
 </body>

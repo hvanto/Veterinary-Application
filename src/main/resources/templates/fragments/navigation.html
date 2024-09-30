@@ -44,22 +44,25 @@
                 <a id="login-button" th:href="@{/login}" class="text-sm font-medium text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300">Login</a>
 
                 <!-- Mailbox Icon with Notifications -->
-                <button type="button" class="relative flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="mailbox-button"
-                        aria-expanded="false" data-dropdown-toggle="mailbox-dropdown" data-dropdown-placement="bottom">
-                    <img src="/assets/mailbox_icon.png" class="w-6 h-6" alt="Mailbox">
-                    <!-- Notification Badge -->
-                    <span id="notification-count" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full hidden"></span>
-                </button>
+                <div id="mailbox-container" class="hidden">  <!-- Initially hidden, will be shown based on login -->
+                    <button type="button" class="relative flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="mailbox-button"
+                            aria-expanded="false" data-dropdown-toggle="mailbox-dropdown" data-dropdown-placement="bottom">
+                        <!-- Font Awesome icon for mailbox -->
+                        <i class="fas fa-envelope w-6 h-6 mail-icon"></i> <!-- Font Awesome envelope icon -->
+                        <!-- Notification Badge -->
+                        <span id="notification-count" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full hidden"></span>
+                    </button>
 
-                <!-- Mailbox Dropdown Menu -->
-                <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-zinc-100 rounded-lg shadow" id="mailbox-dropdown">
-                    <div class="px-4 py-3">
-                        <h3 class="text-sm font-semibold text-zinc-900">Notifications</h3>
+                    <!-- Mailbox Dropdown Menu -->
+                    <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-zinc-100 rounded-lg shadow" id="mailbox-dropdown">
+                        <div class="px-4 py-3">
+                            <h3 class="text-sm font-semibold text-zinc-900">Notifications</h3>
+                        </div>
+                        <ul id="notification-list" class="py-2 max-h-48 overflow-auto">
+                            <!-- Notifications will be populated here -->
+                            <li class="px-4 py-2 text-sm text-zinc-700">No new notifications</li>
+                        </ul>
                     </div>
-                    <ul id="notification-list" class="py-2 max-h-48 overflow-auto">
-                        <!-- Notifications will be populated here -->
-                        <li class="px-4 py-2 text-sm text-zinc-700">No new notifications</li>
-                    </ul>
                 </div>
 
                 <!-- User Profile Button -->
@@ -80,7 +83,7 @@
                         <a th:href="@{/userProfile}" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Settings</a>
                     </li>
                     <li>
-                        <a href="/" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100" onclick="logoutUser()">Logout</a>
+                        <a href="javascript:void(0);" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100" onclick="logoutUser()">Logout</a>
                     </li>
                 </ul>
             </div>

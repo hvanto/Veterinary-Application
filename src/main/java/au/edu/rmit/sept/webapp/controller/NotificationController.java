@@ -5,6 +5,7 @@ import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.service.NotificationService;
 import au.edu.rmit.sept.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,9 @@ public class NotificationController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getUserNotifications(Principal principal) {
-        User user = userService.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<List<Notification>> getUserNotifications(@RequestParam Long userId) {
+        User user = userService.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
         List<Notification> notifications = notificationService.getUserNotifications(user);
         return ResponseEntity.ok(notifications);
     }
