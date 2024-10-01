@@ -13,7 +13,7 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user;  // This is already correct
 
     private String message;
 
@@ -58,5 +58,9 @@ public class Notification {
 
     public Date getCreatedOn() {
         return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
     }
 }

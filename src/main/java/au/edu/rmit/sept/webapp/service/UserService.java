@@ -98,4 +98,9 @@ public class UserService {
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
     }
+
+    // Method to delete all users
+    public void deleteAllUsers() {
+        userRepository.deleteAll();
+    }
 }
