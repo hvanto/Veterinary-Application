@@ -17,8 +17,8 @@ public class NotificationService {
 
     /**
      * Get all notifications for a user, ordered by creation date.
-     * @param user The user whose notifications are being retrieved.
-     * @return List of notifications.
+     * @param user
+     * @return 
      */
     public List<Notification> getUserNotifications(User user) {
         return notificationRepository.findByUserOrderByCreatedOnDesc(user);
@@ -27,8 +27,8 @@ public class NotificationService {
     /**
      * Creates a new notification for a given user with a message.
      * Transactional ensures that the database operations are atomic.
-     * @param user The user for whom the notification is being created.
-     * @param message The notification message.
+     * @param user
+     * @param message
      */
     @Transactional
     public void createNotification(User user, String message) {
@@ -40,7 +40,7 @@ public class NotificationService {
 
     /**
      * Marks a notification as read.
-     * @param notificationId The ID of the notification to be marked as read.
+     * @param notificationId
      */
     @Transactional
     public void markAsRead(Long notificationId) {

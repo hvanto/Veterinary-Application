@@ -13,7 +13,7 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;  // This is already correct
+    private User user;
 
     private String message;
 

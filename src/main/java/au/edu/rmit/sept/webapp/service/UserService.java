@@ -11,13 +11,13 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final EncryptionService encryptionService;
-    private final NotificationService notificationService;  // Add this
+    private final NotificationService notificationService;
 
     @Autowired
     public UserService(UserRepository userRepository, EncryptionService encryptionService, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.encryptionService = encryptionService;
-        this.notificationService = notificationService;  // Add this
+        this.notificationService = notificationService;
     }
 
     // Check if the email already exists

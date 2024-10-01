@@ -44,11 +44,11 @@
                 <a id="login-button" th:href="@{/login}" class="text-sm font-medium text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300">Login</a>
 
                 <!-- Mailbox Icon with Notifications -->
-                <div id="mailbox-container" class="hidden">  <!-- Initially hidden, will be shown based on login -->
+                <div id="mailbox-container" class="hidden"> 
                     <button type="button" class="relative flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="mailbox-button"
                             aria-expanded="false" data-dropdown-toggle="mailbox-dropdown" data-dropdown-placement="bottom">
                         <!-- Font Awesome icon for mailbox -->
-                        <i class="fas fa-envelope w-6 h-6 mail-icon"></i> <!-- Font Awesome envelope icon -->
+                        <i class="fas fa-envelope w-6 h-6 mail-icon"></i>
                         <!-- Notification Badge -->
                         <span id="notification-count" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full hidden"></span>
                     </button>

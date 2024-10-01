@@ -56,8 +56,8 @@ public class User {
     protected void onCreate() {
         this.createdOn = new Date();
         this.updatedOn = new Date();
-        this.image = "default_profile.png";  // Default image path
-        this.deleted = false;  // Default status is not deleted
+        this.image = "default_profile.png";
+        this.deleted = false;
     }
 
     @PreUpdate

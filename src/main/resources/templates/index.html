@@ -25,29 +25,26 @@
         document.addEventListener('DOMContentLoaded', function () {
             updateNavigation();
             populateUserProfile();
-            fetchNotifications();  // Fetch notifications when the page loads
+            fetchNotifications();
         });
     
         // Function to handle user logout
         function logoutUser() {
             // Remove the user information from local storage
             localStorage.removeItem('loggedInUser');
-            // Optionally, remove any authentication tokens here if used
-            // Redirect to the login page or homepage
             window.location.href = '/login';
         }
     
         function fetchNotifications() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
             if (!user) {
-                // If no user is logged in, return without fetching notifications
                 return;
             }
         
             fetch(`/api/notifications?userId=${user.id}`)
                 .then(response => response.json())
                 .then(notifications => {
-                    console.log("Fetched notifications:", notifications);  // Add this log for debugging
+                    console.log("Fetched notifications:", notifications);
         
                     const notificationList = document.getElementById('notification-list');
                     const notificationCount = document.getElementById('notification-count');
@@ -89,14 +86,14 @@
         // Mark a notification as read and refresh the list
         function markAsRead(id) {
             fetch(`/api/notifications/markAsRead/${id}`, { method: 'POST' })
-                .then(() => fetchNotifications()) // Refresh notifications after marking as read
+                .then(() => fetchNotifications())
                 .catch(error => console.error('Error marking notification as read:', error));
         }
     
         document.addEventListener('DOMContentLoaded', function () {
             updateNavigation();
             populateUserProfile();
-            fetchNotifications();  // Fetch notifications when the page loads
+            fetchNotifications();
         });
         
         // Ensure navigation updates properly
@@ -106,7 +103,7 @@
             const signupButton = document.getElementById('signup-button');
             const loginButton = document.getElementById('login-button');
             const userMenuButton = document.getElementById('user-menu-button');
-            const mailboxContainer = document.getElementById('mailbox-container');  // Mailbox container
+            const mailboxContainer = document.getElementById('mailbox-container'); 
         
             const navUsername = document.getElementById('nav-username');
             const navEmail = document.getElementById('nav-email');
@@ -117,7 +114,7 @@
                 signupButton.classList.add('hidden');
                 loginButton.classList.add('hidden');
                 userMenuButton.classList.remove('hidden');
-                mailboxContainer.classList.remove('hidden'); // Show mailbox when user is logged in
+                mailboxContainer.classList.remove('hidden');
         
                 // Update navigation with the user's details
                 if (navUsername) {
@@ -131,7 +128,7 @@
                 signupButton.classList.remove('hidden');
                 loginButton.classList.remove('hidden');
                 userMenuButton.classList.add('hidden');
-                mailboxContainer.classList.add('hidden'); // Hide mailbox when user is not logged in
+                mailboxContainer.classList.add('hidden');
             }
         }
         
