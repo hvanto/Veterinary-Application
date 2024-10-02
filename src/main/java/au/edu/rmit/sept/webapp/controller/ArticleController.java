@@ -1,5 +1,6 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -14,9 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.model.Bookmark;
@@ -74,6 +78,17 @@ public class ArticleController {
         return ResponseEntity.ok().body(stream);
     }
 
+    @GetMapping("/getBookmarks")
+    public ResponseEntity<Set<String>> getBookmarks(@RequestParam Long userId) {
+        User user = userService.findById(userId).get();
+        
+        Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
+                .map(bookmark -> bookmark.getArticle().getLink())
+                .collect(Collectors.toSet());
+
+        return ResponseEntity.ok().body(bookmarks);
+    }
+
     @PostMapping("/article/add")
     public ResponseEntity<Integer> addArticle(
             @RequestParam("title") String title,
@@ -116,12 +131,6 @@ public class ArticleController {
 
     @GetMapping("/article")
     public String getArticlesPage(@RequestParam(defaultValue = "0") int page, Model model) {
-        // TODO: retrieve user by userId from cookie
-        User user = userService.findFirst().get();
-        Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
-                .map(bookmark -> bookmark.getArticle().getLink())
-                .collect(Collectors.toSet());
-        
         // Fetch RSS feed only once
         articleService.fetchRssFeed();
 
@@ -129,7 +138,6 @@ public class ArticleController {
         Page<Article> articlePage = articleService.getArticles(page);
 
         model.addAttribute("articles", articlePage);
-        model.addAttribute("bookmarks", bookmarks);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
@@ -189,7 +197,7 @@ public class ArticleController {
     }
 
     @PostMapping("/addBookmark")
-    public ResponseEntity<String> addBookmark(@RequestBody Article requestArticle) {
+    public ResponseEntity<String> addBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
         Article article = null;
 
@@ -201,8 +209,7 @@ public class ArticleController {
         }
 
         try {
-            // TODO: retrieve user by userId from cookie
-            User user = userService.findFirst().get();
+            User user = userService.findById(userId).get();
             bookmarkService.addBookmark(user, article);
             return ResponseEntity.ok("Bookmark added successfully");
         } catch (Exception e) {
@@ -211,7 +218,7 @@ public class ArticleController {
     }
 
     @PostMapping("/removeBookmark")
-    public ResponseEntity<String> removeBookmark(@RequestBody Article requestArticle) {
+    public ResponseEntity<String> removeBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
         Article article = null;
 
@@ -222,8 +229,7 @@ public class ArticleController {
         }
 
         try {
-            // TODO: retrieve user by userId from cookie
-            User user = userService.findFirst().get();
+            User user = userService.findById(userId).get();
             bookmarkService.removeBookmark(user, article);
             return ResponseEntity.ok("Bookmark added successfully");
         } catch (Exception e) {
