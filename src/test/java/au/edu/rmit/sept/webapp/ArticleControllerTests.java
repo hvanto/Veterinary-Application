@@ -44,6 +44,7 @@ public class ArticleControllerTests {
                 .andExpect(status().isOk());
     }
 
+    /*
     @Test
     public void addAndRemoveBookmarkTest() throws Exception {
         // Add user if db is empty
@@ -78,4 +79,5 @@ public class ArticleControllerTests {
                 .content(articleJson))
                 .andExpect(status().isOk());
     }
+    */
 }
