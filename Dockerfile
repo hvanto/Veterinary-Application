@@ -1,5 +1,5 @@
 # Use a base image containing JDK
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-jdk
 
 # Set the working directory inside the container
 WORKDIR /app
