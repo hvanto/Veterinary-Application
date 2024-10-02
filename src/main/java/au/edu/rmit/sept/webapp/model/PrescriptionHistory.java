@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "prescription")
-public class Prescription {
+@Table(name = "prescription_history")
+public class PrescriptionHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,34 +28,33 @@ public class Prescription {
     @Temporal(TemporalType.DATE)
     private Date startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = true)
     @Temporal(TemporalType.DATE)
     private Date endDate;
 
-    @Column(name = "description", nullable = false)
-    private String description;
+    @Column(name = "more_information", nullable = true)
+    private String moreInformation;
 
-    // Constructors
-    public Prescription() {
-    }
+    // Constructors, Getters, and Setters
+    public PrescriptionHistory() {}
 
-    public Prescription(String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description) {
-        this.prescription = prescription;
+    public PrescriptionHistory(String practitioner, String prescription, String vet, String dosage, Date startDate, Date endDate, String moreInformation) {
         this.practitioner = practitioner;
-        this.dosage = dosage;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.description = description;
-    }
-
-    public Prescription(String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description) {
         this.prescription = prescription;
-        this.practitioner = practitioner;
         this.vet = vet;
         this.dosage = dosage;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.description = description;
+        this.moreInformation = moreInformation;
+    }
+
+    public PrescriptionHistory(String practitioner, String prescription, String dosage, Date startDate, Date endDate, String moreInformation) {
+        this.practitioner = practitioner;
+        this.prescription = prescription;
+        this.dosage = dosage;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.moreInformation = moreInformation;
     }
 
     // Getters and Setters
@@ -67,25 +66,29 @@ public class Prescription {
         this.id = id;
     }
 
+    public String getPractitioner() {
+        return practitioner;
+    }
+
+    public void setPractitioner(String practitioner) {
+        this.practitioner = practitioner;
+    }
+
     public String getPrescription() {
         return prescription;
     }
-
-    public String getPractitioner() {return practitioner; }
-
-    public void setPractitioner(String practitioner) {this.practitioner = practitioner; }
 
     public void setPrescription(String prescription) {
         this.prescription = prescription;
     }
 
-    public String getVet() {return vet;}
+    public String getVet() {
+        return vet;
+    }
 
-    public void setVet(String vet) {this.vet = vet; }
-
-    public String getDescription() {return description;}
-
-    public void setDescription(String description) {this.description = description;}
+    public void setVet(String vet) {
+        this.vet = vet;
+    }
 
     public String getDosage() {
         return dosage;
@@ -109,5 +112,13 @@ public class Prescription {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public String getMoreInformation() {
+        return moreInformation;
+    }
+
+    public void setMoreInformation(String moreInformation) {
+        this.moreInformation = moreInformation;
     }
 }
