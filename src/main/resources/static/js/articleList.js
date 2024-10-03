@@ -44,6 +44,8 @@ function bookmarkPage() {
         }, 2000);
         return;
     }
+
+    window.location.href = '/bookmark?userId=' + user.id;
 }
 
 function addBookmark(caller, title, link, author, publishedDate, description, imageUrl) {
