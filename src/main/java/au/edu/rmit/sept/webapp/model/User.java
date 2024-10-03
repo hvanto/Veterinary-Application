@@ -30,6 +30,11 @@ public class User {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
+    private List<Notification> notifications;
+
+
     @OneToMany(mappedBy = "user")
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference("user-pets")
@@ -51,8 +56,8 @@ public class User {
     protected void onCreate() {
         this.createdOn = new Date();
         this.updatedOn = new Date();
-        this.image = "default_profile.png";  // Default image path
-        this.deleted = false;  // Default status is not deleted
+        this.image = "default_profile.png";
+        this.deleted = false;
     }
 
     @PreUpdate

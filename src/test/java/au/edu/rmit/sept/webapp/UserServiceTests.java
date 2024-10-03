@@ -25,7 +25,6 @@ public class UserServiceTests {
 
     @BeforeEach
     public void setUp() {
-        // Clear the repository before each test
         userRepository.deleteAll();
     }
 

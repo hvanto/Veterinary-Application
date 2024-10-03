@@ -38,7 +38,7 @@ public class Pet {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference("user-pets") // Ensure this matches the reference in the User class
+    @JsonBackReference("user-pets") 
     private User user;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

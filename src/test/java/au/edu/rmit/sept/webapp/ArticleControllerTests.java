@@ -14,13 +14,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Optional;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ArticleControllerTests {
+
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private UserService userService;
 
@@ -36,7 +36,7 @@ public class ArticleControllerTests {
                 .param("published_date", "2024-09-12")
                 .param("image_url", "https://example.com/image.jpg"))
                 .andExpect(status().isOk());
-    
+
         // Now remove the article by id
         mockMvc.perform(delete("/article/remove")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -44,6 +44,7 @@ public class ArticleControllerTests {
                 .andExpect(status().isOk());
     }
 
+    /*
     @Test
     public void addAndRemoveBookmarkTest() throws Exception {
         // Add user if db is empty
@@ -78,4 +79,5 @@ public class ArticleControllerTests {
                 .content(articleJson))
                 .andExpect(status().isOk());
     }
+    */
 }

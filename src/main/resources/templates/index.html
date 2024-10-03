@@ -1,18 +1,17 @@
 <!doctype html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="utf-8">
-        <title>VetCare</title>
-        <meta name="description" content="My Page Description">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>VetCare</title>
+    <meta name="description" content="My Page Description">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 
-        <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
-
-        <script defer type="text/javascript" th:src="@{/js/alpine.js}"></script>
-        <script type="text/javascript" th:src="@{/js/axios.js}"></script>
-        <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
-    </head>
-    <body class="min-w-full min-h-full">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+    <script defer type="text/javascript" th:src="@{/js/alpine.js}"></script>
+    <script type="text/javascript" th:src="@{/js/axios.js}"></script>
+    <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
+</head>
+<body class="min-w-full min-h-full">
 
     <div th:insert="~{fragments/navigation :: navigation}"></div>
 
@@ -26,52 +25,85 @@
         document.addEventListener('DOMContentLoaded', function () {
             updateNavigation();
             populateUserProfile();
+            fetchNotifications();
         });
-
-        // Global function to show the corresponding section based on the button clicked
-        function showSection(sectionId) {
-            // Hide all sections
-            const sections = ['account-details', 'security-settings', 'payment-settings', 'notification-preferences'];
-            sections.forEach(id => {
-                const section = document.getElementById(id);
-                if (section) {
-                    section.classList.add('hidden');
-                }
-            });
-
-            // Show the selected section
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-            } else {
-                console.error(`Section with ID "${sectionId}" not found.`);
-            }
+    
+        // Function to handle user logout
+        function logoutUser() {
+            // Remove the user information from local storage
+            localStorage.removeItem('loggedInUser');
+            window.location.href = '/login';
         }
-
-        // Function to populate the profile picture, user name, and account details
-        function populateUserProfile() {
+    
+        function fetchNotifications() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
-            const profileUsername = document.getElementById('profile-username');
-
-            if (user) {
-                if (profileUsername) {
-                    profileUsername.textContent = `${user.firstName} ${user.lastName}`;
-                }
-
-                // Populate account details with placeholders
-                document.getElementById('first-name').placeholder = user.firstName || 'First Name';
-                document.getElementById('last-name').placeholder = user.lastName || 'Last Name';
-                document.getElementById('email').placeholder = user.email || 'Email';
-                document.getElementById('mobile').placeholder = user.contact || 'Mobile';
+            if (!user) {
+                return;
             }
+        
+            fetch(`/api/notifications?userId=${user.id}`)
+                .then(response => response.json())
+                .then(notifications => {
+                    console.log("Fetched notifications:", notifications);
+        
+                    const notificationList = document.getElementById('notification-list');
+                    const notificationCount = document.getElementById('notification-count');
+                    
+                    // Clear previous notifications
+                    notificationList.innerHTML = '';
+                    
+                    if (notifications.length > 0) {
+                        // Display the notification count if there are unread notifications
+                        const unreadCount = notifications.filter(notification => !notification.isRead).length;
+                        if (unreadCount > 0) {
+                            notificationCount.textContent = unreadCount;
+                            notificationCount.classList.remove('hidden');
+                        } else {
+                            notificationCount.classList.add('hidden');
+                        }
+        
+                        // Populate notifications
+                        notifications.forEach(notification => {
+                            const li = document.createElement('li');
+                            li.textContent = notification.message;
+                            li.classList.add('px-4', 'py-2', 'text-sm', 'text-zinc-700', 'cursor-pointer', notification.isRead ? 'text-gray-500' : 'text-black');
+                            li.onclick = () => markAsRead(notification.id);
+                            notificationList.appendChild(li);
+                        });
+                    } else {
+                        // Show a message when there are no notifications
+                        const li = document.createElement('li');
+                        li.textContent = 'No new notifications';
+                        li.classList.add('px-4', 'py-2', 'text-sm', 'text-zinc-700');
+                        notificationList.appendChild(li);
+                    }
+                })
+                .catch(error => console.error('Error fetching notifications:', error));
         }
-
+        
+        
+    
+        // Mark a notification as read and refresh the list
+        function markAsRead(id) {
+            fetch(`/api/notifications/markAsRead/${id}`, { method: 'POST' })
+                .then(() => fetchNotifications())
+                .catch(error => console.error('Error marking notification as read:', error));
+        }
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavigation();
+            populateUserProfile();
+            fetchNotifications();
+        });
+        
+        // Ensure navigation updates properly
         function updateNavigation() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
-        
+            
             const signupButton = document.getElementById('signup-button');
             const loginButton = document.getElementById('login-button');
             const userMenuButton = document.getElementById('user-menu-button');
+            const mailboxContainer = document.getElementById('mailbox-container'); 
         
             const navUsername = document.getElementById('nav-username');
             const navEmail = document.getElementById('nav-email');
@@ -82,6 +114,7 @@
                 signupButton.classList.add('hidden');
                 loginButton.classList.add('hidden');
                 userMenuButton.classList.remove('hidden');
+                mailboxContainer.classList.remove('hidden');
         
                 // Update navigation with the user's details
                 if (navUsername) {
@@ -95,92 +128,22 @@
                 signupButton.classList.remove('hidden');
                 loginButton.classList.remove('hidden');
                 userMenuButton.classList.add('hidden');
+                mailboxContainer.classList.add('hidden');
             }
         }
         
-
-        function logoutUser() {
-            localStorage.removeItem('loggedInUser');
-            window.dispatchEvent(new Event('storage'));
-            window.location.reload();
-        }
-
-        // Function to handle form submission and update user details
-        function updateAccountDetails(event) {
-            event.preventDefault();
-
+        // Populate the user profile in the navigation bar
+        function populateUserProfile() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
-
-            const updatedUser = {
-                id: user.id,
-                firstName: document.getElementById('first-name').value || user.firstName,
-                lastName: document.getElementById('last-name').value || user.lastName,
-                email: document.getElementById('email').value || user.email,
-                contact: document.getElementById('mobile').value || user.contact
-            };
-
-            fetch('/api/users/update', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedUser),
-            })
-            .then(response => response.json())
-            .then(data => {
-                localStorage.setItem('loggedInUser', JSON.stringify(data));
-                alert('Account details updated successfully!');
-                window.location.href = '/';
-            })
-            .catch((error) => {
-                console.error('Error updating account details:', error);
-                alert('Failed to update account details.');
-            });
-        }
-
-
-
-    // Function to handle password update
-    function updatePassword(event) {
-        event.preventDefault();
-
-        const user = JSON.parse(localStorage.getItem('loggedInUser'));
-        const newPassword = document.getElementById('new-password').value;
-
-        if (!newPassword) {
-            alert('Please enter a new password.');
-            return;
-        }
-
-        // Send password update request to backend
-        fetch('/api/users/updatePassword', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: user.id, password: newPassword }),
-        })
-        .then(response => {
-            // Check if response is JSON before parsing
-            if (response.ok) {
-                return response.json();
-            } else {
-                // If not a JSON response, throw an error with response text
-                return response.text().then(text => {
-                    throw new Error(text);
-                });
+            const profileUsername = document.getElementById('profile-username');
+        
+            if (user) {
+                if (profileUsername) {
+                    profileUsername.textContent = `${user.firstName} ${user.lastName}`;
+                }
             }
-        })
-        .then(data => {
-            alert('Password updated successfully!');
-            document.getElementById('new-password').value = ''; // Clear the input
-        })
-        .catch((error) => {
-            console.error('Error updating password:', error.message);
-            alert('Failed to update password. ' + error.message);
-        });
-    }
-
-    </script>
-    </body>
+        }
+        
+    </script>    
+</body>
 </html>

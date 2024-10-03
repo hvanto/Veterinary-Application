@@ -11,11 +11,13 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final EncryptionService encryptionService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public UserService(UserRepository userRepository, EncryptionService encryptionService) {
+    public UserService(UserRepository userRepository, EncryptionService encryptionService, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.encryptionService = encryptionService;
+        this.notificationService = notificationService;
     }
 
     // Check if the email already exists
@@ -26,8 +28,14 @@ public class UserService {
     // Save the user with a hashed password
     public User saveUser(User user) {
         user.setPassword(encryptionService.encryptPassword(user.getPassword()));
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // Send welcome notification upon signup
+        notificationService.createNotification(savedUser, "Welcome to VetCare! We're excited to have you.");
+        
+        return savedUser;
     }
+
 
     // Find a user by email
     public Optional<User> findByEmail(String email) {
@@ -83,11 +91,16 @@ public class UserService {
         }
 
         User user = userOptional.get();
-        user.setPassword(encryptionService.encryptPassword(newPassword)); // Hash the new password
+        user.setPassword(encryptionService.encryptPassword(newPassword));
         userRepository.save(user);
     }
 
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    // Method to delete all users
+    public void deleteAllUsers() {
+        userRepository.deleteAll();
     }
 }
