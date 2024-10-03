@@ -81,7 +81,7 @@ public class ArticleController {
     @GetMapping("/getBookmarks")
     public ResponseEntity<Set<String>> getBookmarks(@RequestParam Long userId) {
         User user = userService.findById(userId).get();
-        
+
         Set<String> bookmarks = bookmarkService.findByUser(user).stream() // this line
                 .map(bookmark -> bookmark.getArticle().getLink())
                 .collect(Collectors.toSet());
@@ -137,6 +137,7 @@ public class ArticleController {
         // Get articles from database
         Page<Article> articlePage = articleService.getArticles(page);
 
+        model.addAttribute("mode", "default");
         model.addAttribute("articles", articlePage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
@@ -155,11 +156,12 @@ public class ArticleController {
 
     @GetMapping("/article/search")
     public String searchArticles(@RequestParam("keyword") String keyword,
-                                 @RequestParam(defaultValue = "0") int page,
-                                 Model model) {
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
         // Search articles by keywords
         Page<Article> searchResult = articleService.getSearchResult(keyword, page);
 
+        model.addAttribute("mode", "search");
         model.addAttribute("articles", searchResult);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", searchResult.getTotalPages());
@@ -168,14 +170,14 @@ public class ArticleController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("isEmpty", searchResult.isEmpty());
 
-        model.addAttribute("content","articleList");
+        model.addAttribute("content", "articleList");
         return "index";
     }
 
     @GetMapping("/bookmark")
-    public String getBookmarks(@RequestParam(defaultValue = "0") int page, Model model) {
-        // TODO: Retrieve the user from the session or authentication context
-        User user = userService.findFirst().get();
+    public String getBookmarks(@RequestParam(defaultValue = "0") int page,
+            @RequestParam Long userId, Model model) {
+        User user = userService.findById(userId).get();
 
         // Fetch paginated bookmarked articles
         Page<Article> articlePage = bookmarkService.findByUser(user, page).map(Bookmark::getArticle);
@@ -186,14 +188,17 @@ public class ArticleController {
                 .collect(Collectors.toSet());
 
         // Add attributes to the model
+        model.addAttribute("mode", "bookmark");
         model.addAttribute("articles", articlePage);
         model.addAttribute("bookmarks", bookmarks);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("hasNext", articlePage.hasNext());
         model.addAttribute("hasPrevious", articlePage.hasPrevious());
+        model.addAttribute("isEmpty", articlePage.isEmpty());
 
-        return "articleList";
+        model.addAttribute("content", "articleList");
+        return "index";
     }
 
     @PostMapping("/addBookmark")
