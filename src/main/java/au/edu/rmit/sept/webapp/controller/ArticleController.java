@@ -84,43 +84,15 @@ public class ArticleController {
     }
 
     @PostMapping("/article/add")
-    public ResponseEntity<Integer> addArticle(
-            @RequestParam("title") String title,
-            @RequestParam("link") String link,
-            @RequestParam("description") String description,
-            @RequestParam("author") String author,
-            @RequestParam("published_date") String publishedDate,
-            @RequestParam("image_url") String imageUrl) {
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = null;
-
-        try {
-            date = dateFormat.parse(publishedDate);
-        } catch (ParseException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date format", e);
-        }
-
-        Article article = new Article();
-        article.setTitle(title);
-        article.setLink(link);
-        article.setAuthor(author);
-        article.setPublishedDate(date);
-
-        // TODO: make them optional
-        article.setDescription(description);
-        article.setImageUrl(imageUrl);
-
-        articleService.saveArticle(article);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<Long> addArticle(@RequestBody Article article) {
+        Long id = articleService.saveArticle(article).getId();
+        return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/article/remove")
-    public ResponseEntity<Integer> removeArticle(
-            @RequestParam("id") Long id) {
-
+    public ResponseEntity<Void> removeArticle(@RequestParam("id") Long id) {
         articleService.deleteArticleById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/article")
@@ -196,43 +168,34 @@ public class ArticleController {
     }
 
     @PostMapping("/addBookmark")
-    public ResponseEntity<String> addBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
+    public ResponseEntity<Long> addBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
         Article article = null;
 
         if (existingArticle.isPresent()) {
+            // Use existing article if already in database
             article = existingArticle.get();
         } else {
             // Add article to db if does not already present
-            article = articleService.saveArticle(article);
+            article = articleService.saveArticle(requestArticle);
         }
 
-        try {
-            User user = userService.findById(userId).get();
-            bookmarkService.addBookmark(user, article);
-            return ResponseEntity.ok("Bookmark added successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User user = userService.findById(userId).get();
+        Bookmark bookmark = bookmarkService.addBookmark(user, article);
+
+        return ResponseEntity.ok(bookmark.getId());
     }
 
     @PostMapping("/removeBookmark")
-    public ResponseEntity<String> removeBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
+    public ResponseEntity<Void> removeBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
         Article article = null;
 
-        try {
-            article = existingArticle.get();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        article = existingArticle.get();
 
-        try {
-            User user = userService.findById(userId).get();
-            bookmarkService.removeBookmark(user, article);
-            return ResponseEntity.ok("Bookmark added successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User user = userService.findById(userId).get();
+        bookmarkService.removeBookmark(user, article);
+
+        return ResponseEntity.ok().build();
     }
 }
