@@ -8,6 +8,7 @@
 </head>
 <body class="bg-gray-100">
 <div th:fragment="main" x-data="medicalRecordsData()" x-init="init()">
+    <script th:src="@{/js/userGuide.js}"></script>
     <div class="container mx-auto my-10 px-4 max-w-6xl bg-white rounded-lg shadow-lg">
 
         <!-- Login prompt -->
@@ -27,7 +28,7 @@
             </div>
             <div class="flex flex-wrap justify-center gap-6 p-4 bg-gray-50 rounded-lg">
                 <template x-for="pet in pets" :key="pet.id">
-                    <div @click="fetchMedicalRecords(pet.id)"
+                    <div @click="fetchMedicalRecords(pet.id)" id="guide-select-pet"
                          class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
                         <div class="block">
                             <div class="bg-blue-100 p-4">
@@ -73,7 +74,7 @@
                     General Health Overview <i :class="generalHealthOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
                 </h3>
                 <div x-show="generalHealthOpen">
-                    <div x-show="weightRecords.length > 0" class="mt-8">
+                    <div x-show="weightRecords.length > 0" class="mt-8" id="guide-pet-weight-history">
                         <h3 class="font-bold text-xl text-gray-800">Weight History</h3>
                         <div class="mt-4">
                             <canvas id="weightChart" class="w-full h-64 bg-gray-50 rounded-lg"></canvas>
@@ -84,7 +85,7 @@
                     </div>
 
                     <!-- Physical Exams Table -->
-                    <div x-show="physicalExamList.length > 0">
+                    <div x-show="physicalExamList.length > 0" id="guide-pet-physical-exam-records">
                         <h4 class="font-semibold text-lg mt-4">Physical Exams</h4>
                         <input type="text" x-model="searchPhysicalExam" placeholder="Search Exams" class="px-4 py-2 border rounded-md mb-2">
                         <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
@@ -117,7 +118,7 @@
                     </div>
 
                     <!-- Vaccinations Table -->
-                    <div x-show="vaccinationList.length > 0">
+                    <div x-show="vaccinationList.length > 0" id="guide-pet-vaccination-records">
                         <h4 class="font-semibold text-lg mt-4">Vaccinations</h4>
                         <input type="text" x-model="searchVaccination" placeholder="Search Vaccinations" class="px-4 py-2 border rounded-md mb-2">
                         <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
@@ -161,7 +162,7 @@
                     Medical History and Treatment Overview <i :class="medicalHistoryOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
                 </h3>
                 <div x-show="medicalHistoryOpen">
-                    <div x-show="medicalHistoryList.length > 0">
+                    <div x-show="medicalHistoryList.length > 0" id="guide-pet-medical-history">
                         <h4 class="font-semibold text-lg mt-4">Medical History</h4>
                         <input type="text" x-model="searchMedicalHistory" placeholder="Search Medical History" class="px-4 py-2 border rounded-md mb-2">
                         <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
@@ -211,7 +212,7 @@
                     </div>
 
                     <!-- Treatment Plans Section -->
-                    <div x-show="treatmentPlanList.length > 0">
+                    <div x-show="treatmentPlanList.length > 0" id="guide-pet-treatment-plans">
                         <h4 class="font-semibold text-lg mt-4">Treatment Plans</h4>
                         <input type="text" x-model="searchTreatmentPlan" placeholder="Search Treatment Plans" class="px-4 py-2 border rounded-md mb-2">
                         <table class="min-w-full table-auto border-collapse border border-gray-300 mt-2">
@@ -250,7 +251,7 @@
             </div>
 
             <!-- Download and Share Options -->
-            <div class="mt-8 p-6 rounded-lg shadow-md z-10">
+            <div class="mt-8 p-6 rounded-lg shadow-md z-10" id="guide-pet-download-share-records">
                 <h3 class="font-bold text-xl text-gray-800 mb-4">Download and Share Medical Records</h3>
                 <form id="recordActionForm" class="space-y-4">
                     <input type="hidden" name="selectedPetId" :value="selectedPet ? selectedPet.id : ''">
