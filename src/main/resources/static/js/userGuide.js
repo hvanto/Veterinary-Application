@@ -49,7 +49,7 @@ function startGuide() {
                     intro: "You can share the article."
                 },
                 {
-                    element: "translation-tab",
+                    element: "#translation-tab",
                     intro: "You can translate the articles to your preferred language."
                 }
 
