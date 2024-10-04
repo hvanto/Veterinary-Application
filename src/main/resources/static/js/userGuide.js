@@ -19,6 +19,71 @@ function loadIntroJs(callback) {
     console.log("links loaded")
 }
 
+function startDashBoardGuide() {
+    loadIntroJs(function () {
+        const guide = introJs();
+
+        guide.setOptions({
+            steps: [
+                {
+                    intro: "Welcome to VetCare! I will be guiding you through the platform's features."
+                },
+                {
+                    intro: "Feel free to skip this guide. You can revisit this guide later in the user settings."
+                },
+                {
+                    intro: "This is the dashboard where you can quickly access the platform's different features."
+                },
+                {
+                    element: "#mailbox-button",
+                    intro: "This is the notifications tab where you can read your notifications."
+                },
+                {
+                    element: "#mailbox-dropdown",
+                    intro: "This is the notifications tab where you can read your notifications."
+                },
+                {
+                    element: "#user-menu-button",
+                    intro: "This is the user tab where you can access the user settings."
+                },
+                {
+                    element: "#user-dropdown",
+                    intro: "This is the user tab where you can access the user settings."
+                },
+                {
+                    intro: "Let's explore the medical records page."
+                },
+                {
+                    intro: "Blank"
+                }
+
+            ],
+            showProgress: true,
+            showBullets: false,
+            disableInteraction: true,
+            scrollToElement: true
+        })
+
+        guide.onchange(function () {
+            // Open the first pet tab
+            if (guide.currentStep() === 4) {
+                document.querySelector("#mailbox-button").click()
+
+            } else if (guide.currentStep() === 6) {
+                document.querySelector("#user-menu-button").click()
+
+            } else if (guide.currentStep() === 8) {
+                // Store the next step to resume
+                localStorage.setItem("currentGuide", "medicalRecords");
+                // Redirect to medical records page
+                window.location.href = "/medical-records";
+            }
+        });
+
+        guide.start()
+    });
+}
+
 
 function startMedicalRecordsGuide() {
     loadIntroJs(function () {
@@ -67,14 +132,14 @@ function startMedicalRecordsGuide() {
             ],
             showProgress: true,
             showBullets: false,
-            disableInteractions: true,
+            disableInteraction: true,
             scrollToElement: true
         })
 
         guide.onchange(function () {
             // Open the first pet tab
             if (guide.currentStep() === 2) {
-                // Store the next step to resume
+                // Click on the pet card
                 document.querySelector("#guide-select-pet").click()
 
             } else if (guide.currentStep() == 9) {
@@ -96,12 +161,6 @@ function startArticleGuide() {
 
         guide.setOptions({
             steps: [
-                {
-                    intro: "Welcome to VetCare! I will be guiding you through the platform's features."
-                },
-                {
-                    intro: "Feel free to skip this guide. You can revisit this guide later in the user settings."
-                },
                 {
                     intro: "This is the article page where you can explore the latest articles on animal topics.",
                 },
@@ -129,7 +188,7 @@ function startArticleGuide() {
             ],
             showProgress: true,
             showBullets: false,
-            disableInteractions: true,
+            disableInteraction: true,
             scrollToElement: true
         })
 
@@ -151,11 +210,10 @@ function startArticleGuide() {
 // Automatically start the guide when the page is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const currentGuide = localStorage.getItem("currentGuide");
-    // if (currentGuide == "medicalRecords") {
-    //     localStorage.removeItem("currentGuide")
-    //     startMedicalRecordsGuide();
-    // } else {
-    //     startArticleGuide()
-    // }
-    startMedicalRecordsGuide();
+    if (currentGuide == "medicalRecords") {
+        localStorage.removeItem("currentGuide")
+        startMedicalRecordsGuide();
+    } else {
+        startDashBoardGuide();
+    }
 });
