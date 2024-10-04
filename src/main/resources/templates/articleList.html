@@ -1,5 +1,6 @@
 <div th:fragment="main">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/userGuide.js}"></script>
     <script>
         function addBookmark(caller, title, link, author, publishedDate, description, imageUrl) {
             // Construct the article object
@@ -48,7 +49,7 @@
 
     <form action="/article/search" method="get" class="flex justify-center lg:w-4/5 sm:w-11/12 mx-auto my-10">
         <div class="lg:w-1/2 sm:w-full">
-            <input type="text" placeholder="Search articles" name="keyword" th:value="${keyword}"
+            <input type="text" placeholder="Search articles" name="keyword" th:value="${keyword}" id="guide-article-search"
                    class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
         </div>
         <button type="submit"
@@ -85,7 +86,7 @@
             </a>
 
             <div class="flex lg:flex-col sm:flex-row">
-                <button>
+                <button id="guide-bookmark">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5"
                         th:attr="fill=${bookmarks != null && bookmarks.contains(article.link) ? 'solid' : 'none'},
                                  onclick=|addBookmark(this, '${article.title}', '${article.link}', '${article.author}', '${#dates.format(article.publishedDate, 'yyyy-MM-dd')}', '${article.description}', '${article.imageUrl}')|">
@@ -93,7 +94,7 @@
                             d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                     </svg>
                 </button>
-                <button>
+                <button id="guide-download">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5"
                         th:attr="onclick=|downloadArticle('${article.link}')|">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -104,7 +105,7 @@
 
                 <div class="relative inline-block">
                     <!-- Share button -->
-                    <button class="share-button">
+                    <button class="share-button" id="guide-share">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1.5">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
