@@ -1,3 +1,23 @@
+function loadIntroJs(callback) {
+    // Check if intro js is already loaded
+    if (typeof introJs !== 'undefined') {
+        callback();
+        return;
+    }
+
+    // Dynamically create link tag to import intro js css
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = "https://cdnjs.cloudflare.com/ajax/libs/intro.js/5.0.0/introjs.min.css";
+    document.head.appendChild(link);
+
+    // Dynamically create script tag to import intro js
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/intro.js/minified/intro.min.js";
+    script.onload = callback;
+    document.body.appendChild(script);
+}
+
 function startGuide() {
     loadIntroJs(function () {
         // Start the guide once intro js is loaded
