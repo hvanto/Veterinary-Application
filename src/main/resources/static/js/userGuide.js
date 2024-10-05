@@ -16,7 +16,78 @@ function loadIntroJs(callback) {
     script.src = "https://cdn.jsdelivr.net/npm/intro.js/minified/intro.min.js";
     script.onload = callback;
     document.body.appendChild(script);
-    console.log("links loaded")
+}
+
+
+function getGuideStatus() {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (loggedInUser) {
+        const loggedInUserData = JSON.parse(loggedInUser);
+        // Get the user id
+        return loggedInUserData.completedGuide;
+    }
+    return null;
+}
+
+
+function updateGuideStatus(status) {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (loggedInUser) {
+        const loggedInUserData = JSON.parse(loggedInUser);
+        // Get the user id
+        const userId = loggedInUserData.id;
+
+        // Create a payload
+        const payload = {
+            userId: userId,
+            completedGuide: status
+        };
+
+        // Send a put request to update completed guide status
+        fetch("/api/users/updateCompletedGuide", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(payload)
+
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Completed guide status updated successfully");
+                } else {
+                    console.error("Failed to update completed guide status");
+                }
+            })
+            .catch(error => {
+                console.error("Error during guide status update:", error);
+            });
+    }
+}
+
+
+function updateLocalStorageGuideStatus(status) {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (loggedInUser) {
+        const loggedInUserData = JSON.parse(loggedInUser);
+
+        // Update the completedGuide field
+        loggedInUserData.completedGuide = status;
+
+        const updatedUserString = JSON.stringify(loggedInUserData);
+
+        // Save the updated user object back to local storage
+        localStorage.setItem("loggedInUser", updatedUserString);
+
+        console.log("Local storage updated with new guide status:", loggedInUserData.completedGuide);
+
+    } else {
+        console.error("No logged in user found in local storage");
+    }
 }
 
 
@@ -55,7 +126,7 @@ function startDashBoardGuide() {
                     intro: "Let's explore the medical records page next."
                 },
                 {
-                    intro: ""
+                    intro: "Taking you to the medical records page..."
                 }
 
             ],
@@ -79,6 +150,11 @@ function startDashBoardGuide() {
                 // Redirect to next page
                 window.location.href = "/medical-records";
             }
+        });
+
+        guide.onexit(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
         });
 
         guide.start()
@@ -128,7 +204,7 @@ function startMedicalRecordsGuide() {
                     intro: "Let's explore the prescriptions page next."
                 },
                 {
-                    intro: ""
+                    intro: "Taking you to the prescriptions page..."
                 }
 
             ],
@@ -139,17 +215,22 @@ function startMedicalRecordsGuide() {
         })
 
         guide.onchange(function () {
-            // Open the first pet tab
+            // Open the first pet's tab
             if (guide.currentStep() === 2) {
                 // Click on the pet card
                 document.querySelector("#guide-select-pet").click()
 
-            } else if (guide.currentStep() == 9) {
+            } else if (guide.currentStep() === 9) {
                 // Store the next step to resume
                 localStorage.setItem("currentGuide", "prescriptions");
                 // Redirect to next page
                 window.location.href = "/prescription";
             }
+        });
+
+        guide.onexit(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
         });
 
         guide.start()
@@ -170,7 +251,7 @@ function startPrescriptionGuide() {
                     intro: "Let's explore the book appointment page next."
                 },
                 {
-                    intro: ""
+                    intro: "Taking you to the book appointment page..."
                 }
 
             ],
@@ -187,6 +268,11 @@ function startPrescriptionGuide() {
                 // Redirect to next page
                 window.location.href = "/book-appointment";
             }
+        });
+
+        guide.onexit(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
         });
 
         guide.start()
@@ -211,7 +297,7 @@ function startBookAppointmentGuide() {
                     intro: "Let's explore the article page next."
                 },
                 {
-                    intro: "Redirecting you to the article page..."
+                    intro: "Taking you to the articles page..."
                 }
 
             ],
@@ -228,6 +314,11 @@ function startBookAppointmentGuide() {
                 // Redirect to next page
                 window.location.href = "/article";
             }
+        });
+
+        guide.onexit(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
         });
 
         guide.start()
@@ -278,6 +369,16 @@ function startArticleGuide() {
             scrollToElement: true
         });
 
+        guide.onexit(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
+        });
+
+        guide.oncomplete(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
+        })
+
         guide.start()
     });
 }
@@ -286,24 +387,39 @@ function startArticleGuide() {
 
 // Automatically start the guide when the page is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const currentGuide = localStorage.getItem("currentGuide");
-    if (currentGuide == "medicalRecords") {
-        localStorage.removeItem("currentGuide");
-        startMedicalRecordsGuide();
+    const user = localStorage.getItem("loggedInUser")
+    const completedGuide = getGuideStatus();
 
-    } else if (currentGuide == "prescriptions") {
-        localStorage.removeItem("currentGuide");
-        startPrescriptionGuide();
+    // Check if user is logged in and not completed the guide
+    if (user && !completedGuide) {
+        const currentGuide = localStorage.getItem("currentGuide");
 
-    } else if (currentGuide == "bookAppointment") {
-        localStorage.removeItem("currentGuide");
-        startBookAppointmentGuide();
+        // Check if there is guide to resume
+        if (currentGuide) {
+            if (currentGuide === "medicalRecords") {
+                localStorage.removeItem("currentGuide");
+                startMedicalRecordsGuide();
 
-    } else if (currentGuide == "article") {
-        localStorage.removeItem("currentGuide");
-        startArticleGuide();
+            } else if (currentGuide === "prescriptions") {
+                localStorage.removeItem("currentGuide");
+                startPrescriptionGuide();
 
-    } else {
-        startDashBoardGuide();
-    }
+            } else if (currentGuide === "bookAppointment") {
+                localStorage.removeItem("currentGuide");
+                startBookAppointmentGuide();
+
+            } else if (currentGuide === "article") {
+                localStorage.removeItem("currentGuide");
+                startArticleGuide();
+            }
+
+        } else {
+                // Redirect user to home page if there is no current guide to resume
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/";
+                } else {
+                    startDashBoardGuide();
+                }
+            }
+        }
 });
