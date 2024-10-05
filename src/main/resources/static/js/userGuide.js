@@ -16,8 +16,69 @@ function loadIntroJs(callback) {
     script.src = "https://cdn.jsdelivr.net/npm/intro.js/minified/intro.min.js";
     script.onload = callback;
     document.body.appendChild(script);
+
+    addGuideStyle();
 }
 
+function addGuideStyle() {
+    const styleTag = document.createElement("style");
+    styleTag.innerHTML = `
+    /* Tool tip styling */
+    .introjs-tooltip {
+        background-color: #ffffff;
+        color: #333333; 
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        border-radius: 0.5rem; 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        max-width: 400px; 
+    }
+    
+    /* Buttons styling */
+    .introjs-button {
+        background-color: #6366f1; 
+        color: #ffffff;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        transition: background-color 0.2s ease-in-out; 
+        text-shadow: none;
+    }
+    
+    .introjs-button:hover {
+        color: #ffffff;
+        background-color: #4f46e5;
+    }
+    
+    .introjs-button:focus {
+        outline: none; /* Remove the default focus outline */
+        box-shadow: none; /* Remove any default shadow that indicates focus */
+        border: none; /* Ensure no border is applied */
+        background-color: #4f46e5;
+        color: #ffffff; /* White text */
+    }
+    
+    .introjs-disabled {
+        color: #9e9e9e;
+        background-color: #f4f4f4;
+    }
+    
+    .introjs-disabled:hover {
+        color: #9e9e9e;
+        background-color: #f4f4f4;
+    }
+ 
+    /* Progress bar styling */
+    .introjs-progress {
+        height: 6px;
+        background-color: #d1d5db; 
+    }
+
+    .introjs-progressbar {
+        background-color: #4f46e5;
+    }
+    `;
+    document.head.appendChild(styleTag);
+}
 
 function getGuideStatus() {
     const loggedInUser = localStorage.getItem("loggedInUser");
