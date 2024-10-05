@@ -28,22 +28,23 @@ public class BookmarkService {
         return bookmarkRepository.findByUser(user, pageable);
     }
 
-    public void addBookmark(User user, Article article) {
+    public Bookmark addBookmark(User user, Article article) {
         Optional<Bookmark> existingBookmark = bookmarkRepository.findByUserAndArticle(user, article);
 
         if (existingBookmark.isEmpty()) {
             Bookmark bookmark = new Bookmark();
             bookmark.setUser(user);
             bookmark.setArticle(article);
-            bookmarkRepository.save(bookmark);
+            return bookmarkRepository.save(bookmark);
         } else {
             // Optional: Log or handle duplicate case
-            System.out.println("Bookmark already exists for this user and article.");
+            return existingBookmark.get();
         }
     }
 
-    public void removeBookmark(User user, Article article) {
+    public Boolean removeBookmark(User user, Article article) {
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserAndArticle(user, article);
         bookmark.ifPresent(bookmarkRepository::delete);
+        return bookmark.isPresent();
     }
 }
