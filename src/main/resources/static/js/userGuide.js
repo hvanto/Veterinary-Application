@@ -55,7 +55,7 @@ function startDashBoardGuide() {
                     intro: "Let's explore the medical records page next."
                 },
                 {
-                    intro: "Blank"
+                    intro: ""
                 }
 
             ],
@@ -93,7 +93,7 @@ function startMedicalRecordsGuide() {
         guide.setOptions({
             steps: [
                 {
-                    intro: "This is the medical records page where you can view your pet's medical records"
+                    intro: "This is the medical records page where you can view your pet's medical records."
                 },
                 {
 
@@ -118,7 +118,7 @@ function startMedicalRecordsGuide() {
                 },
                 {
                     element: "#guide-pet-treatment-plans",
-                    intro: "You can search and view Buddy's treatment plans"
+                    intro: "You can search and view Buddy's treatment plans."
                 },
                 {
                     element: "#guide-pet-download-share-records",
@@ -128,8 +128,9 @@ function startMedicalRecordsGuide() {
                     intro: "Let's explore the prescriptions page next."
                 },
                 {
-                    intro: "Blank"
+                    intro: ""
                 }
+
             ],
             showProgress: true,
             showBullets: false,
@@ -155,7 +156,7 @@ function startMedicalRecordsGuide() {
     });
 }
 
-
+// TODO: Complete guide for prescriptions page
 function startPrescriptionGuide() {
     loadIntroJs(function () {
         const guide = introJs();
@@ -163,13 +164,54 @@ function startPrescriptionGuide() {
         guide.setOptions({
             steps: [
                 {
-                    intro: "This is the prescriptions page where you can view and manage your pet's current prescriptions",
+                    intro: "This is the prescriptions page where you can view and manage your pet's current prescriptions.",
                 },
                 {
                     intro: "Let's explore the book appointment page next."
                 },
                 {
-                    intro: "Blank"
+                    intro: ""
+                }
+
+            ],
+            showProgress: true,
+            showBullets: false,
+            disableInteraction: true,
+            scrollToElement: true
+        })
+
+        guide.onchange(function () {
+            if (guide.currentStep() === 2) {
+                // Store the next step to resume
+                localStorage.setItem("currentGuide", "bookAppointment");
+                // Redirect to next page
+                window.location.href = "/book-appointment";
+            }
+        });
+
+        guide.start()
+    });
+}
+
+// TODO: Complete the guide for book appointment page
+function startBookAppointmentGuide() {
+    loadIntroJs(function () {
+        const guide = introJs();
+
+        guide.setOptions({
+            steps: [
+                {
+                    intro: "This is the book appointment page where you can book an appointment with the vet.",
+                },
+                {
+                    element: "#guide-book-filter-panel",
+                    intro: "You can filter the appointment by services or doctors."
+                },
+                {
+                    intro: "Let's explore the article page next."
+                },
+                {
+                    intro: "Redirecting you to the article page..."
                 }
 
             ],
@@ -182,15 +224,18 @@ function startPrescriptionGuide() {
         guide.onchange(function () {
             if (guide.currentStep() === 3) {
                 // Store the next step to resume
-                localStorage.setItem("currentGuide", "");
+                localStorage.setItem("currentGuide", "article");
                 // Redirect to next page
-                window.location.href = "/book-appointment";
+                window.location.href = "/article";
             }
         });
 
         guide.start()
     });
 }
+
+// TODO: Add guide for manage appointment page
+function startManageAppointmentGuide() {}
 
 
 function startArticleGuide() {
@@ -222,21 +267,15 @@ function startArticleGuide() {
                     element: "#translation-tab",
                     intro: "You can translate the articles to your preferred language."
                 },
+                {
+                    intro: "That's all for now. We hope you enjoy using this platform. Good luck!"
+                }
 
             ],
             showProgress: true,
             showBullets: false,
             disableInteraction: true,
             scrollToElement: true
-        })
-
-        guide.onchange(function () {
-            if (guide.currentStep() === 9) {
-                // // Store the next step to resume
-                // localStorage.setItem("currentGuide", "");
-                // // Redirect to next page
-                // window.location.href = "";
-            }
         });
 
         guide.start()
@@ -249,15 +288,22 @@ function startArticleGuide() {
 document.addEventListener('DOMContentLoaded', () => {
     const currentGuide = localStorage.getItem("currentGuide");
     if (currentGuide == "medicalRecords") {
-        localStorage.removeItem("currentGuide")
+        localStorage.removeItem("currentGuide");
         startMedicalRecordsGuide();
 
     } else if (currentGuide == "prescriptions") {
-        localStorage.removeItem("currentGuide")
+        localStorage.removeItem("currentGuide");
         startPrescriptionGuide();
 
+    } else if (currentGuide == "bookAppointment") {
+        localStorage.removeItem("currentGuide");
+        startBookAppointmentGuide();
+
+    } else if (currentGuide == "article") {
+        localStorage.removeItem("currentGuide");
+        startArticleGuide();
+
     } else {
-        window.location.href = "/"
         startDashBoardGuide();
     }
 });
