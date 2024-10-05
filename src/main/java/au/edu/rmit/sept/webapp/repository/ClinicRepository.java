@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ClinicRepository extends JpaRepository<Clinic, Long> {
-    // Custom query methods if needed
+    Optional<Clinic> findByName(String name);
 }
