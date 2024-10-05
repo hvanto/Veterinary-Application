@@ -1,51 +1,49 @@
 package au.edu.rmit.sept.webapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import java.util.List;
-
 @Entity
 @Table(name = "clinic")
 public class Clinic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @OneToMany(mappedBy = "clinic")
     @Fetch(FetchMode.JOIN)
     @JsonManagedReference("clinic-veterinarians")
     private List<Veterinarian> veterinarians;
 
-    private String Name;
-    private String Email;
-    private String Address;
+    private String name;
+    private String email;
+    private String address;
     private String location;
-    private Integer OpeningTime;
-    private Integer ClosingTime;
-    private Long Contact;
+    private Integer openingTime;
+    private Integer closingTime;
+    private Long contact;
 
     // Constructors
     public Clinic() {}
 
     public Clinic(String name, String email, String address, String location, Integer openingTime, Integer closingTime, Long contact) {
-        Name = name;
-        Email = email;
-        Address = address;
+        this.name = name;
+        this.email = email;
+        this.address = address;
         this.location = location;
-        OpeningTime = openingTime;
-        ClosingTime = closingTime;
-        Contact = contact;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
+        this.contact = contact;
     }
 
     // Getters and Setters
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public List<Veterinarian> getVeterinarians() {
@@ -53,31 +51,31 @@ public class Clinic {
     }
 
     public void setVeterinarians(List<Veterinarian> veterinarians) {
-        veterinarians = veterinarians;
+        this.veterinarians = veterinarians;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
 
     public String getAddress() {
-        return Address;
+        return address;
     }
 
     public void setAddress(String address) {
-        Address = address;
+        this.address = address;
     }
 
     public String getLocation() {
@@ -89,26 +87,26 @@ public class Clinic {
     }
 
     public Integer getOpeningTime() {
-        return OpeningTime;
+        return openingTime;
     }
 
     public void setOpeningTime(Integer openingTime) {
-        OpeningTime = openingTime;
+        this.openingTime = openingTime;
     }
 
     public Integer getClosingTime() {
-        return ClosingTime;
+        return closingTime;
     }
 
     public void setClosingTime(Integer closingTime) {
-        ClosingTime = closingTime;
+        this.closingTime = closingTime;
     }
 
     public Long getContact() {
-        return Contact;
+        return contact;
     }
 
     public void setContact(Long contact) {
-        Contact = contact;
+        this.contact = contact;
     }
 }
