@@ -26,6 +26,9 @@
                     <li>
                         <button onclick="showSection('notification-preferences')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Notification Preferences</button>
                     </li>
+                    <li>
+                        <button onclick="updateLocalStorageGuideStatus(false); window.location.href='/'" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Restart onboarding guide</button>
+                    </li>
                 </ul>
             </div>
         </aside>
@@ -121,15 +124,6 @@
                     <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save Preferences</button>
                 </form>
             </div>
-        </section>
-
-        <!-- Button to restart onboarding guide -->
-        <!-- TODO: reposition this button -->
-        <section>
-            <a href="/" onclick="updateLocalStorageGuideStatus(false)"
-            class="bg-indigo-600 px-3 py-2 rounded-lg ml-6 font-semibold text-sm text-zinc-200">
-                Restart onboarding guide
-            </a>
         </section>
     </main>
 
