@@ -1,0 +1,40 @@
+<div th:fragment="main" class="w-4/5 mx-auto pt-7 pb-10">
+
+    <h1 class="text-4xl font-bold mb-10">Frequently Asked Questions</h1>
+
+    <!-- Filter by category -->
+    <div class="flex flex-wrap space-x-4 space-y-2 sm:space-y-0">
+        <a href="/faq/general"
+           th:class="'rounded-lg py-2 px-4 ' + ${category == 'general' ? 'bg-indigo-600 text-white cursor-default' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}">
+            General
+        </a>
+        <a href="/faq/medical-records"
+           th:class="'rounded-lg py-2 px-4 ' + ${category == 'medical-records' ? 'bg-indigo-600 text-white cursor-default' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}">
+            Medical Records
+        </a>
+        <a href="/faq/prescriptions"
+           th:class="'rounded-lg py-2 px-4 ' + ${category == 'prescriptions' ? 'bg-indigo-600 text-white cursor-default' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}">
+            Prescriptions
+        </a>
+        <a href="/faq/appointments"
+           th:class="'rounded-lg py-2 px-4 ' + ${category == 'appointments' ? 'bg-indigo-600 text-white cursor-default' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}">
+            Appointments
+        </a>
+        <a href="/faq/billing"
+           th:class="'rounded-lg py-2 px-4 ' + ${category == 'billing' ? 'bg-indigo-600 text-white cursor-default' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}">
+            Billing & Payments
+        </a>
+    </div>
+
+    <!-- Show message is faq is empty -->
+    <div th:if="${isEmpty}" class="mt-6">
+        <p>No FAQs is available for this category</p>
+    </div>
+
+    <div th:if="${!isEmpty}" class="mt-6">
+        <div th:each="faq : ${faqs}">
+            <h3 th:text="${faq.question}"></h3>
+            <p th:text="${faq.answer}"></p>
+        </div>
+    </div>
+</div>
