@@ -233,13 +233,15 @@ function startMedicalRecordsGuide() {
                     intro: "This is the medical records page where you can view your pet's medical records."
                 },
                 {
-
+                    element: "#guide-select-pet",
                     intro: "Let's have a look at Buddy's medical record."
                 },
                 {
-                    // element: "#weightChart",
-                    intro: "You can view a graph of Buddy's weight history.",
-                    position: "bottom"
+                    intro: "We are now in Buddy's profile."
+                },
+                {
+                    element: "#guide-pet-weight-history",
+                    intro: "You can view a graph of Buddy's weight history."
                 },
                 {
                     element: "#guide-pet-physical-exam-records",
@@ -281,7 +283,7 @@ function startMedicalRecordsGuide() {
                 // Click on the pet card
                 document.querySelector("#guide-select-pet").click()
 
-            } else if (guide.currentStep() === 9) {
+            } else if (guide.currentStep() === 10) {
                 // Store the next step to resume
                 localStorage.setItem("currentGuide", "prescriptions");
                 // Redirect to next page
