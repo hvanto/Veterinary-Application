@@ -1,34 +1,71 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Veterinarian Navigation</title>
-</head>
-<body>
-<nav class="bg-zinc-50 border-b-2 border-zinc-200" th:fragment="veterinarian-navigation">
-    <div class="max-w-screen-2xl flex items-center justify-between mx-auto px-4 py-2">
+<!-- _veterinarianNavigation.html -->
+<nav th:fragment="veterinarian-navigation" class="bg-zinc-50 border border-b-2 border-zinc-200">
+    <div class="max-w-screen-2xl flex flex-wrap items-center justify-between mx-auto px-4 py-2">
         <!-- VetCare Logo -->
-        <a th:href="@{/veterinarian-dashboard}" class="flex items-center space-x-3">
-            <img th:src="@{/assets/logo.png}" class="h-10" alt="VetCare Logo">
-            <span class="text-xl font-semibold">VetCare</span>
+        <a th:href="@{/veterinarian-dashboard}" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img th:src="@{/assets/logo.png}" class="h-10" alt="VetCare Logo" />
+            <span class="self-center text-xl font-semibold whitespace-nowrap">VetCare</span>
         </a>
 
-        <!-- Veterinarian Navigation Links -->
-        <ul class="flex space-x-4">
-            <li><a th:href="@{/veterinarian-dashboard}" class="text-sm font-medium hover:text-blue-500">Dashboard</a></li>
-            <li><a th:href="@{/appointments}" class="text-sm font-medium hover:text-blue-500">Appointments</a></li>
-            <li><a th:href="@{/prescriptions}" class="text-sm font-medium hover:text-blue-500">Prescriptions</a></li>
-            <li><a th:href="@{/medical-records}" class="text-sm font-medium hover:text-blue-500">Records</a></li>
-            <li><a th:href="@{/logout}" class="text-sm font-medium text-red-500 hover:text-red-700">Logout</a></li>
-        </ul>
+        <!-- Navigation Links for Veterinarians -->
+        <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-veterinarian">
+            <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-zinc-100 rounded-lg
+                    md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                <li>
+                    <a th:href="@{/veterinarian-dashboard}" class="block py-2 px-3 md:p-0">Dashboard</a>
+                </li>
+                <li>
+                    <a th:href="@{/appointments}" class="block py-2 px-3 md:p-0">Appointments</a>
+                </li>
+                <li>
+                    <a th:href="@{/patient-records}" class="block py-2 px-3 md:p-0">Patient Records</a>
+                </li>
+                <li>
+                    <a th:href="@{/clinic-management}" class="block py-2 px-3 md:p-0">Clinic Management</a>
+                </li>
+            </ul>
+        </div>
 
-        <!-- Profile Picture Dropdown (Optional) -->
-        <div class="flex items-center space-x-4">
-            <button class="text-sm rounded-full focus:ring-2 focus:ring-sky-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
-                <img class="w-10 h-10 rounded-full" th:src="@{/assets/profile_picture.jpg}" alt="user photo">
+        <!-- Veterinarian Profile Buttons -->
+        <div class="flex items-center space-x-4 md:order-2">
+            <!-- Notifications (if applicable) -->
+            <div id="mailbox-container" class="hidden">
+                <button type="button" class="relative flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="mailbox-button"
+                        aria-expanded="false" data-dropdown-toggle="mailbox-dropdown" data-dropdown-placement="bottom">
+                    <i class="fas fa-envelope w-6 h-6 mail-icon"></i>
+                    <span id="notification-count" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full hidden"></span>
+                </button>
+                <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-zinc-100 rounded-lg shadow" id="mailbox-dropdown">
+                    <div class="px-4 py-3">
+                        <h3 class="text-sm font-semibold text-zinc-900">Notifications</h3>
+                    </div>
+                    <ul id="notification-list" class="py-2 max-h-48 overflow-auto">
+                        <li class="px-4 py-2 text-sm text-zinc-700">No new notifications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Veterinarian Profile Button -->
+            <button type="button" class="flex text-sm rounded-full md:me-0 focus:ring-2 focus:ring-sky-600" id="user-menu-button"
+                    aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                <img class="w-10 h-10 rounded-full" th:src="@{/assets/profile_picture.jpg}" alt="veterinarian photo">
             </button>
+        </div>
+
+        <!-- Veterinarian Dropdown Menu -->
+        <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-zinc-100 rounded-lg shadow" id="user-dropdown">
+            <div class="px-4 py-3">
+                <span class="block text-sm text-zinc-900" id="nav-username">Veterinarian Name</span>
+                <span class="block text-sm text-zinc-500 truncate" id="nav-email">email@example.com</span>
+            </div>
+            <ul class="py-2" aria-labelledby="user-menu-button">
+                <li>
+                    <a th:href="@{/veterinarianProfile}" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100">Profile Settings</a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" class="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100" onclick="logoutUser()">Logout</a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
-</body>
-</html>
