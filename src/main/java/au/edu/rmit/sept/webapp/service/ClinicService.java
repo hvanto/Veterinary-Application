@@ -24,6 +24,12 @@ public class ClinicService {
         this.veterinarianRepository = veterinarianRepository;
     }
 
+    // Get clinic by name
+    public Clinic getClinicByName(String name) {
+        Optional<Clinic> clinic = clinicRepository.findByName(name);
+        return clinic.orElse(null); // Return the clinic if found, otherwise null
+    }
+
     public List<Clinic> getAllClinics() {
         return clinicRepository.findAll();
     }
@@ -41,6 +47,17 @@ public class ClinicService {
         return veterinarians.stream()
                 .flatMap(vet -> vet.getServices().stream())
                 .collect(Collectors.toSet()); // Using Set to ensure uniqueness
+    }
+
+    // Check if a clinic exists by name
+    public boolean clinicExists(String clinicName) {
+        Optional<Clinic> clinic = clinicRepository.findByName(clinicName);
+        return clinic.isPresent();
+    }
+
+    // Save a new clinic
+    public Clinic saveClinic(Clinic clinic) {
+        return clinicRepository.save(clinic);
     }
 }
 

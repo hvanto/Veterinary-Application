@@ -25,6 +25,10 @@ public class Bookmark {
 
     // Getters and Setters
 
+    public Long getId() {
+        return id;
+    }
+
     public User getUser() {
         return user;
     }

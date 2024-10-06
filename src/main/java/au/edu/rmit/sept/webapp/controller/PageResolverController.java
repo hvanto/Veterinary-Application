@@ -117,4 +117,28 @@ public class PageResolverController {
 
          return "index";
      }
+
+    @GetMapping("/veterinarian-signup")
+    public String veterinarianSignup(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-signup");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
+    @GetMapping("/veterinarian-login")
+    public String veterinarianLogin(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-login");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
 }

@@ -38,6 +38,10 @@ public class Article {
         this.imageUrl = imageUrl;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getLink() {
         return link;
     }
