@@ -199,11 +199,20 @@ function startDashBoardGuide() {
 
         guide.onchange(function () {
             // Open the first pet tab
-            if (guide.currentStep() === 4) {
+            if (guide.currentStep() === 3) {
+                document.body.click()
+
+            } else if (guide.currentStep() === 4) {
                 document.querySelector("#mailbox-button").click()
+
+            } else if (guide.currentStep() === 5) {
+                document.body.click()
 
             } else if (guide.currentStep() === 6) {
                 document.querySelector("#user-menu-button").click()
+
+            } else if (guide.currentStep() === 7) {
+                document.body.click()
 
             } else if (guide.currentStep() === 8) {
                 // Store the next step to resume
