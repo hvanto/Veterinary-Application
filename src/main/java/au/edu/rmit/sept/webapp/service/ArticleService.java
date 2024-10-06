@@ -102,6 +102,15 @@ public class ArticleService {
 
     }
 
+    // Save articles to repository, filtering existing
+    public void saveAraticles(List<Article> articles) {
+        for (Article article : articles) {
+            if (!articleExists(article.getLink())) {
+                repository.save(article);
+            }
+        }
+    }
+
     // Fetch RSS feed from external URL and save to database
     public void fetchRssFeed() {
         // Fetch RSS feed only once
