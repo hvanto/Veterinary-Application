@@ -12,24 +12,30 @@
             <!-- Email -->
             <div class="form-group">
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <input type="email" id="email" name="email"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
             </div>
 
             <!-- Password -->
             <div class="form-group">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <input type="password" id="password" name="password"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
             </div>
 
             <!-- Clinic Name -->
             <div class="form-group">
                 <label for="clinicName" class="block text-sm font-medium text-gray-700">Clinic Name</label>
-                <input type="text" id="clinicName" name="clinicName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <input type="text" id="clinicName" name="clinicName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <p id="clinicNameInfo" class="text-gray-600 text-sm mt-2">Optional for Independent Veterinarians.</p>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Login as Veterinarian
             </button>
         </form>
@@ -40,13 +46,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <!-- JS: Hide clinic name field if veterinarian belongs to Independent clinic -->
     <script>
         function loginVeterinarian(event) {
             event.preventDefault();
 
             const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+            const password = document.getElementById('password').value.trim();
             const clinicName = document.getElementById('clinicName').value.trim();
 
             const formData = {
@@ -58,29 +63,29 @@
             // Submit form data via Axios
             axios.post('/api/veterinarian/login', formData)
                 .then(function (response) {
-                    const veterinarian = response.data;
+                    const data = response.data;
+                    console.log("Response from backend:", data);  // Log the entire response for debugging
 
-                    if (veterinarian && veterinarian.clinic && veterinarian.clinic.name === "Independent") {
-                        document.getElementById('clinicNameInfo').innerText = "Optional for Independent Veterinarians.";
+                    // Check if veterinarian data is provided in the response
+                    if (data && data.veterinarian && data.firstName && data.email) {
+                        // Store the veterinarian data in localStorage (optional)
+                        localStorage.setItem('loggedInVeterinarian', JSON.stringify(data.veterinarian));
+
+                        // Redirect to the veterinarian dashboard using the provided URL
+                        window.location.href = data.redirectUrl;
                     } else {
-                        document.getElementById('clinicNameInfo').innerText = "";
-                    }
-
-                    if (veterinarian && veterinarian.firstName && veterinarian.email) {
-                        // Store the veterinarian data in localStorage
-                        localStorage.setItem('loggedInVeterinarian', JSON.stringify(veterinarian));
-
-                        // Redirect to veterinarian dashboard
-                        window.location.href = '/veterinarian-dashboard';
-                    } else {
+                        // Handle incomplete data error
                         document.getElementById('responseMessage').innerText = "Login failed: Veterinarian data incomplete.";
                     }
                 })
                 .catch(function (error) {
-                    document.getElementById('responseMessage').innerText = "Incorrect email, password, or clinic name.";
+                    // Handle login failure
+                    const errorMessage = error.response ? error.response.data.error || "Incorrect email, password, or clinic name." : "Login failed. Please try again.";
+                    document.getElementById('responseMessage').innerText = errorMessage;
                 });
         }
     </script>
+
 </main>
 </body>
 </html>

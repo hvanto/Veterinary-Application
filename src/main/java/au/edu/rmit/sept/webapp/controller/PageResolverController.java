@@ -141,4 +141,17 @@ public class PageResolverController {
 
         return "index";
     }
+
+    @GetMapping("/veterinarian-dashboard")
+    public String veterinarianDashboard(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-dashboard");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "veterinarian-dashboard";
+    }
+
 }

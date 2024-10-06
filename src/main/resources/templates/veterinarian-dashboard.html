@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Veterinarian Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Veterinarian Navigation Fragment -->
+<div th:replace="fragments/_veterinarianNavigation :: veterinarian-navigation"></div>
+
+<!-- Veterinarian Dashboard Content -->
+<div class="container mx-auto mt-8">
+    <h1 class="text-2xl font-semibold mb-4">Welcome, Veterinarian!</h1>
+
+    <!-- Example Section: Appointments -->
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold">Manage Your Appointments</h2>
+        <p>Here you can view and manage your upcoming appointments.</p>
+        <a href="/appointments" class="text-blue-500 hover:underline">View Appointments</a>
+    </section>
+
+    <!-- Example Section: Prescriptions -->
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold">Manage Prescriptions</h2>
+        <p>Here you can view and create prescriptions for patients.</p>
+        <a href="/prescriptions" class="text-blue-500 hover:underline">Manage Prescriptions</a>
+    </section>
+
+    <!-- Example Section: Patient Records -->
+    <section class="mb-6">
+        <h2 class="text-xl font-semibold">Patient Records</h2>
+        <p>Access patient medical records and history.</p>
+        <a href="/medical-records" class="text-blue-500 hover:underline">View Records</a>
+    </section>
+</div>
+
+<!-- Optional Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+</html>
