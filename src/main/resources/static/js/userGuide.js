@@ -359,6 +359,9 @@ function startBookAppointmentGuide() {
                 },
                 {
                     intro: "Taking you to the articles page..."
+                },
+                {
+                    intro: "Taking you to the articles page..."
                 }
 
             ],
@@ -397,11 +400,15 @@ function startArticleGuide() {
         guide.setOptions({
             steps: [
                 {
-                    intro: "This is the article page where you can explore the latest articles on animal topics.",
+                    intro: "This is the articles page where you can explore the latest articles on animal topics.",
                 },
                 {
                     element: "#guide-article-search",
                     intro: "You can search for articles."
+                },
+                {
+                    element: "#guide-bookmark-list",
+                    intro: "You can view your bookmarked articles."
                 },
                 {
                     element: "#guide-bookmark",
@@ -420,7 +427,7 @@ function startArticleGuide() {
                     intro: "You can translate the articles to your preferred language."
                 },
                 {
-                    intro: "That's all for now. We hope you enjoy using this platform. Good luck!"
+                    intro: "That's all for now. We hope you enjoy using the platform. Good luck!"
                 }
 
             ],
@@ -438,6 +445,8 @@ function startArticleGuide() {
         guide.oncomplete(function() {
             updateLocalStorageGuideStatus(true);
             updateGuideStatus(true);
+            // Redirect back to the home page
+            window.location.href = "/";
         })
 
         guide.start()
