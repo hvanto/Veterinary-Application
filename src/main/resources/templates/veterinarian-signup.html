@@ -13,21 +13,28 @@
             <!-- First Name -->
             <div class="form-group">
                 <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
-                <input type="text" id="firstName" name="firstName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
-                <p id="firstNameError" class="text-red-600 text-sm mt-2 hidden">First name must contain only letters.</p>
+                <input type="text" id="firstName" name="firstName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="firstNameError" class="text-red-600 text-sm mt-2 hidden">First name must contain only
+                    letters.</p>
             </div>
 
             <!-- Last Name -->
             <div class="form-group">
                 <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
-                <input type="text" id="lastName" name="lastName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <input type="text" id="lastName" name="lastName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
                 <p id="lastNameError" class="text-red-600 text-sm mt-2 hidden">Last name must contain only letters.</p>
             </div>
 
             <!-- Email -->
             <div class="form-group">
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <input type="email" id="email" name="email"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
                 <p id="emailError" class="text-red-600 text-sm mt-2 hidden">Please enter a valid email address.</p>
                 <p id="emailTakenError" class="text-red-600 text-sm mt-2 hidden">Email already exists.</p>
             </div>
@@ -35,33 +42,44 @@
             <!-- Contact (Mobile) -->
             <div class="form-group">
                 <label for="contact" class="block text-sm font-medium text-gray-700">Contact</label>
-                <input type="text" id="contact" name="contact" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <input type="text" id="contact" name="contact"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
                 <p id="contactError" class="text-red-600 text-sm mt-2 hidden">Contact must contain only numbers.</p>
             </div>
 
             <!-- Clinic Name (optional for independent veterinarians) -->
             <div class="form-group">
                 <label for="clinicName" class="block text-sm font-medium text-gray-700">Clinic Name (Optional)</label>
-                <input type="text" id="clinicName" name="clinicName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <input type="text" id="clinicName" name="clinicName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <p id="clinicNameError" class="text-red-600 text-sm mt-2 hidden">Clinic name is required.</p>
             </div>
 
             <!-- Password -->
             <div class="form-group">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
-                <p id="passwordErrorLength" class="text-red-600 text-sm mt-2 hidden">Password must be at least 8 characters long.</p>
+                <input type="password" id="password" name="password"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="passwordErrorLength" class="text-red-600 text-sm mt-2 hidden">Password must be at least 8
+                    characters long.</p>
             </div>
 
             <!-- Confirm Password -->
             <div class="form-group">
                 <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <input type="password" id="confirmPassword" name="confirmPassword"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
                 <p id="passwordError" class="text-red-600 text-sm mt-2 hidden">Passwords do not match.</p>
             </div>
 
             <!-- Submit Button -->
-            <button type="button" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="validateVetForm()">Sign Up</button>
+            <button type="button"
+                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onclick="validateVetForm()">Sign Up
+            </button>
         </form>
 
         <!-- Response Message -->
@@ -72,7 +90,6 @@
 
     <script>
         function validateVetForm() {
-            // Error elements
             const firstNameError = document.getElementById('firstNameError');
             const lastNameError = document.getElementById('lastNameError');
             const emailError = document.getElementById('emailError');
@@ -81,8 +98,12 @@
             const clinicNameError = document.getElementById('clinicNameError');
             const passwordError = document.getElementById('passwordError');
             const passwordErrorLength = document.getElementById('passwordErrorLength');
+            const responseMessage = document.getElementById('responseMessage');
 
-            // Hide all error messages
+            // Reset response message between submissions
+            responseMessage.innerText = '';
+            responseMessage.classList.remove('text-red-600', 'text-green-600');
+
             firstNameError.classList.add('hidden');
             lastNameError.classList.add('hidden');
             emailError.classList.add('hidden');
@@ -92,7 +113,6 @@
             passwordError.classList.add('hidden');
             passwordErrorLength.classList.add('hidden');
 
-            // Get input values
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const email = document.getElementById('email').value.trim();
@@ -101,44 +121,37 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            // Regex patterns
             const namePattern = /^[A-Za-z]+$/;
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const contactPattern = /^[0-9]+$/;
 
             let valid = true;
 
-            // Validate first name
             if (!namePattern.test(firstName)) {
                 firstNameError.classList.remove('hidden');
                 valid = false;
             }
 
-            // Validate last name
             if (!namePattern.test(lastName)) {
                 lastNameError.classList.remove('hidden');
                 valid = false;
             }
 
-            // Validate email
             if (!emailPattern.test(email)) {
                 emailError.classList.remove('hidden');
                 valid = false;
             }
 
-            // Validate contact (numbers only)
             if (!contactPattern.test(contact)) {
                 contactError.classList.remove('hidden');
                 valid = false;
             }
 
-            // Validate password length
             if (password.length < 8) {
                 passwordErrorLength.classList.remove('hidden');
                 valid = false;
             }
 
-            // Validate password confirmation
             if (password !== confirmPassword) {
                 passwordError.classList.remove('hidden');
                 valid = false;
@@ -155,33 +168,36 @@
                 lastName: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
                 contact: document.getElementById('contact').value,
-                clinicName: document.getElementById('clinicName').value,
+                clinicName: document.getElementById('clinicName').value, // Ensure clinicName is passed here
                 password: document.getElementById('password').value
             };
 
-            // Submit form data via Axios
             axios.post('/api/veterinarian/signup', formData)
                 .then(function (response) {
                     const responseMessage = document.getElementById('responseMessage');
                     responseMessage.innerText = "Veterinarian signed up successfully!";
                     responseMessage.classList.add('text-green-600');
 
-                    // Redirect to veterinarian login after 2 seconds
+                    // Redirect to veterinarian login after success
                     setTimeout(() => {
                         window.location.href = '/veterinarian-login';
                     }, 2000);
                 })
                 .catch(function (error) {
-                    if (error.response.data === 'Email already exists') {
+                    const responseMessage = document.getElementById('responseMessage');
+                    if (error.response && error.response.data === "Clinic not found. Please register the clinic first.") {
+                        responseMessage.innerText = "Error: " + error.response.data;
+                        responseMessage.classList.add('text-red-600');
+                    } else if (error.response && error.response.data === 'Email already exists') {
                         document.getElementById('emailTakenError').classList.remove('hidden');
                     } else {
-                        const responseMessage = document.getElementById('responseMessage');
-                        responseMessage.innerText = "Error: " + error.response.data;
+                        responseMessage.innerText = "Error: Signup failed. Please try again.";
                         responseMessage.classList.add('text-red-600');
                     }
                 });
         }
     </script>
+
 </main>
 </body>
 </html>

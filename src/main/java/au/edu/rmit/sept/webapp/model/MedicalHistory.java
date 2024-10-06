@@ -18,8 +18,9 @@ public class MedicalHistory {
     @Column(name = "treatment", nullable = false)
     private String treatment;
 
-    @Column(name = "veterinarian", nullable = false)
-    private String veterinarian;
+    @ManyToOne
+    @JoinColumn(name = "veterinarian_id", nullable = false)
+    private Veterinarian veterinarian; // Store veterinarian reference
 
     @Column(name = "event_date", nullable = false)
     @Temporal(TemporalType.DATE)
@@ -44,7 +45,7 @@ public class MedicalHistory {
     }
 
     // Constructor including all fields
-    public MedicalHistory(Pet pet, String practitioner, String treatment, String veterinarian, Date eventDate, String notes, Prescription prescription) {
+    public MedicalHistory(Pet pet, String practitioner, String treatment, Veterinarian veterinarian, Date eventDate, String notes, Prescription prescription) {
         this.pet = pet;
         this.practitioner = practitioner;
         this.treatment = treatment;
@@ -80,11 +81,11 @@ public class MedicalHistory {
         this.treatment = treatment;
     }
 
-    public String getVeterinarian() {
+    public Veterinarian getVeterinarian() {
         return veterinarian;
     }
 
-    public void setVeterinarian(String veterinarian) {
+    public void setVeterinarian(Veterinarian veterinarian) {
         this.veterinarian = veterinarian;
     }
 

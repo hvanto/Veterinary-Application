@@ -1,39 +1,48 @@
 package au.edu.rmit.sept.webapp.controller;
 
-import au.edu.rmit.sept.webapp.model.Veterinarian;
-import au.edu.rmit.sept.webapp.model.Service;
-import au.edu.rmit.sept.webapp.service.ClinicService;
-import au.edu.rmit.sept.webapp.service.VeterinarianService;
+import au.edu.rmit.sept.webapp.model.*;
+import au.edu.rmit.sept.webapp.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
-import au.edu.rmit.sept.webapp.model.Clinic;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.Principal;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-
 import java.util.List;
-
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/veterinarian")
 public class VeterinarianController {
+
     private final VeterinarianService veterinarianService;
     private final ClinicService clinicService;
+    private final PetService petService;
+    private final AppointmentService appointmentService;
+    private final MedicalHistoryService medicalHistoryService;
+    //private final StorageService storageService;
 
     @Autowired
-    public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService) {
+    public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService,
+                                  PetService petService, AppointmentService appointmentService,
+                                  MedicalHistoryService medicalHistoryService){ //StorageService storageService) {
         this.veterinarianService = veterinarianService;
         this.clinicService = clinicService;
+        this.petService = petService;
+        this.appointmentService = appointmentService;
+        this.medicalHistoryService = medicalHistoryService;
+        //this.storageService = storageService;
     }
 
-    // Get all services
+    // Get all veterinarians
     @PostMapping("/all")
     public ResponseEntity<?> getAllVeterinarians() {
         try {
             List<Veterinarian> veterinarians = veterinarianService.getAllVeterinarians();
-
             return ResponseEntity.ok(veterinarians);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -51,7 +60,7 @@ public class VeterinarianController {
         }
     }
 
-    // Get all veterinarians by service ID
+    // Get veterinarians by service ID
     @PostMapping("/service/{serviceID}")
     public ResponseEntity<?> getVeterinariansByService(@PathVariable Long serviceID) {
         try {
@@ -62,7 +71,7 @@ public class VeterinarianController {
         }
     }
 
-    // Get all veterinarians by clinic ID & service ID
+    // Get veterinarians by clinic ID & service ID
     @PostMapping("/clinic/{clinicID}/service/{serviceID}")
     public ResponseEntity<?> getVeterinariansByClinicAndService(@PathVariable Long clinicID, @PathVariable Long serviceID) {
         try {
@@ -85,70 +94,90 @@ public class VeterinarianController {
     }
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> signup(@RequestBody Veterinarian veterinarian) {
+    public ResponseEntity<String> signup(@RequestBody Map<String, Object> signupData) {
         try {
+            // Extract values from the request body
+            String email = (String) signupData.get("email");
+            String firstName = (String) signupData.get("firstName");
+            String lastName = (String) signupData.get("lastName");
+            String contact = (String) signupData.get("contact");
+            String password = (String) signupData.get("password");
+            String clinicName = (String) signupData.get("clinicName");  // Clinic name can be optional
+
             // Check if the email already exists
-            if (veterinarianService.emailExists(veterinarian.getEmail())) {
+            if (veterinarianService.emailExists(email)) {
                 return ResponseEntity.badRequest().body("Email already exists");
             }
 
-            // If no clinic is provided, assign the "Independent" clinic
-            if (veterinarian.getClinic() == null || veterinarian.getClinic().getName() == null || veterinarian.getClinic().getName().isEmpty()) {
+            // Create a new Veterinarian object
+            Veterinarian veterinarian = new Veterinarian();
+            veterinarian.setEmail(email);
+            veterinarian.setFirstName(firstName);
+            veterinarian.setLastName(lastName);
+            veterinarian.setContact(contact);
+
+            // Check if a clinic name is provided
+            if (clinicName == null || clinicName.trim().isEmpty()) {
+                // No clinic name provided, assign the "Independent" clinic
                 Clinic defaultClinic = clinicService.getClinicByName("Independent");
+                if (defaultClinic == null) {
+                    return ResponseEntity.badRequest().body("Default clinic 'Independent' not found.");
+                }
                 veterinarian.setClinic(defaultClinic);
             } else {
-                // If a clinic name is provided, validate the clinic
-                Clinic clinic = clinicService.getClinicByName(veterinarian.getClinic().getName());
+                // Clinic name is provided, check if it exists in the database
+                Clinic clinic = clinicService.getClinicByName(clinicName);
                 if (clinic == null) {
-                    return ResponseEntity.badRequest().body("Clinic not found");
+                    return ResponseEntity.badRequest().body("Clinic not found. Please register the clinic first.");
                 }
                 veterinarian.setClinic(clinic);
             }
 
+            // Set the password directly without encryption for now
+            veterinarian.setPassword(password);
+
             // Save the veterinarian to the database
             veterinarianService.saveVeterinarian(veterinarian);
+
+            // Return success message
             return ResponseEntity.ok("Veterinarian signed up successfully!");
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Log the exception for debugging
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error during signup: " + e.getMessage());
         }
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Veterinarian> login(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
         try {
             String email = loginRequest.get("email");
             String password = loginRequest.get("password");
-            String clinicIdStr = loginRequest.get("clinicId");
+            String clinicName = loginRequest.get("clinicName"); // Clinic name can be optional
 
-            // Try to parse clinicId if provided, otherwise set it to null
-            Long clinicId = null;
-            if (clinicIdStr != null && !clinicIdStr.isEmpty()) {
-                clinicId = Long.parseLong(clinicIdStr);
-            }
+            // Validate veterinarian credentials (email, password, clinicName)
+            Veterinarian veterinarian = veterinarianService.validateVeterinarianCredentials(email, password, clinicName);
 
-            // Validate veterinarian credentials using the clinic ID (if provided)
-            Veterinarian veterinarian = veterinarianService.validateVeterinarianCredentials(email, password, clinicId);
+            // Prepare a response map
+            Map<String, Object> response = new HashMap<>();
+            response.put("veterinarian", veterinarian);
+            response.put("firstName", veterinarian.getFirstName());
+            response.put("email", veterinarian.getEmail());
+            response.put("redirectUrl", "/veterinarian-dashboard"); // Assuming Independent login
 
-            // If the veterinarian belongs to the "Independent" clinic, clinic ID is not required
-            if (veterinarian.getClinic() != null && veterinarian.getClinic().getName().equals("Independent")) {
-                return ResponseEntity.ok(veterinarian);
-            } else {
-                // For other clinics, clinicId must be provided and must match the veterinarian's clinic
-                if (clinicId == null || !veterinarian.getClinic().getId().equals(clinicId)) {
-                    throw new Exception("Clinic ID is required and must match the veterinarian's assigned clinic.");
-                }
-                return ResponseEntity.ok(veterinarian);
-            }
+            // Return veterinarian data if successful
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            // Return error response if credentials are invalid
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    // Update veterinarian details in the database
+    // Update veterinarian details
     @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Veterinarian> updateVeterinarian(@RequestBody Veterinarian updatedVeterinarian) {
         try {
-            // Update veterinarian details in the database
             Veterinarian veterinarian = veterinarianService.updateVeterinarian(updatedVeterinarian);
             return ResponseEntity.ok(veterinarian);
         } catch (Exception e) {
@@ -169,5 +198,50 @@ public class VeterinarianController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-}
 
+    @PostMapping("/veterinarian/upload-records")
+    public String uploadMedicalRecord(@RequestParam("petId") Long petId,
+                                      @RequestParam("description") String description,
+                                      @RequestParam("file") MultipartFile file,
+                                      Principal principal) throws IOException {
+        // Fetch the veterinarian by their username (email)
+        Veterinarian veterinarian = veterinarianService.findByEmail(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Veterinarian not found"));
+
+        // Fetch the pet by ID
+        Pet pet = petService.getPetById(petId);
+
+        // Check if the pet exists
+        if (pet == null) {
+            return "redirect:/error?message=Pet not found";
+        }
+
+        // Verify if the veterinarian has had an appointment with this pet
+        boolean hasAppointment = appointmentService.existsByVeterinarianAndPet(veterinarian, pet);
+        if (!hasAppointment) {
+            // You may want to throw an exception or return an error page if no appointment exists
+            return "redirect:/error";
+        }
+
+        // Create and save the medical history record
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setPet(pet);
+        medicalHistory.setVeterinarian(veterinarian);
+        medicalHistory.setNotes(description);
+        medicalHistory.setEventDate(new Date());
+
+        /*
+        // Handle file upload if present
+        if (!file.isEmpty()) {
+            String fileName = storageService.storeFile(file); // Store file and return the filename
+            medicalHistory.setFilePath(fileName);
+        }
+        */
+
+
+        // Save the medical history to the database
+        medicalHistoryService.save(medicalHistory);
+
+        return "redirect:/veterinarian-dashboard";
+    }
+}

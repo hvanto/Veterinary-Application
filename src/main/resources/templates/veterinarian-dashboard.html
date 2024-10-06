@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Veterinarian Dashboard</title>
+</head>
+<body class="bg-gray-100">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<!-- Veterinarian Navigation Fragment -->
+<div th:replace="fragments/_veterinarianNavigation :: veterinarian-navigation"></div>
+
+<!-- Veterinarian Dashboard Content -->
+<div class="container mx-auto mt-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Welcome, Veterinarian!</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card: Manage Appointments -->
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center">
+                <div class="text-blue-500 text-3xl mr-4">
+                    <!-- Icon for Appointments -->
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-700">Manage Your Appointments</h2>
+                    <p class="text-gray-600 mt-1">View and manage your upcoming appointments.</p>
+                    <a href="/appointments" class="text-blue-500 hover:underline mt-2 block">View Appointments</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Manage Prescriptions -->
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center">
+                <div class="text-green-500 text-3xl mr-4">
+                    <!-- Icon for Prescriptions -->
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-700">Manage Prescriptions</h2>
+                    <p class="text-gray-600 mt-1">View and create prescriptions for patients.</p>
+                    <a href="/prescriptions" class="text-blue-500 hover:underline mt-2 block">Manage Prescriptions</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Patient Records -->
+        <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center">
+                <div class="text-purple-500 text-3xl mr-4">
+                    <!-- Icon for Patient Records -->
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-700">Patient Records</h2>
+                    <p class="text-gray-600 mt-1">Access medical records and patient history.</p>
+                    <a href="/medical-records" class="text-blue-500 hover:underline mt-2 block">View Records</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional Scripts for FontAwesome Icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</div>
+</body>
+</html>

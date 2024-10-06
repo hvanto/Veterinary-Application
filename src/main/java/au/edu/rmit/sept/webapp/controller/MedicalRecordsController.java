@@ -44,6 +44,9 @@ public class MedicalRecordsController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private VeterinarianService veterinarianService;
+
     /**
      * Fetches all pets for the logged-in user.
      * This is used to display the pet selection screen.
@@ -130,11 +133,24 @@ public class MedicalRecordsController {
         Date historyDate3 = Date.from(LocalDate.of(2023, 4, 5).atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date historyDate4 = Date.from(LocalDate.of(2023, 5, 20).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        // Seed Medical History
-        MedicalHistory history1 = new MedicalHistory(pet1, "Dr. John", "Routine checkup", "Dr. John", historyDate1, "All good", null);
-        MedicalHistory history2 = new MedicalHistory(pet1, "Dr. John", "Vaccination administered", "Dr. John", historyDate2, "Rabies vaccine given", null);
-        MedicalHistory history3 = new MedicalHistory(pet2, "Dr. Sarah", "Dental cleaning", "Dr. Sarah", historyDate3, "Teeth cleaned", null);
-        MedicalHistory history4 = new MedicalHistory(pet2, "Dr. Sarah", "Allergy symptoms observed", "Dr. Sarah", historyDate4, "Observed allergic reaction", null);
+        // Check if the veterinarians already exist, otherwise create them
+        Veterinarian drJohn = veterinarianService.findByEmail("drjohn@clinic.com")
+                .orElseGet(() -> {
+                    Veterinarian veterinarian = new Veterinarian("John", "Doe", "drjohn@clinic.com", "123456789", "password123");
+                    return veterinarianService.saveVeterinarian(veterinarian);
+                });
+
+        Veterinarian drSarah = veterinarianService.findByEmail("drsarah@clinic.com")
+                .orElseGet(() -> {
+                    Veterinarian veterinarian = new Veterinarian("Sarah", "Smith", "drsarah@clinic.com", "987654321", "password123");
+                    return veterinarianService.saveVeterinarian(veterinarian);
+                });
+
+        // Seed Medical History using the Veterinarian objects instead of names
+        MedicalHistory history1 = new MedicalHistory(pet1, "Dr. John", "Routine checkup", drJohn, historyDate1, "All good", null);
+        MedicalHistory history2 = new MedicalHistory(pet1, "Dr. John", "Vaccination administered", drJohn, historyDate2, "Rabies vaccine given", null);
+        MedicalHistory history3 = new MedicalHistory(pet2, "Dr. Sarah", "Dental cleaning", drSarah, historyDate3, "Teeth cleaned", null);
+        MedicalHistory history4 = new MedicalHistory(pet2, "Dr. Sarah", "Allergy symptoms observed", drSarah, historyDate4, "Observed allergic reaction", null);
 
         // Save the medical history records
         medicalHistoryService.save(history1);

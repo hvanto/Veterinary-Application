@@ -2,10 +2,12 @@ package au.edu.rmit.sept.webapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "pet")
@@ -45,6 +47,10 @@ public class Pet {
     @Temporal(TemporalType.DATE)
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
+    @JsonManagedReference("pet-appointments")
+    private List<Appointment> appointments;
 
     // Default constructor
     public Pet() {
