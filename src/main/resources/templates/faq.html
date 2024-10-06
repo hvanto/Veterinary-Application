@@ -1,4 +1,4 @@
-<div th:fragment="main" class="w-4/5 mx-auto pt-7 pb-10">
+<div th:fragment="main" class="lg:w-4/5 sm:w-11/12 mx-auto pt-7 pb-10">
 
     <h1 class="text-4xl font-bold mb-10">Frequently Asked Questions</h1>
 
@@ -26,15 +26,50 @@
         </a>
     </div>
 
-    <!-- Show message is faq is empty -->
-    <div th:if="${isEmpty}" class="mt-6">
+    <!-- Show message if faq is empty -->
+    <div th:if="${isEmpty}" class="my-8 text-2xl font-semibold">
         <p>No FAQs is available for this category</p>
     </div>
 
-    <div th:if="${!isEmpty}" class="mt-6">
-        <div th:each="faq : ${faqs}">
-            <h3 th:text="${faq.question}"></h3>
-            <p th:text="${faq.answer}"></p>
+    <div th:if="${!isEmpty}" class="my-8">
+
+        <div th:each="faq : ${faqs}" class="w-3/5 pb-3 mb-3 border-b border-gray-400 border-opacity-50 ">
+
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleAnswer(this)">
+                <h3 th:text="${faq.question}" class="text-2xl font-semibold mr-6"></h3>
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon size-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </div>
+            </div>
+
+            <p th:text="${faq.answer}" class="mt-4 hidden transition-all duration-300"></p>
+
         </div>
     </div>
+
+    <div>
+        <p>Unable to find answer to your question?
+            <a href="#" class="text-blue-500 hover:text-blue-700 hover:underline">Contact us</a>
+        </p>
+    </div>
+    <script>
+        function toggleAnswer(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector(".icon");
+
+            if (answer.classList.contains("hidden")) {
+                answer.classList.remove("hidden");
+                answer.classList.add("block");
+
+                icon.style.transform = "rotate(180deg)";
+            } else {
+                answer.classList.add("hidden");
+                answer.classList.remove("block");
+
+                icon.style.transform = "rotate(0deg)";
+            }
+        }
+    </script>
 </div>
