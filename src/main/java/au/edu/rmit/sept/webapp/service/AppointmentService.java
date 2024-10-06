@@ -54,7 +54,6 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-
     // Method to find appointments by veterinarian and date
     public List<Appointment> getAppointmentsByVeterinarianAndDay(Long veterinarianId, String day, String year) throws Exception {
         // Convert day and year to Date format
@@ -64,5 +63,10 @@ public class AppointmentService {
 
         // Call the repository to get appointments
         return appointmentRepository.findByVeterinarianIdAndAppointmentDate(veterinarianId, appointmentDate);
+    }
+
+    // Method to check if an appointment exists between a veterinarian and a pet
+    public boolean existsByVeterinarianAndPet(Veterinarian veterinarian, Pet pet) {
+        return appointmentRepository.existsByVeterinarianAndPet(veterinarian, pet);
     }
 }

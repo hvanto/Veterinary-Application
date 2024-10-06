@@ -130,4 +130,8 @@ public class VeterinarianService {
     public Optional<Veterinarian> findByEmail(String email) {
         return veterinarianRepository.findByEmail(email);
     }
+
+    public boolean existsByEmail(String email) {
+        return veterinarianRepository.existsByEmail(email);
+    }
 }

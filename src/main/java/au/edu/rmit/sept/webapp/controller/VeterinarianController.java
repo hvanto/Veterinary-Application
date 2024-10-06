@@ -1,29 +1,41 @@
 package au.edu.rmit.sept.webapp.controller;
 
-import au.edu.rmit.sept.webapp.model.Veterinarian;
-import au.edu.rmit.sept.webapp.model.Service;
-import au.edu.rmit.sept.webapp.service.ClinicService;
-import au.edu.rmit.sept.webapp.service.VeterinarianService;
+import au.edu.rmit.sept.webapp.model.*;
+import au.edu.rmit.sept.webapp.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
-import au.edu.rmit.sept.webapp.model.Clinic;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.Principal;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/veterinarian")
 public class VeterinarianController {
+
     private final VeterinarianService veterinarianService;
     private final ClinicService clinicService;
+    private final PetService petService;
+    private final AppointmentService appointmentService;
+    private final MedicalHistoryService medicalHistoryService;
+    //private final StorageService storageService;
 
     @Autowired
-    public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService) {
+    public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService,
+                                  PetService petService, AppointmentService appointmentService,
+                                  MedicalHistoryService medicalHistoryService){ //StorageService storageService) {
         this.veterinarianService = veterinarianService;
         this.clinicService = clinicService;
+        this.petService = petService;
+        this.appointmentService = appointmentService;
+        this.medicalHistoryService = medicalHistoryService;
+        //this.storageService = storageService;
     }
 
     // Get all veterinarians
@@ -186,5 +198,50 @@ public class VeterinarianController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-}
 
+    @PostMapping("/veterinarian/upload-records")
+    public String uploadMedicalRecord(@RequestParam("petId") Long petId,
+                                      @RequestParam("description") String description,
+                                      @RequestParam("file") MultipartFile file,
+                                      Principal principal) throws IOException {
+        // Fetch the veterinarian by their username (email)
+        Veterinarian veterinarian = veterinarianService.findByEmail(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Veterinarian not found"));
+
+        // Fetch the pet by ID
+        Pet pet = petService.getPetById(petId);
+
+        // Check if the pet exists
+        if (pet == null) {
+            return "redirect:/error?message=Pet not found";
+        }
+
+        // Verify if the veterinarian has had an appointment with this pet
+        boolean hasAppointment = appointmentService.existsByVeterinarianAndPet(veterinarian, pet);
+        if (!hasAppointment) {
+            // You may want to throw an exception or return an error page if no appointment exists
+            return "redirect:/error";
+        }
+
+        // Create and save the medical history record
+        MedicalHistory medicalHistory = new MedicalHistory();
+        medicalHistory.setPet(pet);
+        medicalHistory.setVeterinarian(veterinarian);
+        medicalHistory.setNotes(description);
+        medicalHistory.setEventDate(new Date());
+
+        /*
+        // Handle file upload if present
+        if (!file.isEmpty()) {
+            String fileName = storageService.storeFile(file); // Store file and return the filename
+            medicalHistory.setFilePath(fileName);
+        }
+        */
+
+
+        // Save the medical history to the database
+        medicalHistoryService.save(medicalHistory);
+
+        return "redirect:/veterinarian-dashboard";
+    }
+}

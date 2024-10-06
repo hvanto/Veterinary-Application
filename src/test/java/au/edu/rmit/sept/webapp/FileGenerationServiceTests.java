@@ -2,8 +2,10 @@ package au.edu.rmit.sept.webapp;
 
 import au.edu.rmit.sept.webapp.model.*;
 import au.edu.rmit.sept.webapp.service.FileGenerationService;
+import au.edu.rmit.sept.webapp.service.VeterinarianService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.ByteArrayInputStream;
@@ -18,7 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class FileGenerationServiceTests {
 
+    @Autowired
     private FileGenerationService fileGenerationService;
+
+    @Autowired
+    private VeterinarianService veterinarianService;
 
     private Pet testPet;
     private List<MedicalHistory> medicalHistoryList;
@@ -29,9 +35,11 @@ public class FileGenerationServiceTests {
 
     @BeforeEach
     public void setUp() {
-        fileGenerationService = new FileGenerationService();
+        // Check if Dr. John exists, if not, create and save a new Veterinarian
+        Veterinarian drJohn = veterinarianService.findByEmail("drjohn@clinic.com")
+                .orElseGet(() -> saveVeterinarian("John", "Doe", "drjohn@clinic.com", "123456789", "password123"));
 
-        // Create mock objects for testing
+        // Create Pet and assign Dr. John
         User user = new User();
         user.setId(1L);
         user.setFirstName("John");
@@ -43,11 +51,21 @@ public class FileGenerationServiceTests {
         testPet.setUser(user);
 
         // Create mock lists
-        medicalHistoryList = Collections.singletonList(new MedicalHistory(testPet, "Dr. Smith", "Checkup", "Dr. Smith", new java.util.Date(), "All good", null));
-        physicalExamList = Collections.singletonList(new PhysicalExam(testPet, LocalDate.of(2023, 1, 1), "Dr. Smith", "Healthy"));
-        vaccinationList = Collections.singletonList(new Vaccination(testPet, "Rabies", new java.util.Date(), "Dr. Smith", new java.util.Date()));
-        treatmentPlanList = Collections.singletonList(new TreatmentPlan(testPet, LocalDate.of(2023, 1, 1), "Routine checkup", "Dr. Smith", "No issues found", null));
+        medicalHistoryList = Collections.singletonList(new MedicalHistory(testPet, "Checkup", "Dr. John", drJohn, new java.util.Date(), "All good", null));
+        physicalExamList = Collections.singletonList(new PhysicalExam(testPet, LocalDate.of(2023, 1, 1), "Dr. John", "Healthy"));
+        vaccinationList = Collections.singletonList(new Vaccination(testPet, "Rabies", new java.util.Date(), "Dr. John", new java.util.Date()));
+        treatmentPlanList = Collections.singletonList(new TreatmentPlan(testPet, LocalDate.of(2023, 1, 1), "Routine checkup", "Dr. John", "No issues found", null));
         weightRecordList = Collections.singletonList(new WeightRecord(testPet, new java.util.Date(), 12.5));
+    }
+
+    private Veterinarian saveVeterinarian(String firstName, String lastName, String email, String contact, String password) {
+        Veterinarian veterinarian = new Veterinarian();
+        veterinarian.setFirstName(firstName);
+        veterinarian.setLastName(lastName);
+        veterinarian.setEmail(email);
+        veterinarian.setContact(contact);
+        veterinarian.setPassword(password);
+        return veterinarianService.saveVeterinarian(veterinarian);
     }
 
     @Test
