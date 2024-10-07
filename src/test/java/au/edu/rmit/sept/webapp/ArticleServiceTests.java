@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 
 import au.edu.rmit.sept.webapp.model.Article;
 import au.edu.rmit.sept.webapp.repository.ArticleRepository;
+import au.edu.rmit.sept.webapp.repository.BookmarkRepository;
 import au.edu.rmit.sept.webapp.service.ArticleService;
 
 @SpringBootTest
@@ -31,9 +32,12 @@ public class ArticleServiceTests {
     private ArticleService service;
     @Autowired
     private ArticleRepository repository;
-
+    @Autowired
+    private BookmarkRepository bookmarkRepository;
+    
     @BeforeEach
     public void setUp() {
+        bookmarkRepository.deleteAll();
         // Delete all articles from database
         repository.deleteAll();
 

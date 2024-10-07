@@ -3,7 +3,6 @@ package au.edu.rmit.sept.webapp;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,9 +185,7 @@ public class ArticleControllerTests {
                                 "Nullam Volutpat", new Date(), "https://imagelink.com");
                 articleRepository.save(article);
                 // Create and save a bookmark for testUser1 directly in the repository
-                Bookmark bookmark = new Bookmark();
-                bookmark.setUser(testUser1);
-                bookmark.setArticle(article);
+                Bookmark bookmark = new Bookmark(testUser1, article);
                 bookmarkRepository.save(bookmark);
                 Long bookmarkId = bookmark.getId(); // Store the bookmark ID
 
