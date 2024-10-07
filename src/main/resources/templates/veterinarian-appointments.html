@@ -10,12 +10,12 @@
     <script defer type="text/javascript" th:src="@{/js/alpine.js}"></script>
     <script th:src="@{/js/veterinarian-appointments.js}"></script>
 </head>
-<body class="bg-gray-100">
+<body class="min-h-screen flex flex-col bg-gray-100">
 
     <!-- Veterinarian Navigation Fragment -->
     <div th:replace="~{fragments/_veterinarianNavigation :: veterinarian-navigation}"></div>
 
-    <div x-data="veterinarianAppointments" x-init="[fetchData()]" class="container mx-auto py-8">
+    <div x-data="veterinarianAppointments" x-init="[fetchData()]" class="container mx-auto py-8 flex-grow">
         <h1 class="text-3xl font-bold mb-6 text-gray-800">Appointments:</h1>
 
         <!-- List of appointments for the veterinarian -->
@@ -47,5 +47,9 @@
             </table>
         </div>
     </div>
+
+<!-- Footer Fragment -->
+<div th:replace="~{fragments/footer :: footer}" class="mt-auto"></div>
+
 </body>
 </html>

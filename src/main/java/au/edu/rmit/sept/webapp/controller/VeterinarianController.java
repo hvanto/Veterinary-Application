@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,18 +26,28 @@ public class VeterinarianController {
     private final PetService petService;
     private final AppointmentService appointmentService;
     private final MedicalHistoryService medicalHistoryService;
-    //private final StorageService storageService;
+    private final TreatmentPlanService treatmentPlanService;
+    private final VaccinationService vaccinationService;
+    private final PhysicalExamService physicalExamService;
+    private final UserService userService;
 
     @Autowired
     public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService,
                                   PetService petService, AppointmentService appointmentService,
-                                  MedicalHistoryService medicalHistoryService){ //StorageService storageService) {
+                                  MedicalHistoryService medicalHistoryService,
+                                  TreatmentPlanService treatmentPlanService,
+                                  VaccinationService vaccinationService,
+                                  PhysicalExamService physicalExamService,
+                                  UserService userService) {
         this.veterinarianService = veterinarianService;
         this.clinicService = clinicService;
         this.petService = petService;
         this.appointmentService = appointmentService;
         this.medicalHistoryService = medicalHistoryService;
-        //this.storageService = storageService;
+        this.treatmentPlanService = treatmentPlanService;
+        this.vaccinationService = vaccinationService;
+        this.physicalExamService = physicalExamService;
+        this.userService = userService;
     }
 
     // Get all veterinarians
@@ -102,7 +114,7 @@ public class VeterinarianController {
             String lastName = (String) signupData.get("lastName");
             String contact = (String) signupData.get("contact");
             String password = (String) signupData.get("password");
-            String clinicName = (String) signupData.get("clinicName");  // Clinic name can be optional
+            String clinicName = (String) signupData.get("clinicName");
 
             // Check if the email already exists
             if (veterinarianService.emailExists(email)) {
@@ -199,6 +211,42 @@ public class VeterinarianController {
         }
     }
 
+    @GetMapping("/veterinarian-upload-records")
+    public ResponseEntity<?> veterinarianUploadRecords(@RequestParam("appointmentId") Long appointmentId) {
+        try {
+            // Fetch the appointment by ID
+            System.out.println("Fetching appointment with ID: " + appointmentId);
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
+            // Log if the appointment is null
+            if (appointment == null) {
+                System.out.println("Appointment not found");
+                throw new Exception("Appointment not found");
+            }
+
+            // Fetch the associated pet from the appointment
+            Pet pet = appointment.getPet();
+
+            // Fetch veterinarian associated with the appointment
+            Veterinarian veterinarian = appointment.getVeterinarian();
+
+            // Log to check pet and veterinarian existence
+            System.out.println("Appointment found: " + appointment);
+            System.out.println("Associated pet: " + appointment.getPet());
+            System.out.println("Associated veterinarian: " + appointment.getVeterinarian());
+
+            // Build a response map to send relevant data back to the frontend
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("appointment", appointment);
+            responseData.put("pet", pet);
+            responseData.put("veterinarian", veterinarian);
+
+            return ResponseEntity.ok(responseData);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error loading data: " + e.getMessage());
+        }
+    }
+
     // Get veterinarians by clinic_id
     @PostMapping("/{veterinarianID}/appointments")
     public ResponseEntity<?> getAppointmentsByVeterinarian(@PathVariable Long veterinarianID) {
@@ -211,48 +259,82 @@ public class VeterinarianController {
     }
 
     @PostMapping("/veterinarian/upload-records")
-    public String uploadMedicalRecord(@RequestParam("petId") Long petId,
-                                      @RequestParam("description") String description,
-                                      @RequestParam("file") MultipartFile file,
-                                      Principal principal) throws IOException {
-        // Fetch the veterinarian by their username (email)
-        Veterinarian veterinarian = veterinarianService.findByEmail(principal.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Veterinarian not found"));
+    public ResponseEntity<?> uploadMedicalRecord(@RequestParam("appointmentId") Long appointmentId,
+                                                 @RequestParam("description") String description,
+                                                 @RequestParam("file") MultipartFile file,
+                                                 @RequestParam("category") String category,
+                                                 Principal principal) {
+        try {
+            // Fetch the veterinarian by their username (email)
+            Veterinarian veterinarian = veterinarianService.findByEmail(principal.getName())
+                    .orElseThrow(() -> new IllegalArgumentException("Veterinarian not found"));
 
-        // Fetch the pet by ID
-        Pet pet = petService.getPetById(petId);
+            // Fetch the appointment and pet
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            if (appointment == null) {
+                return ResponseEntity.badRequest().body("Appointment not found with ID: " + appointmentId);
+            }
 
-        // Check if the pet exists
-        if (pet == null) {
-            return "redirect:/error?message=Pet not found";
+            Pet pet = appointment.getPet();
+            if (pet == null) {
+                return ResponseEntity.badRequest().body("Pet not found for this appointment");
+            }
+
+            // Create and save data based on the selected category
+            switch (category.toLowerCase()) {
+                case "treatment-plan":
+                    TreatmentPlan treatmentPlan = new TreatmentPlan(
+                            pet,
+                            convertToLocalDateViaInstant(new Date()), // Convert to LocalDate
+                            description,
+                            veterinarian.getFullName(),
+                            description,
+                            null
+                    );
+                    treatmentPlanService.save(treatmentPlan);
+                    break;
+                case "vaccination":
+                    Vaccination vaccination = new Vaccination(
+                            pet,
+                            description,
+                            convertToDateViaInstant(convertToLocalDateViaInstant(new Date())), // Convert LocalDate to Date
+                            veterinarian.getFullName(),
+                            convertToDateViaInstant(convertToLocalDateViaInstant(new Date())) // Convert LocalDate to Date
+                    );
+                    vaccinationService.save(vaccination);
+                    break;
+                case "physical-exam":
+                    PhysicalExam physicalExam = new PhysicalExam(
+                            pet,
+                            convertToLocalDateViaInstant(new Date()), // Convert to LocalDate
+                            veterinarian.getFullName(),
+                            description
+                    );
+                    physicalExamService.save(physicalExam);
+                    break;
+                case "weight-record":
+                    // Handle weight record if necessary
+                    break;
+                default:
+                    return ResponseEntity.badRequest().body("Invalid category");
+            }
+
+            return ResponseEntity.ok("Medical record uploaded successfully");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error uploading medical record: " + e.getMessage());
         }
+    }
 
-        // Verify if the veterinarian has had an appointment with this pet
-        boolean hasAppointment = appointmentService.existsByVeterinarianAndPet(veterinarian, pet);
-        if (!hasAppointment) {
-            // You may want to throw an exception or return an error page if no appointment exists
-            return "redirect:/error";
-        }
+    // Helper method to convert Date to LocalDate
+    private LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
+        return dateToConvert.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
 
-        // Create and save the medical history record
-        MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setPet(pet);
-        medicalHistory.setVeterinarian(veterinarian);
-        medicalHistory.setNotes(description);
-        medicalHistory.setEventDate(new Date());
-
-        /*
-        // Handle file upload if present
-        if (!file.isEmpty()) {
-            String fileName = storageService.storeFile(file); // Store file and return the filename
-            medicalHistory.setFilePath(fileName);
-        }
-        */
-
-
-        // Save the medical history to the database
-        medicalHistoryService.save(medicalHistory);
-
-        return "redirect:/veterinarian-dashboard";
+    // Helper method to convert LocalDate to Date
+    private Date convertToDateViaInstant(LocalDate localDateToConvert) {
+        return Date.from(localDateToConvert.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

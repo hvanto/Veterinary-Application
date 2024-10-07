@@ -69,4 +69,9 @@ public class AppointmentService {
     public boolean existsByVeterinarianAndPet(Veterinarian veterinarian, Pet pet) {
         return appointmentRepository.existsByVeterinarianAndPet(veterinarian, pet);
     }
+
+    public Appointment getAppointmentById(Long appointmentId) throws Exception {
+        return appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new Exception("Appointment not found with ID: " + appointmentId));
+    }
 }

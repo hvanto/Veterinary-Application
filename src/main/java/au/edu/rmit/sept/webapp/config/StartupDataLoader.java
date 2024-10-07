@@ -20,8 +20,8 @@ public class StartupDataLoader {
     public void createDefaultClinic() {
         // Check if the "Independent" clinic exists, if not, create it
         if (!clinicService.clinicExists("Independent")) {
-            Clinic defaultClinic = new Clinic("Independent", "independent@clinic.com", "N/A", "N/A", 0, 24, 0L);
-            clinicService.saveClinic(defaultClinic);
+            Clinic clinic = new Clinic("Independent", "independent@vetclinic.com", "123 Main St", "City", 900, 1700, 1234567890L);
+            clinicService.saveClinic(clinic);
         }
     }
 }

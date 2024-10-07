@@ -109,6 +109,10 @@ public class Veterinarian {
         LastName = lastName;
     }
 
+    public String getFullName() {
+        return this.FirstName + " " + this.LastName;
+    }
+
     public String getEmail() {
         return email;
     }

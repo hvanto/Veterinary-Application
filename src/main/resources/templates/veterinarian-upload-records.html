@@ -4,42 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vet - Upload Medical Records</title>
-    <link href="/static/css/main.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
-
+<body class="bg-gray-100 min-h-screen flex flex-col">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.2.3/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
 <!-- Veterinarian Navigation Fragment -->
 <div th:replace="fragments/_veterinarianNavigation :: veterinarian-navigation"></div>
 
-<div class="container mx-auto py-12">
+<div class="container mx-auto py-12 flex-grow" x-data="uploadMedicalRecords()">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Upload Medical Records</h1>
 
+    <!-- Category Selection -->
+    <div class="mb-6">
+        <label class="block text-gray-700 font-semibold">Select Record Category:</label>
+        <div class="mt-4">
+            <label>
+                <input type="radio" name="category" value="weight-record" @click="selectedCategory = 'weight-record'"> Weight Record
+            </label>
+            <label class="ml-4">
+                <input type="radio" name="category" value="vaccination" @click="selectedCategory = 'vaccination'"> Vaccination
+            </label>
+            <label class="ml-4">
+                <input type="radio" name="category" value="treatment-plan" @click="selectedCategory = 'treatment-plan'"> Treatment Plan
+            </label>
+            <label class="ml-4">
+                <input type="radio" name="category" value="medical-history" @click="selectedCategory = 'medical-history'" checked> Medical Diagnosis
+            </label>
+            <label class="ml-4">
+                <input type="radio" name="category" value="physical-exam" @click="selectedCategory = 'physical-exam'"> Physical Exam
+            </label>
+        </div>
+    </div>
+
     <!-- Upload Form -->
-    <form action="/veterinarian/upload" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
-        <div class="mb-4">
-            <label for="petId" class="block text-gray-700 font-semibold">Select Pet:</label>
-            <select id="petId" name="petId" required class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <!-- Dynamic List of Pets -->
-                <option value="pet1">Pet 1 - Bella</option>
-                <option value="pet2">Pet 2 - Max</option>
-                <!-- More pets can be listed here dynamically -->
-            </select>
+    <form @submit.prevent="uploadMedicalRecord" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+
+        <!-- Dynamically Rendered Inputs based on Category -->
+        <!-- Weight Record Fields -->
+        <div x-show="selectedCategory === 'weight-record'">
+            <div class="mb-4">
+                <label for="weight" class="block text-gray-700 font-semibold">Weight (kg):</label>
+                <input type="number" step="0.01" id="weight" x-model="weightRecord.weight" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="date" class="block text-gray-700 font-semibold">Date:</label>
+                <input type="date" id="date" x-model="weightRecord.date" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label for="description" class="block text-gray-700 font-semibold">Record Description:</label>
-            <textarea id="description" name="description" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md" placeholder="Enter details about the record"></textarea>
+        <!-- Vaccination Fields -->
+        <div x-show="selectedCategory === 'vaccination'">
+            <div class="mb-4">
+                <label for="vaccineName" class="block text-gray-700 font-semibold">Vaccine Name:</label>
+                <input type="text" id="vaccineName" x-model="vaccinationRecord.vaccineName" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="vaccinationDate" class="block text-gray-700 font-semibold">Vaccination Date:</label>
+                <input type="date" id="vaccinationDate" x-model="vaccinationRecord.vaccinationDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="administeredBy" class="block text-gray-700 font-semibold">Administered By:</label>
+                <input type="text" id="administeredBy" x-model="vaccinationRecord.administeredBy" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="nextDueDate" class="block text-gray-700 font-semibold">Next Due Date:</label>
+                <input type="date" id="nextDueDate" x-model="vaccinationRecord.nextDueDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label for="file" class="block text-gray-700 font-semibold">Upload Medical Record (PDF or Image):</label>
-            <input type="file" id="file" name="file" required class="w-full border border-gray-300 px-4 py-2 rounded-md">
+        <!-- Treatment Plan Fields -->
+        <div x-show="selectedCategory === 'treatment-plan'">
+            <div class="mb-4">
+                <label for="planDate" class="block text-gray-700 font-semibold">Plan Date:</label>
+                <input type="date" id="planDate" x-model="treatmentPlan.planDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-semibold">Treatment Description:</label>
+                <textarea id="description" x-model="treatmentPlan.description" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="practitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
+                <input type="text" id="practitioner" x-model="treatmentPlan.practitioner" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="notes" class="block text-gray-700 font-semibold">Notes:</label>
+                <textarea id="notes" x-model="treatmentPlan.notes" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label for="prescription" class="block text-gray-700 font-semibold">Prescription (Optional):</label>
-            <textarea id="prescription" name="prescription" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md" placeholder="Write prescription details here"></textarea>
+        <!-- Medical Diagnosis Fields -->
+        <div x-show="selectedCategory === 'medical-history'">
+            <div class="mb-4">
+                <label for="eventDate" class="block text-gray-700 font-semibold">Diagnosis Date:</label>
+                <input type="date" id="eventDate" x-model="medicalHistory.eventDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="treatment" class="block text-gray-700 font-semibold">Diagnosis Description:</label>
+                <textarea id="treatment" x-model="medicalHistory.treatment" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="practitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
+                <input type="text" id="practitioner" x-model="medicalHistory.practitioner" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="veterinarian" class="block text-gray-700 font-semibold">Veterinarian:</label>
+                <input type="text" id="veterinarian" x-model="medicalHistory.veterinarian" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="notes" class="block text-gray-700 font-semibold">Notes:</label>
+                <textarea id="notes" x-model="medicalHistory.notes" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
+        </div>
+
+        <!-- Physical Exam Fields -->
+        <div x-show="selectedCategory === 'physical-exam'">
+            <div class="mb-4">
+                <label for="examDate" class="block text-gray-700 font-semibold">Exam Date:</label>
+                <input type="date" id="examDate" x-model="physicalExam.examDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="veterinarian" class="block text-gray-700 font-semibold">Veterinarian:</label>
+                <input type="text" id="veterinarian" x-model="physicalExam.veterinarian" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="notes" class="block text-gray-700 font-semibold">Notes:</label>
+                <textarea id="notes" x-model="physicalExam.notes" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
+        </div>
+
+        <!-- Prescription Upload (For Medical Diagnosis Only) -->
+        <div x-show="selectedCategory === 'medical-history'" class="mb-4">
+            <label for="file" class="block text-gray-700 font-semibold">Upload Prescription (PDF):</label>
+            <input type="file" id="file" @change="handleFileUpload" accept="application/pdf" class="w-full border border-gray-300 px-4 py-2 rounded-md">
         </div>
 
         <div class="flex justify-between mt-6">
@@ -47,7 +145,116 @@
             <a href="/veterinarian-dashboard" class="text-gray-600 font-bold py-2 px-4 rounded-md hover:text-gray-900">Cancel</a>
         </div>
     </form>
-</div>
 
+    <script>
+        function uploadMedicalRecords() {
+            return {
+                selectedCategory: 'medical-history', // Preselect Medical Diagnosis
+                weightRecord: {
+                    weight: '',
+                    date: ''
+                },
+                vaccinationRecord: {
+                    vaccineName: '',
+                    vaccinationDate: '',
+                    administeredBy: '',
+                    nextDueDate: ''
+                },
+                treatmentPlan: {
+                    planDate: '',
+                    description: '',
+                    practitioner: '',
+                    notes: ''
+                },
+                medicalHistory: {
+                    eventDate: '',
+                    treatment: '',
+                    practitioner: '',
+                    veterinarian: '',
+                    notes: ''
+                },
+                physicalExam: {
+                    examDate: '',
+                    veterinarian: '',
+                    notes: ''
+                },
+                file: null,
+                appointmentId: null,
+
+                init() {
+                    this.setAppointmentIdFromURL();
+                },
+
+                setAppointmentIdFromURL() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    this.appointmentId = urlParams.get('appointment-id');
+                    if (!this.appointmentId) {
+                        console.error('Appointment ID not found in the URL.');
+                        alert('Appointment ID is missing in the URL.');
+                    }
+                },
+
+                handleFileUpload(event) {
+                    this.file = event.target.files[0]; // Store the selected file
+                },
+
+                uploadMedicalRecord() {
+                    if (!this.appointmentId || !this.selectedCategory || (this.selectedCategory === 'medical-history' && !this.file)) {
+                        alert('Please fill in all fields and select a file to upload.');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('appointmentId', this.appointmentId);
+                    formData.append('category', this.selectedCategory);
+
+                    if (this.selectedCategory === 'weight-record') {
+                        formData.append('weight', this.weightRecord.weight);
+                        formData.append('date', this.weightRecord.date);
+                    } else if (this.selectedCategory === 'vaccination') {
+                        formData.append('vaccineName', this.vaccinationRecord.vaccineName);
+                        formData.append('vaccinationDate', this.vaccinationRecord.vaccinationDate);
+                        formData.append('administeredBy', this.vaccinationRecord.administeredBy);
+                        formData.append('nextDueDate', this.vaccinationRecord.nextDueDate);
+                    } else if (this.selectedCategory === 'treatment-plan') {
+                        formData.append('planDate', this.treatmentPlan.planDate);
+                        formData.append('description', this.treatmentPlan.description);
+                        formData.append('practitioner', this.treatmentPlan.practitioner);
+                        formData.append('notes', this.treatmentPlan.notes);
+                    } else if (this.selectedCategory === 'medical-history') {
+                        formData.append('eventDate', this.medicalHistory.eventDate);
+                        formData.append('treatment', this.medicalHistory.treatment);
+                        formData.append('practitioner', this.medicalHistory.practitioner);
+                        formData.append('veterinarian', this.medicalHistory.veterinarian);
+                        formData.append('notes', this.medicalHistory.notes);
+                    } else if (this.selectedCategory === 'physical-exam') {
+                        formData.append('examDate', this.physicalExam.examDate);
+                        formData.append('veterinarian', this.physicalExam.veterinarian);
+                        formData.append('notes', this.physicalExam.notes);
+                    }
+
+                    if (this.selectedCategory === 'medical-history' && this.file) {
+                        formData.append('file', this.file);
+                    }
+
+                    axios.post('/api/veterinarian/upload-records', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                        .then(response => {
+                            alert('Medical record uploaded successfully!');
+                            console.log('Upload response:', response.data);
+                        })
+                        .catch(error => {
+                            console.error('Error uploading medical record:', error);
+                            alert('Error uploading medical record. Please try again.');
+                        });
+                }
+            }
+        }
+    </script>
+</div>
+<div th:replace="~{fragments/footer :: footer}" class="mt-auto"></div>
 </body>
 </html>

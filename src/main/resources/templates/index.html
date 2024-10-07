@@ -11,14 +11,17 @@
     <script type="text/javascript" th:src="@{/js/axios.js}"></script>
     <script type="text/javascript" th:src="@{/js/flowbite.js}"></script>
 </head>
-<body class="min-w-full min-h-full">
+<body class="min-h-screen flex flex-col bg-gray-100">
+<!-- Navigation Fragment -->
     <div th:insert="~{fragments/navigation :: navigation}"></div>
 
-    <div id="main">
+<!-- Main Content -->
+<div id="main" class="flex-grow">
         <div th:insert="~{${content} :: main}"></div>
     </div>
 
-    <div th:insert="~{fragments/footer :: footer}"></div>
+<!-- Footer Fragment -->
+<div th:insert="~{fragments/footer :: footer}" class="mt-auto"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
