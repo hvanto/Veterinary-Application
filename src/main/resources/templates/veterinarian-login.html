@@ -69,7 +69,7 @@
                     // Check if veterinarian data is provided in the response
                     if (data && data.veterinarian && data.firstName && data.email) {
                         // Store the veterinarian data in localStorage (optional)
-                        localStorage.setItem('loggedInVeterinarian', JSON.stringify(data.veterinarian));
+                        localStorage.setItem('veterinarian', JSON.stringify(data.veterinarian));
 
                         // Redirect to the veterinarian dashboard using the provided URL
                         window.location.href = data.redirectUrl;
