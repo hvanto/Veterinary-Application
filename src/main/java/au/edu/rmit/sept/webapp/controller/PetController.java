@@ -7,9 +7,9 @@ import au.edu.rmit.sept.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pets")
@@ -40,6 +40,20 @@ public class PetController {
         petService.save(newPet);
         return ResponseEntity.ok("Pet added successfully!");
     }
+
+
+
+
+        @GetMapping("/user/{userId}")
+        public ResponseEntity<List<Pet>> getPetsByUserId(@PathVariable Long userId) {
+            List<Pet> pets = petService.getPetsByUserId(userId);
+            if (pets.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(pets); 
+        }
+    
+
 
     // PetRequest DTO class defined inside the PetController
     public static class PetRequest {
