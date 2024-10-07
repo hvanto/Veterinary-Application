@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -55,6 +56,11 @@ public class BookmarkServiceTests {
                 "Nullam Volutpat", new Date(), "https://imagelink.com"));
         
                 bookmarkRepository.save(new Bookmark(testUser1, article1));
+    }
+    
+    @AfterAll
+    public void teardown() {
+        bookmarkRepository.deleteAll();
     }
 
     @Test

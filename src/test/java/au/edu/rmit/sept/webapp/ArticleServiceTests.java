@@ -15,8 +15,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ import au.edu.rmit.sept.webapp.repository.BookmarkRepository;
 import au.edu.rmit.sept.webapp.service.ArticleService;
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ArticleServiceTests {
     @Autowired
     private ArticleService service;
@@ -51,6 +54,11 @@ public class ArticleServiceTests {
 
         repository.save(article1);
         repository.save(article2);
+    }
+
+    @AfterAll
+    public void teardown() {
+        bookmarkRepository.deleteAll();
     }
 
     @Test
