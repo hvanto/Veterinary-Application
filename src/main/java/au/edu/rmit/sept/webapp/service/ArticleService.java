@@ -49,36 +49,6 @@ public class ArticleService {
     }
 
     /**
-     * Fetches articles from an RSS feed.
-     * 
-     * @param link The RSS feed URL.
-     * @return A list of articles from the feed.
-     */
-    private List<Article> getRssArticles(String link) {
-        List<Article> articles = new ArrayList<>();
-        try {
-            URL url = new URL(link);
-
-            SyndFeedInput input = new SyndFeedInput();
-            SyndFeed feed = input.build(new XmlReader(url));
-
-            // Serialize feed entries to articles
-            for (SyndEntry entry : feed.getEntries()) {
-                articles.add(getArticle(entry));
-            }
-        } catch (MalformedURLException e) {
-            System.err.println("RSS feed URL is malformed: " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("Error fetching the RSS feed: " + e.getMessage());
-        } catch (FeedException e) {
-            System.err.println("Error parsing the RSS feed: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
-        }
-        return articles;
-    }
-
-    /**
      * Retrieves an article by its ID from the repository.
      * 
      * @param id The article ID.
@@ -162,6 +132,36 @@ public class ArticleService {
             return Page.empty();
         }
 
+    }
+
+    /**
+     * Fetches articles from an RSS feed.
+     * 
+     * @param link The RSS feed URL.
+     * @return A list of articles from the feed.
+     */
+    public List<Article> getRssArticles(String link) {
+        List<Article> articles = new ArrayList<>();
+        try {
+            URL url = new URL(link);
+
+            SyndFeedInput input = new SyndFeedInput();
+            SyndFeed feed = input.build(new XmlReader(url));
+
+            // Serialize feed entries to articles
+            for (SyndEntry entry : feed.getEntries()) {
+                articles.add(getArticle(entry));
+            }
+        } catch (MalformedURLException e) {
+            System.err.println("RSS feed URL is malformed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error fetching the RSS feed: " + e.getMessage());
+        } catch (FeedException e) {
+            System.err.println("Error parsing the RSS feed: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+        return articles;
     }
 
     /**
@@ -257,7 +257,7 @@ public class ArticleService {
      * @param bytes The file contents as a byte array.
      * @param zos The ZipOutputStream to write to.
      */
-    private static void addToZip(String path, byte[] bytes, ZipOutputStream zos) {
+    public static void addToZip(String path, byte[] bytes, ZipOutputStream zos) {
         try {
             ZipEntry entry = new ZipEntry(path);
             zos.putNextEntry(entry);
@@ -276,7 +276,7 @@ public class ArticleService {
      * @param fileUrl The URL of the file to download.
      * @return The file contents as a byte array.
      */
-    private static byte[] downloadFile(String fileUrl) {
+    public static byte[] downloadFile(String fileUrl) {
         try {
             URL url = new URL(fileUrl);
 
@@ -298,7 +298,7 @@ public class ArticleService {
         // Fallback to return empty file
         return new byte[0];
     }
-    
+
     /**
      * Writes the specified URL's content and its resources (CSS, images) into a zip archive.
      * 
@@ -316,6 +316,8 @@ public class ArticleService {
             addToZip("article.html", doc.outerHtml().getBytes(), zos);
         } catch (IOException e) {
             System.err.println("Error getting document from jsoup connection: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 }
