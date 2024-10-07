@@ -38,12 +38,22 @@ public class ArticleService {
     @Autowired
     private ArticleRepository repository;
 
-    // Check if an article exists by link
+    /**
+     * Checks if an article with the given link already exists in the repository.
+     * 
+     * @param link The link to check.
+     * @return true if the article exists, false otherwise.
+     */
     private boolean articleExists(String link) {
         return repository.findByLink(link).isPresent();
     }
 
-    // Get articles from RSS feed link
+    /**
+     * Fetches articles from an RSS feed.
+     * 
+     * @param link The RSS feed URL.
+     * @return A list of articles from the feed.
+     */
     private List<Article> getRssArticles(String link) {
         List<Article> articles = new ArrayList<>();
         try {
@@ -68,23 +78,51 @@ public class ArticleService {
         return articles;
     }
 
+    /**
+     * Retrieves an article by its ID from the repository.
+     * 
+     * @param id The article ID.
+     * @return An Optional containing the article if found, otherwise empty.
+     */
     public Optional<Article> getArticleById(Long id) {
         return repository.findById(id);
     }
 
+    /**
+     * Retrieves an article by its link from the repository.
+     * 
+     * @param link The article link.
+     * @return An Optional containing the article if found, otherwise empty.
+     */
     public Optional<Article> getArticleByLink(String link) {
         return repository.findByLink(link);
     }
 
+    /**
+     * Saves an article to the repository.
+     * 
+     * @param article The article to save.
+     * @return The saved article.
+     */
     public Article saveArticle(Article article) {
         return repository.save(article);
     }
 
+    /**
+     * Deletes an article by its ID from the repository.
+     * 
+     * @param id The article ID.
+     */
     public void deleteArticleById(Long id) {
         repository.deleteById(id);
     }
 
-    // Pagination for all articles
+    /**
+     * Retrieves a paginated list of all articles.
+     * 
+     * @param page The page number to retrieve.
+     * @return A page of articles.
+     */
     public Page<Article> getArticles(int page) {
         try {
             if (page < 0) {
@@ -102,7 +140,13 @@ public class ArticleService {
 
     }
 
-    // Pagination for search results
+    /**
+     * Retrieves a paginated list of articles that match a given search keyword.
+     * 
+     * @param keyword The search keyword.
+     * @param page The page number to retrieve.
+     * @return A page of search results.
+     */
     public Page<Article> getSearchResult(String keyword, int page) {
         try {
             if (page < 0) {
@@ -120,7 +164,9 @@ public class ArticleService {
 
     }
 
-    // Fetch RSS feed from external URL to repository
+    /**
+     * Fetches articles from a test RSS feed and saves them to the repository.
+     */
     public void fetchRssFeed() {
         String test_link = "https://www.petmd.com/feed";
         // Get articles from RSS feed
@@ -131,8 +177,12 @@ public class ArticleService {
         }
     }
 
-    // Static methods
-
+    /**
+     * Converts an RSS entry into an Article object.
+     * 
+     * @param entry The SyndEntry from the RSS feed.
+     * @return The constructed Article.
+     */
     private static Article getArticle(SyndEntry entry) {
         Article article = new Article();
 
@@ -157,6 +207,14 @@ public class ArticleService {
         return article;
     }
 
+    /**
+     * Adds the specified HTML elements to a directory in a zip stream.
+     * 
+     * @param elements The HTML elements to add.
+     * @param attribute The attribute name (e.g., src, href) containing the URL.
+     * @param directory The target directory inside the zip.
+     * @param zos The ZipOutputStream to write to.
+     */
     private static void addElementsToDirectory(Elements elements, String attribute, String directory,
             ZipOutputStream zos) {
         // Storing download file name set to avoid repeats
@@ -181,11 +239,24 @@ public class ArticleService {
         }
     }
 
+    /**
+     * Extracts the file name from a URL.
+     * 
+     * @param url The URL string.
+     * @return The file name.
+     */
     private static String getFileName(String url) {
         int i = url.lastIndexOf("?");
         return url.substring(url.lastIndexOf("/") + 1, (i < 0) ? url.length() : i);
     }
 
+    /**
+     * Adds a file to the zip archive.
+     * 
+     * @param path The file path inside the zip.
+     * @param bytes The file contents as a byte array.
+     * @param zos The ZipOutputStream to write to.
+     */
     private static void addToZip(String path, byte[] bytes, ZipOutputStream zos) {
         try {
             ZipEntry entry = new ZipEntry(path);
@@ -199,6 +270,12 @@ public class ArticleService {
         }
     }
 
+    /**
+     * Downloads a file from the given URL and returns its contents as a byte array.
+     * 
+     * @param fileUrl The URL of the file to download.
+     * @return The file contents as a byte array.
+     */
     private static byte[] downloadFile(String fileUrl) {
         try {
             URL url = new URL(fileUrl);
@@ -221,11 +298,18 @@ public class ArticleService {
         // Fallback to return empty file
         return new byte[0];
     }
-
+    
+    /**
+     * Writes the specified URL's content and its resources (CSS, images) into a zip archive.
+     * 
+     * @param url The URL to fetch content from.
+     * @param zos The ZipOutputStream to write the zipped content.
+     */
     public static void writeZipToStream(String url, ZipOutputStream zos) {
         try {
             Document doc = Jsoup.connect(url).get();
 
+            // Fetch and store stylesheets and images to seperate directories
             addElementsToDirectory(doc.select("link[rel=stylesheet]"), "href", "css", zos);
             addElementsToDirectory(doc.select("img"), "src", "img", zos);
 
