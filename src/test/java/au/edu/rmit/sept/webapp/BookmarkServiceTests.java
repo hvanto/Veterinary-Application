@@ -61,6 +61,8 @@ public class BookmarkServiceTests {
     @AfterAll
     public void teardown() {
         bookmarkRepository.deleteAll();
+        articleRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test

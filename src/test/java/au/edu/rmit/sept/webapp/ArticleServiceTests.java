@@ -59,6 +59,7 @@ public class ArticleServiceTests {
     @AfterAll
     public void teardown() {
         bookmarkRepository.deleteAll();
+        repository.deleteAll();
     }
 
     @Test
