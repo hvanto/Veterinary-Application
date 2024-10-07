@@ -33,4 +33,20 @@
             We are here to assist you 24/7.</p>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Check if user is logged in from localStorage
+            const loggedInUser = localStorage.getItem("loggedInUser");
+
+            if (loggedInUser) {
+                const loggedInUserData = JSON.parse(loggedInUser);
+
+                // Automatically fill in user details from localStorage
+                document.getElementById("firstName").value = loggedInUserData.firstName;
+                document.getElementById("lastName").value = loggedInUserData.lastName;
+                document.getElementById("email").value = loggedInUserData.email
+
+            }
+        });
+    </script>
 </div>
