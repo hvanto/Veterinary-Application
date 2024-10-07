@@ -1,7 +1,9 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import au.edu.rmit.sept.webapp.controller.PetController.PetRequest;
 import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.model.User;
+import au.edu.rmit.sept.webapp.repository.PetRepository;
 import au.edu.rmit.sept.webapp.service.PetService;
 import au.edu.rmit.sept.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ public class PetController {
 
     private final PetService petService;
     private final UserService userService;
+
 
     @Autowired
     public PetController(PetService petService, UserService userService) {
@@ -41,19 +44,42 @@ public class PetController {
         return ResponseEntity.ok("Pet added successfully!");
     }
 
-
-
-
-        @GetMapping("/user/{userId}")
-        public ResponseEntity<List<Pet>> getPetsByUserId(@PathVariable Long userId) {
-            List<Pet> pets = petService.getPetsByUserId(userId);
-            if (pets.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(pets); 
-        }
     
 
+
+
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Pet>> getPetsByUserId(@PathVariable Long userId) {
+        List<Pet> pets = petService.getPetsByUserId(userId);
+        if (pets.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(pets); 
+    }
+
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updatePet(@PathVariable Long id, @RequestBody Pet updatedPet) {
+        Pet existingPet = petService.getPetById(id);
+        if (existingPet == null) {
+            return ResponseEntity.badRequest().body("Pet not found");
+        }
+    
+        // Update pet details
+        existingPet.setName(updatedPet.getName());
+        existingPet.setSpecies(updatedPet.getSpecies());
+        existingPet.setBreed(updatedPet.getBreed());
+        existingPet.setGender(updatedPet.getGender());
+        existingPet.setMicrochipped(updatedPet.isMicrochipped());
+        existingPet.setDateOfBirth(updatedPet.getDateOfBirth());
+        existingPet.setNotes(updatedPet.getNotes());
+    
+        // Save the updated pet
+        petService.save(existingPet);
+        return ResponseEntity.ok("Pet updated successfully!");
+    }
+    
 
     // PetRequest DTO class defined inside the PetController
     public static class PetRequest {

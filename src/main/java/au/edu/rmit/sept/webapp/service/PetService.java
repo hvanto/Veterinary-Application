@@ -12,6 +12,7 @@ public class PetService {
 
     @Autowired
     private PetRepository petRepository;
+    
 
     public Pet getPetById(Long petId) {
         return petRepository.findById(petId).orElse(null);
