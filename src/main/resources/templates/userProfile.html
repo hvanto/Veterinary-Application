@@ -65,11 +65,12 @@
                 <form id="updatePasswordForm" onsubmit="updatePassword(event)">
                     <div class="mb-4">
                         <label for="new-password" class="block text-sm font-medium text-gray-700">New Password:</label>
-                        <input type="password" id="new-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        <input type="password" id="new-password" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm" required>
                     </div>
                     <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Update Password</button>
                 </form>
             </div>
+
 
             <!-- Payment Settings Section -->
             <div id="payment-settings" class="hidden">
@@ -218,6 +219,111 @@
                 })
                 .catch(error => console.error('Error:', error));
             }
+
+
+
+
+            function loadUserProfile() {
+                const user = JSON.parse(localStorage.getItem('loggedInUser'));
+                if (!user) {
+                    alert('Please log in.');
+                    return;
+                }
+        
+                // Set the form fields with the user data
+                document.getElementById('first-name').value = user.firstName;
+                document.getElementById('last-name').value = user.lastName;
+                document.getElementById('email').value = user.email;
+                document.getElementById('mobile').value = user.contact;
+                document.getElementById('profile-username').textContent = user.firstName + ' ' + user.lastName;
+            }
+        
+            // Function to update user details
+            function updateAccountDetails(event) {
+                event.preventDefault();
+        
+                const user = JSON.parse(localStorage.getItem('loggedInUser'));
+                if (!user) {
+                    alert('Please log in.');
+                    return;
+                }
+        
+                // Collect updated data
+                const updatedUser = {
+                    id: user.id,
+                    firstName: document.getElementById('first-name').value,
+                    lastName: document.getElementById('last-name').value,
+                    email: document.getElementById('email').value,
+                    contact: document.getElementById('mobile').value
+                };
+        
+                // Send updated data to the server
+                fetch('/api/users/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedUser)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        alert('Account details updated successfully!');
+                        // Update the user in local storage with the latest data
+                        localStorage.setItem('loggedInUser', JSON.stringify(data));
+                        location.reload();  // Optional: reload the page to reflect changes
+                    } else {
+                        alert('Failed to update account details.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            // Function to update user password
+            function updatePassword(event) {
+                event.preventDefault();
+        
+                const user = JSON.parse(localStorage.getItem('loggedInUser'));
+                if (!user) {
+                    alert('Please log in.');
+                    return;
+                }
+        
+                const newPassword = document.getElementById('new-password').value;
+        
+                if (newPassword === '') {
+                    alert('Password cannot be empty.');
+                    return;
+                }
+        
+                // Send password update request to the server
+                fetch('/api/users/updatePassword', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: user.id,
+                        password: newPassword
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert('Password updated successfully!');
+                        document.getElementById('new-password').value = ''; // Clear the input field
+                    } else {
+                        alert('Failed to update password.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+            
+        
+            // Call loadUserProfile on page load
+            window.onload = loadUserProfile;
+
+
         </script>
         
     </main>
