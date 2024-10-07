@@ -26,6 +26,11 @@
         </a>
     </div>
 
+    <!-- Show error message -->
+    <div th:if="${error}" class="my-8 text-2xl font-semibold text-red-800">
+        <p th:text="${error}"></p>
+    </div>
+
     <!-- Show message if faq is empty -->
     <div th:if="${isEmpty}" class="my-8 text-2xl font-semibold">
         <p>No FAQs is available for this category</p>
