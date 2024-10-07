@@ -143,15 +143,15 @@ public class ArticleService {
     private static Article getArticle(SyndEntry entry) {
         Article article = new Article();
 
-        article.setTitle(entry.getTitle());
+        article.setTitle(entry.getTitle().replace("'", "\\'"));
         article.setLink(entry.getLink());
-        article.setAuthor(entry.getAuthor());
+        article.setAuthor(entry.getAuthor().replace("'", "\\'"));
         article.setPublishedDate(entry.getPublishedDate());
 
         // Set description if not null
         if (entry.getDescription() != null
                 && !entry.getDescription().getValue().isEmpty()) {
-            article.setDescription(entry.getDescription().getValue());
+            article.setDescription(entry.getDescription().getValue().replace("'", "\\'"));
         }
 
         // Get Image from enclosure
