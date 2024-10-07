@@ -23,6 +23,14 @@ public class Bookmark {
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
 
+    public Bookmark() {
+    }
+
+    public Bookmark(User user, Article article) {
+        this.user = user;
+        this.article = article;
+    }
+
     // Getters and Setters
 
     public Long getId() {
