@@ -1,21 +1,26 @@
 package au.edu.rmit.sept.webapp.service;
 
+import au.edu.rmit.sept.webapp.model.Appointment;
 import au.edu.rmit.sept.webapp.model.Clinic;
 import au.edu.rmit.sept.webapp.model.Veterinarian;
+import au.edu.rmit.sept.webapp.repository.AppointmentRepository;
 import au.edu.rmit.sept.webapp.repository.VeterinarianRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class VeterinarianService {
     private final VeterinarianRepository veterinarianRepository;
+    private final AppointmentRepository appointmentRepository;
     private final ClinicService clinicService;
     private final EncryptionService encryptionService;
 
-    public VeterinarianService(VeterinarianRepository veterinarianRepository, EncryptionService encryptionService, ClinicService clinicService) {
+    public VeterinarianService(VeterinarianRepository veterinarianRepository, AppointmentRepository appointmentRepository, EncryptionService encryptionService, ClinicService clinicService) {
         this.veterinarianRepository = veterinarianRepository;
+        this.appointmentRepository = appointmentRepository;
         this.encryptionService = encryptionService;
         this.clinicService = clinicService;
     }
@@ -133,5 +138,10 @@ public class VeterinarianService {
 
     public boolean existsByEmail(String email) {
         return veterinarianRepository.existsByEmail(email);
+    }
+
+    public List<Appointment> getAppointmentsByVeterinarian(Long veterinarianID) {
+        Date today = new Date();
+        return appointmentRepository.findAllByVeterinarianWithDateOnOrAfter(veterinarianID, today);
     }
 }
