@@ -32,6 +32,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Controller for managing articles and bookmarks.
+ * This controller provides methods to handle requests related to articles and bookmarks, including
+ * viewing, downloading, adding, and removing articles and bookmarks.
+ */
 @Controller
 public class ArticleController {
 
@@ -42,6 +47,13 @@ public class ArticleController {
     @Autowired
     private BookmarkService bookmarkService;
 
+    /**
+     * Handles GET requests for retrieving an article by its ID.
+     * 
+     * @param id    The ID of the article to retrieve.
+     * @param model The model to pass data to the view.
+     * @return The view name ("article") if the article exists, or "error" if not.
+     */
     @GetMapping("/article/{id}")
     public String getArticleById(@PathVariable("id") Long id, Model model) {
         Optional<Article> article = articleService.getArticleById(id);
@@ -53,6 +65,14 @@ public class ArticleController {
         }
     }
 
+    /**
+     * Handles GET requests for downloading an article's contents as a zip file.
+     * 
+     * @param link     The URL of the article to download.
+     * @param response The HTTP response to send the zip file.
+     * @return A StreamingResponseBody that streams the zip file to the client.
+     * @throws Exception If an error occurs during zipping or downloading.
+     */
     @GetMapping("/downloadArticle")
     public ResponseEntity<StreamingResponseBody> downloadArticle(@RequestParam String link,
             HttpServletResponse response)
@@ -72,6 +92,12 @@ public class ArticleController {
         return ResponseEntity.ok().body(stream);
     }
 
+    /**
+     * Handles GET requests for retrieving the bookmarks of a user.
+     * 
+     * @param userId The ID of the user whose bookmarks are retrieved.
+     * @return A ResponseEntity containing a set of article links bookmarked by the user.
+     */
     @GetMapping("/getBookmarks")
     public ResponseEntity<Set<String>> getBookmarks(@RequestParam Long userId) {
         User user = userService.findById(userId).get();
@@ -83,18 +109,37 @@ public class ArticleController {
         return ResponseEntity.ok().body(bookmarks);
     }
 
+    /**
+     * Handles POST requests to add a new article.
+     * 
+     * @param article The article to add.
+     * @return A ResponseEntity containing the ID of the added article.
+     */
     @PostMapping("/article/add")
     public ResponseEntity<Long> addArticle(@RequestBody Article article) {
         Long id = articleService.saveArticle(article).getId();
         return ResponseEntity.ok(id);
     }
 
+    /**
+     * Handles DELETE requests to remove an article by its ID.
+     * 
+     * @param id The ID of the article to remove.
+     * @return A ResponseEntity indicating success.
+     */
     @DeleteMapping("/article/remove")
     public ResponseEntity<Void> removeArticle(@RequestParam("id") Long id) {
         articleService.deleteArticleById(id);
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Handles GET requests for retrieving paginated articles.
+     * 
+     * @param page  The page number of articles to retrieve (defaults to 0).
+     * @param model The model to pass data to the view.
+     * @return The view name ("index") for displaying articles.
+     */
     @GetMapping("/article")
     public String getArticlesPage(@RequestParam(defaultValue = "0") int page, Model model) {
         // Fetch RSS feed only once
@@ -120,6 +165,14 @@ public class ArticleController {
         return "index";
     }
 
+    /**
+     * Handles GET requests for searching articles based on a keyword.
+     * 
+     * @param keyword The keyword to search for in the articles.
+     * @param page    The page number of search results (defaults to 0).
+     * @param model   The model to pass data to the view.
+     * @return The view name ("index") for displaying the search results.
+     */
     @GetMapping("/article/search")
     public String searchArticles(@RequestParam("keyword") String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -140,6 +193,14 @@ public class ArticleController {
         return "index";
     }
 
+    /**
+     * Handles GET requests for retrieving paginated bookmarks of a user.
+     * 
+     * @param page   The page number of bookmarked articles to retrieve (defaults to 0).
+     * @param userId The ID of the user whose bookmarks are retrieved.
+     * @param model  The model to pass data to the view.
+     * @return The view name ("index") for displaying bookmarks.
+     */
     @GetMapping("/bookmark")
     public String getBookmarks(@RequestParam(defaultValue = "0") int page,
             @RequestParam Long userId, Model model) {
@@ -167,6 +228,13 @@ public class ArticleController {
         return "index";
     }
 
+    /**
+     * Handles POST requests to add a bookmark for an article.
+     * 
+     * @param requestArticle The article to be bookmarked.
+     * @param userId         The ID of the user adding the bookmark.
+     * @return A ResponseEntity containing the ID of the added bookmark.
+     */
     @PostMapping("/addBookmark")
     public ResponseEntity<Long> addBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
@@ -186,6 +254,13 @@ public class ArticleController {
         return ResponseEntity.ok(bookmark.getId());
     }
 
+    /**
+     * Handles POST requests to remove a bookmark for an article.
+     * 
+     * @param requestArticle The article to remove from bookmarks.
+     * @param userId         The ID of the user removing the bookmark.
+     * @return A ResponseEntity indicating success.
+     */
     @PostMapping("/removeBookmark")
     public ResponseEntity<Void> removeBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
