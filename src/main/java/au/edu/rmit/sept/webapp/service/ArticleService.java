@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,7 +38,35 @@ public class ArticleService {
     @Autowired
     private ArticleRepository repository;
 
-    private boolean isFetched = false;
+    // Check if an article exists by link
+    private boolean articleExists(String link) {
+        return repository.findByLink(link).isPresent();
+    }
+
+    // Get articles from RSS feed link
+    private List<Article> getRssArticles(String link) {
+        List<Article> articles = new ArrayList<>();
+        try {
+            URL url = new URL(link);
+
+            SyndFeedInput input = new SyndFeedInput();
+            SyndFeed feed = input.build(new XmlReader(url));
+
+            // Serialize feed entries to articles
+            for (SyndEntry entry : feed.getEntries()) {
+                articles.add(getArticle(entry));
+            }
+        } catch (MalformedURLException e) {
+            System.err.println("RSS feed URL is malformed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error fetching the RSS feed: " + e.getMessage());
+        } catch (FeedException e) {
+            System.err.println("Error parsing the RSS feed: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+        return articles;
+    }
 
     public Optional<Article> getArticleById(Long id) {
         return repository.findById(id);
@@ -55,15 +82,6 @@ public class ArticleService {
 
     public void deleteArticleById(Long id) {
         repository.deleteById(id);
-    }
-
-    private List<Article> getAllArticles() {
-        return repository.findAll();
-    }
-
-    // Check if an article exists by link
-    private boolean articleExists(String link) {
-        return repository.findByLink(link).isPresent();
     }
 
     // Pagination for all articles
@@ -100,31 +118,6 @@ public class ArticleService {
             return Page.empty();
         }
 
-    }
-
-    // Get articles from Rss feed link
-    private List<Article> getRssArticles(String link) {
-        List<Article> articles = new ArrayList<>();
-        try {
-            URL url = new URL(link);
-
-            SyndFeedInput input = new SyndFeedInput();
-            SyndFeed feed = input.build(new XmlReader(url));
-
-            // Serialize feed entries to articles
-            for (SyndEntry entry : feed.getEntries()) {
-                articles.add(getArticle(entry));
-            }
-        } catch (MalformedURLException e) {
-            System.err.println("RSS feed URL is malformed: " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("Error fetching the RSS feed: " + e.getMessage());
-        } catch (FeedException e) {
-            System.err.println("Error parsing the RSS feed: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
-        }
-        return articles;
     }
 
     // Fetch RSS feed from external URL to repository
@@ -188,19 +181,6 @@ public class ArticleService {
         }
     }
 
-    public static void writeZipToStream(String url, ZipOutputStream zos) {
-        try {
-            Document doc = Jsoup.connect(url).get();
-
-            addElementsToDirectory(doc.select("link[rel=stylesheet]"), "href", "css", zos);
-            addElementsToDirectory(doc.select("img"), "src", "img", zos);
-
-            addToZip("article.html", doc.outerHtml().getBytes(), zos);
-        } catch (IOException e) {
-
-        }
-    }
-
     private static String getFileName(String url) {
         int i = url.lastIndexOf("?");
         return url.substring(url.lastIndexOf("/") + 1, (i < 0) ? url.length() : i);
@@ -240,5 +220,18 @@ public class ArticleService {
         }
         // Fallback to return empty file
         return new byte[0];
+    }
+
+    public static void writeZipToStream(String url, ZipOutputStream zos) {
+        try {
+            Document doc = Jsoup.connect(url).get();
+
+            addElementsToDirectory(doc.select("link[rel=stylesheet]"), "href", "css", zos);
+            addElementsToDirectory(doc.select("img"), "src", "img", zos);
+
+            addToZip("article.html", doc.outerHtml().getBytes(), zos);
+        } catch (IOException e) {
+            System.err.println("Error getting document from jsoup connection: " + e.getMessage());
+        }
     }
 }
