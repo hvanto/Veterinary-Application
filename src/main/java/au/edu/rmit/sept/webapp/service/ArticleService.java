@@ -13,6 +13,7 @@ import com.rometools.rome.io.XmlReader;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,12 +57,12 @@ public class ArticleService {
         repository.deleteById(id);
     }
 
-    public List<Article> getAllArticles() {
+    private List<Article> getAllArticles() {
         return repository.findAll();
     }
 
     // Check if an article exists by link
-    public boolean articleExists(String link) {
+    private boolean articleExists(String link) {
         return repository.findByLink(link).isPresent();
     }
 
@@ -86,8 +87,7 @@ public class ArticleService {
     // Pagination for search results
     public Page<Article> getSearchResult(String keyword, int page) {
         try {
-            if (page < 0)
-            {
+            if (page < 0) {
                 throw new IllegalArgumentException("page cannot be negative");
             }
             // Show 10 articles per page
@@ -102,51 +102,43 @@ public class ArticleService {
 
     }
 
-    // Save articles to repository, filtering existing
-    public void saveAraticles(List<Article> articles) {
-        for (Article article : articles) {
+    // Get articles from Rss feed link
+    private List<Article> getRssArticles(String link) {
+        List<Article> articles = new ArrayList<>();
+        try {
+            URL url = new URL(link);
+
+            SyndFeedInput input = new SyndFeedInput();
+            SyndFeed feed = input.build(new XmlReader(url));
+
+            // Serialize feed entries to articles
+            for (SyndEntry entry : feed.getEntries()) {
+                articles.add(getArticle(entry));
+            }
+        } catch (MalformedURLException e) {
+            System.err.println("RSS feed URL is malformed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error fetching the RSS feed: " + e.getMessage());
+        } catch (FeedException e) {
+            System.err.println("Error parsing the RSS feed: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+        return articles;
+    }
+
+    // Fetch RSS feed from external URL to repository
+    public void fetchRssFeed() {
+        String test_link = "https://www.petmd.com/feed";
+        // Get articles from RSS feed
+        for (Article article : getRssArticles(test_link)) {
             if (!articleExists(article.getLink())) {
                 repository.save(article);
             }
         }
     }
 
-    // Fetch RSS feed from external URL and save to database
-    public void fetchRssFeed() {
-        // Fetch RSS feed only once
-        if (!isFetched) {
-            try {
-                // Delete old RSS feed from the database
-                repository.deleteAll();
-
-                String testLink = "https://www.petmd.com/feed";
-                URL url = new URL(testLink);
-                SyndFeedInput input = new SyndFeedInput();
-                SyndFeed feed = input.build(new XmlReader(url));
-
-                List<Article> articles = new ArrayList<>();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-                for (SyndEntry entry : feed.getEntries()) {
-                    Article article = getArticle(entry);
-                    repository.save(article);
-                }
-                isFetched = true;
-
-            } catch (MalformedURLException e) {
-                System.err.println("The URL is malformed: " + e.getMessage());
-
-            } catch (FeedException e) {
-                System.err.println("Error parsing the RSS feed: " + e.getMessage());
-
-            } catch (IOException e) {
-                System.err.println("Error fetching the RSS feed: " + e.getMessage());
-
-            } catch (Exception e) {
-                System.err.println("An unexpected error occurred: " + e.getMessage());
-            }
-        }
-    }
+    // Static methods
 
     private static Article getArticle(SyndEntry entry) {
         Article article = new Article();
@@ -157,7 +149,8 @@ public class ArticleService {
         article.setPublishedDate(entry.getPublishedDate());
 
         // Set description if not null
-        if (entry.getDescription() != null && !entry.getDescription().getValue().isEmpty()) {
+        if (entry.getDescription() != null
+                && !entry.getDescription().getValue().isEmpty()) {
             article.setDescription(entry.getDescription().getValue());
         }
 
@@ -168,42 +161,44 @@ public class ArticleService {
         } else {
             article.setImageUrl("No image available");
         }
-
         return article;
     }
 
-    public static void writeZipToStream(String url, ZipOutputStream zos) throws IOException {
-        Document doc = Jsoup.connect(url).get();
+    private static void addElementsToDirectory(Elements elements, String attribute, String directory,
+            ZipOutputStream zos) {
+        // Storing download file name set to avoid repeats
         Set<String> downloaded = new HashSet<>();
 
-        for (Element link : doc.select("link[rel=stylesheet]")) {
-            String absUrl = link.absUrl("href");
+        for (Element element : elements) {
+            String absUrl = element.absUrl(attribute);
 
+            // Skip if the URL starts with 'data:' as it is likely an embedded resource.
             if (!absUrl.startsWith("data:")) {
-                String path = "css/" + getFileName(absUrl);
+                String path = directory + "/" + getFileName(absUrl);
 
+                // Check if the URL has already been downloaded to avoid duplicates.
                 if (!downloaded.contains(absUrl)) {
-                    addFileToZip(path, downloadFile(absUrl), zos);
+                    // Download the file and add it to the zip.
+                    addToZip(path, downloadFile(absUrl), zos);
                     downloaded.add(absUrl);
                 }
-                link.attr("href", path);
+                // Update the element's attribute (href/src) to the new path.
+                element.attr(attribute, path);
             }
         }
+    }
 
-        for (Element img : doc.select("img")) {
-            String absUrl = img.absUrl("src");
+    public static void writeZipToStream(String url, ZipOutputStream zos) {
+        try {
+            Document doc = Jsoup.connect(url).get();
 
-            if (!absUrl.startsWith("data:")) {
-                String path = "img/" + getFileName(absUrl);
+            addElementsToDirectory(doc.select("link[rel=stylesheet]"), "href", "css", zos);
+            addElementsToDirectory(doc.select("img"), "src", "img", zos);
 
-                if (!downloaded.contains(absUrl)) {
-                    addFileToZip(path, downloadFile(absUrl), zos);
-                    downloaded.add(absUrl);
-                }
-                img.attr("src", path);
-            }
+            addToZip("article.html", doc.outerHtml().getBytes(), zos);
+        } catch (IOException e) {
+
         }
-        addFileToZip("article.html", doc.outerHtml().getBytes(), zos);
     }
 
     private static String getFileName(String url) {
@@ -211,26 +206,39 @@ public class ArticleService {
         return url.substring(url.lastIndexOf("/") + 1, (i < 0) ? url.length() : i);
     }
 
-    private static void addFileToZip(String path, byte[] bytes, ZipOutputStream zos) {
+    private static void addToZip(String path, byte[] bytes, ZipOutputStream zos) {
         try {
             ZipEntry entry = new ZipEntry(path);
             zos.putNextEntry(entry);
             zos.write(bytes);
             zos.closeEntry();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error writing bytes to zip output stream: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 
-    private static byte[] downloadFile(String fileUrl) throws IOException {
-        URL url = new URL(fileUrl);
-        try (InputStream in = url.openStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                baos.write(buffer, 0, bytesRead);
+    private static byte[] downloadFile(String fileUrl) {
+        try {
+            URL url = new URL(fileUrl);
+
+            try (InputStream in = url.openStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    baos.write(buffer, 0, bytesRead);
+                }
+                return baos.toByteArray();
             }
-            return baos.toByteArray();
+        } catch (MalformedURLException e) {
+            System.err.println("Download URL is malformed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error downloading: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
+        // Fallback to return empty file
+        return new byte[0];
     }
 }
