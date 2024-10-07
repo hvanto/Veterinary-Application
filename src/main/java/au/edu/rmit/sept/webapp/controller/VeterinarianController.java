@@ -199,6 +199,17 @@ public class VeterinarianController {
         }
     }
 
+    // Get veterinarians by clinic_id
+    @PostMapping("/{veterinarianID}/appointments")
+    public ResponseEntity<?> getAppointmentsByVeterinarian(@PathVariable Long veterinarianID) {
+        try {
+            List<Appointment> appointments = veterinarianService.getAppointmentsByVeterinarian(veterinarianID);
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/veterinarian/upload-records")
     public String uploadMedicalRecord(@RequestParam("petId") Long petId,
                                       @RequestParam("description") String description,
