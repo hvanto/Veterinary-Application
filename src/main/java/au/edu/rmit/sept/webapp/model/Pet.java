@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -49,6 +51,7 @@ public class Pet {
     private Date dateOfBirth;
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
     @JsonManagedReference("pet-appointments")
     private List<Appointment> appointments;
 

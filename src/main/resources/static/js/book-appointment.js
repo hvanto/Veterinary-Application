@@ -108,9 +108,6 @@ document.addEventListener('alpine:init', () => {
             } else {
                 this.selectedSlot = slot;
                 this.selectedDay = day;
-                // console.log(this.user.pets[0] ? this.user.pets[0].id : false);
-                // console.log(this.user.pets[0]);
-                // console.log(this.user.pets[0].id);
                 this.selectedPetId = this.user.pets[0] ? this.user.pets[0].id : false;
                 this.showModal = true;
             }
@@ -119,13 +116,6 @@ document.addEventListener('alpine:init', () => {
         bookAppointmentConfirm(pet) {
             const startTime = String(this.selectedSlot.time).split(' - ')[0];
             const endTime = String(this.selectedSlot.time).split(' - ')[1];
-            // console.log("User: ", user.id);
-            // console.log("Day: ", this.selectedDay);
-            // console.log("Start Time: ", startTime);
-            // console.log("End Time: ", endTime);
-            // console.log("Year: ", this.year);
-            // console.log("Veterinarian: ", this.selectedDoctor.id);
-            // console.log("Pet: ", this.selectedPetId);
 
             const appointmentData = {
                 user: this.user.id,
