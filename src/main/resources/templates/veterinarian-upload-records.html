@@ -5,41 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vet - Upload Medical Records</title>
     <link href="/static/css/main.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-
+<script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    function toggleCategoryForm() {
+        const selectedCategory = document.querySelector('input[name="category"]:checked').value;
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById(selectedCategory + '-form').style.display = 'block';
+    }
+</script>
 <!-- Veterinarian Navigation Fragment -->
 <div th:replace="fragments/_veterinarianNavigation :: veterinarian-navigation"></div>
 
 <div class="container mx-auto py-12">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Upload Medical Records</h1>
 
-    <!-- Upload Form -->
-    <form action="/veterinarian/upload" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
-        <div class="mb-4">
-            <label for="petId" class="block text-gray-700 font-semibold">Select Pet:</label>
-            <select id="petId" name="petId" required class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <!-- Dynamic List of Pets -->
-                <option value="pet1">Pet 1 - Bella</option>
-                <option value="pet2">Pet 2 - Max</option>
-                <!-- More pets can be listed here dynamically -->
-            </select>
+    <!-- Category Selection -->
+    <div class="mb-6">
+        <label class="block text-gray-700 font-semibold">Select Record Category:</label>
+        <div class="mt-4">
+            <label>
+                <input type="radio" name="category" value="treatment-plan" onclick="toggleCategoryForm()"> Treatment Plan
+            </label>
+            <label class="ml-4">
+                <input type="radio" name="category" value="vaccination" onclick="toggleCategoryForm()"> Vaccination
+            </label>
+            <label class="ml-4">
+                <input type="radio" name="category" value="physical-exam" onclick="toggleCategoryForm()"> Physical Exam
+            </label>
+        </div>
+    </div>
+
+    <!-- Upload Form (to be rendered based on category) -->
+    <form action="/api/veterinarian/upload-records" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+        <input type="hidden" name="appointmentId" th:value="${appointment.id}">
+
+        <!-- Treatment Plan Form Section -->
+        <div id="treatment-plan-form" class="form-section" style="display:none;">
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-semibold">Treatment Plan Description:</label>
+                <textarea id="description" name="description" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label for="description" class="block text-gray-700 font-semibold">Record Description:</label>
-            <textarea id="description" name="description" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md" placeholder="Enter details about the record"></textarea>
+        <!-- Vaccination Form Section -->
+        <div id="vaccination-form" class="form-section" style="display:none;">
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-semibold">Vaccine Name:</label>
+                <input type="text" id="description" name="description" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+            </div>
+        </div>
+
+        <!-- Physical Exam Form Section -->
+        <div id="physical-exam-form" class="form-section" style="display:none;">
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-semibold">Physical Exam Notes:</label>
+                <textarea id="description" name="description" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+            </div>
         </div>
 
         <div class="mb-4">
             <label for="file" class="block text-gray-700 font-semibold">Upload Medical Record (PDF or Image):</label>
-            <input type="file" id="file" name="file" required class="w-full border border-gray-300 px-4 py-2 rounded-md">
-        </div>
-
-        <div class="mb-4">
-            <label for="prescription" class="block text-gray-700 font-semibold">Prescription (Optional):</label>
-            <textarea id="prescription" name="prescription" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md" placeholder="Write prescription details here"></textarea>
+            <input type="file" id="file" name="file" class="w-full border border-gray-300 px-4 py-2 rounded-md">
         </div>
 
         <div class="flex justify-between mt-6">
