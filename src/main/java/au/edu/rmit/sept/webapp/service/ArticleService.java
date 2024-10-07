@@ -33,6 +33,9 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Service for managing and searching and creating zip stream of articles.
+ */
 @Service
 public class ArticleService {
     @Autowired
