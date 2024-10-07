@@ -118,7 +118,7 @@ public class ArticleControllerTests {
         @Test
         public void testAddBookmark_success() throws Exception {
                 // Add the bookmark
-                MvcResult result = mockMvc.perform(post("/addBookmark")
+                MvcResult result = mockMvc.perform(post("/api/bookmark/add")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser1.getId() + ""))
@@ -140,7 +140,7 @@ public class ArticleControllerTests {
         @Test
         public void testAddBookmark_duplicate() throws Exception {
                 // Add bookmark for testUser1
-                MvcResult result1 = mockMvc.perform(post("/addBookmark")
+                MvcResult result1 = mockMvc.perform(post("/api/bookmark/add")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser1.getId() + ""))
@@ -155,7 +155,7 @@ public class ArticleControllerTests {
                 assertTrue(bookmark1.isPresent());
 
                 // Add bookmark for testUser2 with the same article
-                MvcResult result2 = mockMvc.perform(post("/addBookmark")
+                MvcResult result2 = mockMvc.perform(post("/api/bookmark/add")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser2.getId() + ""))
@@ -193,7 +193,7 @@ public class ArticleControllerTests {
                 assertTrue(bookmarkRepository.findById(bookmarkId).isPresent());
 
                 // Perform POST request to remove the bookmark
-                mockMvc.perform(post("/removeBookmark")
+                mockMvc.perform(post("/api/bookmark/remove")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser1.getId() + ""))

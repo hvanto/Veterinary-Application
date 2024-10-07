@@ -79,14 +79,14 @@ function addBookmark(caller, title, link, author, publishedDate, description, im
     if (caller.getAttribute("fill") === "none") {
         caller.setAttribute("fill", "solid");
 
-        axios.post('/addBookmark', article, { params: { userId: user.id } })
+        axios.post('/api/bookmark/add', article, { params: { userId: user.id } })
             .catch(function (error) {
                 console.error(error.response.data);
             });
     } else {
         caller.setAttribute("fill", "none");
 
-        axios.post('/removeBookmark', article, { params: { userId: user.id } })
+        axios.post('/api/bookmark/remove', article, { params: { userId: user.id } })
             .catch(function (error) {
                 console.error(error.response.data);
             });

@@ -230,7 +230,7 @@ public class ArticleController {
      * @param userId         The ID of the user adding the bookmark.
      * @return A ResponseEntity containing the ID of the added bookmark.
      */
-    @PostMapping("/addBookmark")
+    @PostMapping("/api/bookmark/add")
     public ResponseEntity<Long> addBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
         Article article = null;
@@ -256,7 +256,7 @@ public class ArticleController {
      * @param userId         The ID of the user removing the bookmark.
      * @return A ResponseEntity indicating success.
      */
-    @PostMapping("/removeBookmark")
+    @PostMapping("/api/bookmark/remove")
     public ResponseEntity<Void> removeBookmark(@RequestBody Article requestArticle, @RequestParam Long userId) {
         Optional<Article> existingArticle = articleService.getArticleByLink(requestArticle.getLink());
         Article article = null;
