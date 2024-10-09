@@ -8,29 +8,32 @@
     <main>
         <div class="max-w-screen-2xl mx-auto py-10 flex gap-8">
         <!-- Left Section - Profile -->
-        <aside class="w-1/3 bg-black text-white p-8 rounded-md">
+        <aside class="w-1/3 userProfileSection text-white p-8 rounded-md">
             <div class="flex flex-col items-center">
+                <!-- Change h2 titles to white -->
                 <h2 class="text-2xl font-semibold mb-4">Welcome!</h2>
                 <h2 id="profile-username" class="text-lg font-semibold mb-6"></h2>
                 <ul class="w-full space-y-4">
+                    <!-- Change button backgrounds to white and text color to black for visibility -->
                     <li>
-                        <button onclick="showSection('account-details')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Account Details</button>
+                        <button onclick="showSection('account-details')" class="w-full text-left px-4 py-2 bg-white text-black hover:bg-gray-200 rounded">Account Details</button>
                     </li>
                     <li>
-                        <button onclick="showSection('security-settings')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Security</button>
+                        <button onclick="showSection('security-settings')" class="w-full text-left px-4 py-2 bg-white text-black hover:bg-gray-200 rounded">Security</button>
                     </li>
                     <li>
-                        <button onclick="showSection('payment-settings')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Payment Settings</button>
+                        <button onclick="showSection('payment-settings')" class="w-full text-left px-4 py-2 bg-white text-black hover:bg-gray-200 rounded">Payment Settings</button>
                     </li>
                     <li>
-                        <button onclick="showSection('notification-preferences')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Notification Preferences</button>
+                        <button onclick="showSection('notification-preferences')" class="w-full text-left px-4 py-2 bg-white text-black hover:bg-gray-200 rounded">Notification Preferences</button>
                     </li>
                     <li>
-                        <button onclick="showSection('add-pet')" class="w-full text-left px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Add Pet</button>
+                        <button onclick="showSection('add-pet')" class="w-full text-left px-4 py-2 bg-white text-black hover:bg-gray-200 rounded">Add Pet</button>
                     </li>
                 </ul>
             </div>
         </aside>
+
 
         <!-- Right Section - Dynamic Content -->
         <section id="content-section" class="w-2/3 bg-gray-200 p-8 rounded-md">
@@ -49,7 +52,7 @@
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
-                            <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                            <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm" readonly>
                         </div>
                         <div>
                             <label for="mobile" class="block text-sm font-medium text-gray-700">Mobile:</label>
@@ -241,14 +244,15 @@
                     alert('Please log in.');
                     return;
                 }
-        
-                // Set the form fields with the user data
-                document.getElementById('first-name').value = user.firstName;
-                document.getElementById('last-name').value = user.lastName;
-                document.getElementById('email').value = user.email;
-                document.getElementById('mobile').value = user.contact;
+            
+                // Set the form fields with the user data or as placeholders
+                document.getElementById('first-name').placeholder = user.firstName;
+                document.getElementById('last-name').placeholder = user.lastName;
+                document.getElementById('email').placeholder = user.email;
+                document.getElementById('mobile').placeholder = user.contact;
                 document.getElementById('profile-username').textContent = user.firstName + ' ' + user.lastName;
             }
+            
         
             // Function to update user details
             function updateAccountDetails(event) {
@@ -360,7 +364,7 @@
                     .then(response => response.json())
                     .then(pets => {
                         const petCardsContainer = document.getElementById('petCardsContainer');
-                        petCardsContainer.innerHTML = ''; // Clear the placeholder text
+                        petCardsContainer.innerHTML = '';
         
                         if (pets.length === 0) {
                             petCardsContainer.innerHTML = '<p class="text-gray-600">You have no pets added yet.</p>';
@@ -424,7 +428,7 @@
         
             // Function to update pet details
             function updatePet(event, petId) {
-                event.preventDefault(); // Prevent form submission from reloading the page
+                event.preventDefault();
         
                 const user = JSON.parse(localStorage.getItem('loggedInUser'));
                 if (!user) {
@@ -454,7 +458,7 @@
                 .then(response => {
                     if (response.ok) {
                         alert('Pet updated successfully!');
-                        loadUserPets(); // Refresh pets list after update
+                        loadUserPets();
                     } else {
                         alert('Failed to update pet.');
                     }
@@ -462,9 +466,10 @@
                 .catch(error => console.error('Error updating pet:', error));
             }
         
-            // Call the loadUserPets function when the page loads
-            window.onload = loadUserPets;
-
+            window.onload = function() {
+                loadUserProfile();
+                loadUserPets();
+            };
 
         </script>
     </main>  
