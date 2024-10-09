@@ -1,8 +1,11 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.model.Prescription;
 import au.edu.rmit.sept.webapp.model.PrescriptionHistory;
 import au.edu.rmit.sept.webapp.repository.PrescriptionRepository;
+import au.edu.rmit.sept.webapp.service.MedicalHistoryService;
+import au.edu.rmit.sept.webapp.service.PetService;
 import au.edu.rmit.sept.webapp.repository.PrescriptionHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +20,17 @@ import java.util.Optional;
 public class PrescriptionController {
 
     @Autowired
+    private PetService petService;
+
+    @Autowired
     private PrescriptionRepository prescriptionRepository;
 
     @Autowired
     private PrescriptionHistoryRepository prescriptionHistoryRepository;
 
-
     /**
      * Fetches all prescriptions. Seeds data if no prescriptions are found.
+     * 
      * @return List of all prescriptions.
      */
     @GetMapping("/all")
@@ -39,7 +45,7 @@ public class PrescriptionController {
         if (prescriptions.isEmpty()) {
             System.out.println("No prescriptions found. Seeding data...");
             seedPrescriptions();
-            prescriptions = prescriptionRepository.findAll();  // Fetch again after seeding
+            prescriptions = prescriptionRepository.findAll(); // Fetch again after seeding
         }
 
         return prescriptions;
@@ -47,6 +53,7 @@ public class PrescriptionController {
 
     /**
      * Fetches all prescription history records. Seeds data if none are found.
+     * 
      * @return List of all prescription histories.
      */
     @GetMapping("/history/all")
@@ -61,7 +68,7 @@ public class PrescriptionController {
         if (histories.isEmpty()) {
             System.out.println("No prescription histories found. Seeding data...");
             seedPrescriptionHistories();
-            histories = prescriptionHistoryRepository.findAll();  // Fetch again after seeding
+            histories = prescriptionHistoryRepository.findAll(); // Fetch again after seeding
         }
 
         return histories;
@@ -86,8 +93,7 @@ public class PrescriptionController {
                 "250mg twice a day",
                 startDate1,
                 endDate1,
-                "For bacterial infection"
-        );
+                "For bacterial infection");
 
         Prescription prescription2 = new Prescription(
                 "Metronidazole",
@@ -96,8 +102,7 @@ public class PrescriptionController {
                 "500mg once a day",
                 startDate2,
                 endDate2,
-                "For gastrointestinal issues"
-        );
+                "For gastrointestinal issues");
 
         // Save the records to the database
         prescriptionRepository.save(prescription1);
@@ -125,8 +130,7 @@ public class PrescriptionController {
                 "250mg twice a day",
                 startDate1,
                 endDate1,
-                "Follow up in a week"
-        );
+                "Follow up in a week");
 
         PrescriptionHistory history2 = new PrescriptionHistory(
                 "Dr. Bob White",
@@ -135,8 +139,7 @@ public class PrescriptionController {
                 "500mg once a day",
                 startDate2,
                 endDate2,
-                "Monitor for side effects"
-        );
+                "Monitor for side effects");
 
         // Save the records to the database
         prescriptionHistoryRepository.save(history1);
@@ -147,6 +150,7 @@ public class PrescriptionController {
 
     /**
      * Adds a new prescription.
+     * 
      * @param prescription The prescription to be added.
      * @return The added prescription.
      */
@@ -158,7 +162,8 @@ public class PrescriptionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long id, @RequestBody Prescription updatedPrescription) {
+    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long id,
+            @RequestBody Prescription updatedPrescription) {
         return prescriptionRepository.findById(id)
                 .map(prescription -> {
                     // Update fields
@@ -169,7 +174,7 @@ public class PrescriptionController {
                     prescription.setStartDate(updatedPrescription.getStartDate());
                     prescription.setEndDate(updatedPrescription.getEndDate());
                     prescription.setDescription(updatedPrescription.getDescription());
-                    //prescription.setOrderTracking(updatedPrescription.getOrderTracking());
+                    // prescription.setOrderTracking(updatedPrescription.getOrderTracking());
 
                     Prescription savedPrescription = prescriptionRepository.save(prescription);
                     return ResponseEntity.ok(savedPrescription);
@@ -179,6 +184,7 @@ public class PrescriptionController {
 
     /**
      * Deletes a prescription.
+     * 
      * @param id The ID of the prescription to be deleted.
      */
     @DeleteMapping("/{id}")
@@ -189,5 +195,13 @@ public class PrescriptionController {
         } else {
             return ResponseEntity.notFound().build(); // Return 404 Not Found
         }
+    }
+
+    @GetMapping("/vet-pets")
+    @ResponseBody
+    public List<Pet> getUserPets(@RequestParam Long vetId) {
+        System.out.println("Received request for pets with vetId: " + vetId);
+        List<Pet> pets = petService.getPetsByUserId(vetId);
+        return pets;
     }
 }
