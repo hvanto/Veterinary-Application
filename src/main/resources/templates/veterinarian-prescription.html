@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vet - Prescriptions</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.2.3/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+</head>
+<style>
+    @page {
+            size: A4 landscape; /* Set A4 size to landscape */
+            margin: 20mm; /* Adjust margins */
+        }
+
+    @media print {
+        /* Hide add, edit, delete buttons during print */
+        .hide-on-print {
+            display: none !important;
+        }
+    }
+
+</style>
+<body>
+<div>
+        <!-- Veterinarian Navigation Fragment -->
+        <div th:replace="~{fragments/_veterinarianNavigation :: veterinarian-navigation}"></div>
+
+        <div x-data="prescriptionsData()" x-init="init()" class="flex justify-center items-center mb-8">
+
+            <div x-show="!isAuthenticated" class="flex flex-col items-center justify-center h-72">
+                <h2 class="font-bold text-xl">Please log in to access your prescriptions</h2>
+                <button @click="window.location.href='/login'" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Login</button>
+            </div>
+        
+            <div x-show="isAuthenticated && !selectedPet">
+                <div class="text-center py-4">
+                    <h2 class="font-bold text-3xl text-gray-800">Select a Pet</h2>
+                </div>
+                <div class="flex flex-wrap justify-center gap-6 p-4 bg-gray-50 rounded-lg">
+                    <template x-for="pet in pets" :key="pet.id">
+                        <div @click="fetchPetDetails(pet.id)"
+                             class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
+                            <div class="block">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-gray-800" x-text="pet.name"></h3>
+                                </div>
+                                <div class="p-4 text-center">
+                                    <p class="text-gray-600">Species: <span x-text="pet.species"></span></p>
+                                    <p class="text-gray-600">Breed: <span x-text="pet.breed"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        
+            <div x-show="isAuthenticated && selectedPet" id="petData" :data-pet-id="selectedPet.id" class="flex flex-col mb-8">
+                <!-- Left Column: Text Information -->
+                <div class="w-full p-4">
+                    <h2 class="text-2xl font-bold text-left" x-text="`${selectedPet.name}'s Prescriptions`"></h2>
+                </div>
+                <div class="flex justify-center items-center mb-8">
+                    <div class="w-1/2 p-4">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">General Overview</h3>
+                        <p class="text-gray-600">Species: <span x-text="selectedPet.species"></span></p>
+                        <p class="text-gray-600">Breed: <span x-text="selectedPet.breed"></span></p>
+                        <p class="text-gray-600">Gender: <span x-text="selectedPet.gender"></span></p>
+                        <p class="text-gray-600">Date Of Birth: <span x-text="formattedDateOfBirth"></span></p>
+                        <p class="text-gray-600">Microchipped: <span x-text="selectedPet.microchipped ? 'Yes' : 'No'"></span></p>
+                        <p class="text-gray-600">Notes: <span x-text="selectedPet.notes"></span></p>
+                    </div>
+        
+                    <!-- Right Column: Pet Image -->
+                    <div class="w-1/2 flex justify-center items-center">
+                        <img :src="selectedPet.imagePath ? '/assets/' + selectedPet.imagePath : '/assets/default.png'" alt="Pet Image" class="object-cover rounded-lg shadow-lg w-full h-full">
+                    </div>
+                </div>
+        
+                <div class="mb-4">
+                    <h2 @click="toggleSection('prescriptionsCurrent')" class="cursor-pointer text-2xl font-bold text-gray-800">
+                        Current Prescriptions
+                        <span x-show="!prescriptionOpen" class="text-gray-500">▼</span>
+                        <span x-show="prescriptionOpen" class="text-gray-500">▲</span>
+                    </h2>
+                    <table x-show="prescriptionOpen" class="table-auto w-full border border-gray-300">
+                        <input type="text" placeholder="Search Current Prescriptions" x-model="searchPrescriptions" class="input-field" />
+                        <thead>
+                        <tr>
+                            <th @click="sortCurrentTable('practitioner')">Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i></th>
+                            <th @click="sortCurrentTable('prescription')">Prescription <i :class="`fas ${getSortIcon('prescription')}`"></i></th>
+                            <th @click="sortCurrentTable('vet')">Veterinarian <i :class="`fas ${getSortIcon('vet')}`"></i></th>
+                            <th @click="sortCurrentTable('startDate')">Date Filled <i :class="`fas ${getSortIcon('startDate')}`"></i></th>
+                            <th @click="sortCurrentTable('dosage')">Dosage <i :class="`fas ${getSortIcon('dosage')}`"></i></th>
+                            <th @click="sortCurrentTable('endDate')">Refill Date <i :class="`fas ${getSortIcon('endDate')}`"></i></th>
+                            <th class="border border-gray-300 px-4 py-2">Product Description</th>
+                            <th class="border border-gray-300 px-4 py-2">Order Tracking</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template x-for="prescription in filteredCurrentPrescriptions" :key="prescription.id">
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.practitioner"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.prescription"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.vet"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.startDate"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.dosage"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.endDate"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.description"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="prescription.orderTracking"></td>
+                                <td class="border border-gray-300 px-4 py-2">
+                                    <button @click="openEditPrescriptionModal(prescription)" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 hide-on-print">Edit</button>
+                                    <button @click="openDeleteConfirmationModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Delete</button>
+                                </td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="mb-4">
+                    <h2 @click="toggleSection('prescriptionsHistory')" class="cursor-pointer text-2xl font-bold text-gray-800">
+                        Prescription History
+                        <span x-show="!prescriptionHistoryOpen" class="text-gray-500">▼</span>
+                        <span x-show="prescriptionHistoryOpen" class="text-gray-500">▲</span>
+                    </h2>
+                    <table x-show="prescriptionHistoryOpen" class="table-auto w-full border border-gray-300">
+                        <input type="text" placeholder="Search Prescription History" x-model="searchPrescriptionHistory" class="input-field" />
+                        <thead>
+                        <tr>
+                            <th @click="sortHistoryTable('practitioner')">Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i></th>
+                            <th @click="sortHistoryTable('prescription')">Prescription <i :class="`fas ${getSortIcon('prescription')}`"></i></th>
+                            <th @click="sortHistoryTable('vet')">Veterinarian <i :class="`fas ${getSortIcon('vet')}`"></i></th>
+                            <th @click="sortHistoryTable('startDate')">Date Filled <i :class="`fas ${getSortIcon('startDate')}`"></i></th>
+                            <th @click="sortHistoryTable('dosage')">Dosage <i :class="`fas ${getSortIcon('dosage')}`"></i></th>
+                            <th @click="sortHistoryTable('endDate')">Refill Date <i :class="`fas ${getSortIcon('endDate')}`"></i></th>
+                            <th class="border border-gray-300 px-4 py-2">More Information</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template x-for="history in filteredPrescriptionHistory" :key="history.id">
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.practitioner"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.prescription"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.vet"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.startDate"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.dosage"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.endDate"></td>
+                                <td class="border border-gray-300 px-4 py-2" x-text="history.moreInformation"></td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <button @click="openAddPrescriptionModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hide-on-print">
+                    Add Prescription
+                </button>
+        
+                <button id="downloadButton" class="absolute right-0 mr-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hide-on-print">
+                    Download
+                </button>
+        
+                <script>
+                    document.getElementById('downloadButton').addEventListener('click', function() {
+                        // Add the class to hide buttons before printing
+                        document.querySelectorAll('.hide-on-print').forEach(button => button.classList.add('hidden'));
+        
+                        // Trigger print
+                        window.print();
+        
+                        // Remove the class after printing is done
+                        window.onafterprint = function() {
+                            document.querySelectorAll('.hide-on-print').forEach(button => button.classList.remove('hidden'));
+                        };
+                    });
+                </script>
+        
+            </div>
+        
+            <div x-show="showAddPrescriptionModal" @click.away="closeAddPrescriptionModal()" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+                    <h2 class="text-2xl font-bold mb-4">Add Prescription</h2>
+                    <form @submit.prevent="addPrescription()">
+                        <div class="mb-4">
+                            <label for="practitioner" class="block text-gray-700">Practitioner</label>
+                            <input type="text" id="practitioner" x-model="newPrescription.practitioner" required class="input-field"
+                                   placeholder="Enter practitioner's name">
+                        </div>
+                        <div class="mb-4">
+                            <label for="prescription" class="block text-gray-700">Prescription</label>
+                            <input type="text" id="prescription" x-model="newPrescription.prescription" required class="input-field"
+                                   placeholder="Enter prescription name">
+                        </div>
+                        <div class="mb-4">
+                            <label for="vet" class="block text-gray-700">Veterinarian</label>
+                            <input type="text" id="vet" x-model="newPrescription.vet" class="input-field"
+                                   placeholder="Enter veterinarian's name">
+                        </div>
+                        <div class="mb-4">
+                            <label for="dosage" class="block text-gray-700">Dosage</label>
+                            <input type="text" id="dosage" x-model="newPrescription.dosage" required class="input-field"
+                                   placeholder="Enter dosage amount">
+                        </div>
+                        <div class="mb-4">
+                            <label for="startDate" class="block text-gray-700">Start Date</label>
+                            <input type="date" id="startDate" x-model="newPrescription.startDate" required class="input-field"
+                                   min="2020-01-01">
+                        </div>
+                        <div class="mb-4">
+                            <label for="endDate" class="block text-gray-700">Refill Date</label>
+                            <input type="date" id="endDate" x-model="newPrescription.endDate" required class="input-field"
+                                   min="2020-01-01">
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="block text-gray-700">Description</label>
+                            <textarea id="description" x-model="newPrescription.description" required class="input-field"
+                                      placeholder="Enter description"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="orderTracking" class="block text-gray-700">Order Tracking</label>
+                            <input type="text" id="orderTracking" x-model="newPrescription.orderTracking" class="input-field"
+                                   placeholder="Enter order tracking info">
+                        </div>
+                        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Prescription</button>
+                        <button type="button" @click="closeAddPrescriptionModal()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        
+            <div x-show="showEditPrescriptionModal" @click.away="closeEditPrescriptionModal()" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+                    <h2 class="text-2xl font-bold mb-4">Edit Prescription</h2>
+                    <form @submit.prevent="savePrescription">
+                        <div class="mb-4">
+                            <label for="practitioner" class="block text-gray-700">Practitioner</label>
+                            <input type="text" id="practitioner" x-model="editPrescription.practitioner" required class="input-field">
+                        </div>
+                        <div class="mb-4">
+                            <label for="prescription" class="block text-gray-700">Prescription</label>
+                            <input type="text" id="prescription" x-model="editPrescription.prescription" required class="input-field">
+                        </div>
+                        <div class="mb-4">
+                            <label for="vet" class="block text-gray-700">Veterinarian</label>
+                            <input type="text" id="vet" x-model="editPrescription.vet" class="input-field">
+                        </div>
+                        <div class="mb-4">
+                            <label for="dosage" class="block text-gray-700">Dosage</label>
+                            <input type="text" id="dosage" x-model="editPrescription.dosage" required class="input-field">
+                        </div>
+                        <div class="mb-4">
+                            <label for="startDate" class="block text-gray-700">Start Date</label>
+                            <input type="date" id="startDate" x-model="editPrescription.startDate" required class="input-field">
+                        </div>
+                        <div class="mb-4">
+                            <label for="endDate" class="block text-gray-700">Refill Date</label>
+                            <input type="date" id="endDate" x-model="editPrescription.endDate" required class="input-field">
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="block text-gray-700">Description</label>
+                            <textarea id="description" x-model="editPrescription.description" required class="input-field"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="orderTracking" class="block text-gray-700">Order Tracking</label>
+                            <input type="text" id="orderTracking" x-model="editPrescription.orderTracking" class="input-field">
+                        </div>
+                        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Save Prescription</button>
+                        <button type="button" @click="closeEditPrescriptionModal()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        
+            <!-- Delete Confirmation Modal -->
+            <div x-show="showDeleteConfirmationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white p-5 rounded shadow-lg">
+                    <h2 class="text-lg font-semibold">Delete Prescription</h2>
+                    <p>Are you sure you want to delete this prescription?</p>
+                    <div class="mt-4">
+                        <button @click="deletePrescription" class="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
+                        <button @click="closeDeleteConfirmationModal" class="ml-2 bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                    </div>
+                </div>
+            </div>
+</div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/veterinarian-prescription.js}"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package au.edu.rmit.sept.webapp.service;
 
 import au.edu.rmit.sept.webapp.model.MedicalHistory;
+import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.repository.MedicalHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
