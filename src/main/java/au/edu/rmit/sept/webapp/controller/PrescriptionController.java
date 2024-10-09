@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -223,8 +224,14 @@ public class PrescriptionController {
      */
     @GetMapping("/vet-pets")
     @ResponseBody
-    public List<Pet> getUserPets(@RequestParam Long vetId) {
+    public List<Pet> getVetPets(@RequestParam Long vetId) {
         System.out.println("Received request for pets with vetId: " + vetId);
+
+        // Return empty list of vet does not exists
+        if (!veterinarianRepository.existsById(vetId)) {
+            return new ArrayList<Pet>();
+        }
+
         List<Pet> pets = petService.getPetsByVeteterinarianId(vetId);
         // Only seed data if no pets exist for the vet
         if (pets.isEmpty()) {
