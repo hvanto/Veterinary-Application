@@ -131,7 +131,7 @@
             <!-- Add Pet Section -->
             <div id="add-pet" class="hidden">
                 <h2 class="text-2xl font-semibold mb-4">Add Pet</h2>
-                <form id="addPetForm" onsubmit="addPet(event)">
+                <form id="addPetForm" onsubmit="addPet(event)" enctype="multipart/form-data">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label for="pet-name" class="block text-sm font-medium text-gray-700">Pet Name:</label>
@@ -167,6 +167,11 @@
                             <label for="pet-notes" class="block text-sm font-medium text-gray-700">Notes:</label>
                             <textarea id="pet-notes" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"></textarea>
                         </div>
+
+                        <div>
+                            <label for="pet-image" class="block text-sm font-medium text-gray-700">Pet Profile Picture:</label>
+                            <input type="file" id="pet-image" name="image" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        </div>
                     </div>
                     <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Add Pet</button>
                 </form>
@@ -195,34 +200,36 @@
                 document.getElementById(sectionId).classList.remove('hidden');
             }
 
-            // Function to add a pet for the current user
             function addPet(event) {
                 event.preventDefault();
-        
+            
                 const user = JSON.parse(localStorage.getItem('loggedInUser'));
                 if (!user) {
                     alert('Please log in to add a pet.');
                     return;
                 }
-        
-                const petData = {
-                    name: document.getElementById('pet-name').value,
-                    gender: document.getElementById('pet-gender').value,
-                    species: document.getElementById('pet-species').value,
-                    breed: document.getElementById('pet-breed').value,
-                    microchipped: document.getElementById('pet-microchipped').value === 'true',
-                    dateOfBirth: document.getElementById('pet-date-of-birth').value,
-                    notes: document.getElementById('pet-notes').value,
-                    userId: user.id
-                };
-        
-                // Send the pet data to the server
+            
+                // Create FormData to send the file and pet data
+                const formData = new FormData();
+                formData.append('name', document.getElementById('pet-name').value);
+                formData.append('gender', document.getElementById('pet-gender').value);
+                formData.append('species', document.getElementById('pet-species').value);
+                formData.append('breed', document.getElementById('pet-breed').value);
+                formData.append('microchipped', document.getElementById('pet-microchipped').value === 'true');
+                formData.append('dateOfBirth', document.getElementById('pet-date-of-birth').value);
+                formData.append('notes', document.getElementById('pet-notes').value);
+                formData.append('userId', user.id);
+                
+                // Append the image file if uploaded
+                const imageFile = document.getElementById('pet-image').files[0];
+                if (imageFile) {
+                    formData.append('image', imageFile);
+                }
+            
+                // Send the form data with the image
                 fetch('/api/pets/add', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(petData)
+                    body: formData
                 })
                 .then(response => {
                     if (response.ok) {
@@ -234,6 +241,7 @@
                 })
                 .catch(error => console.error('Error:', error));
             }
+            
 
 
 
@@ -361,7 +369,7 @@
                                             <input type="text" class="text-xl font-semibold text-gray-800 w-full" value="${pet.name}" id="pet-name-${pet.id}" />
                                         </div>
                                         <div class="w-full h-40 flex justify-center items-center bg-gray-200">
-                                            <img src="${pet.imagePath ? '/assets/' + pet.imagePath : '/assets/default.png'}" alt="Pet Image" class="object-contain h-full w-full">
+                                            <img src="${pet.imagePath ? pet.imagePath : '/assets/default.png'}" alt="Pet Image" class="object-contain h-full w-full">
                                         </div>
                                         <div class="p-4">
                                             <div class="mb-2">
