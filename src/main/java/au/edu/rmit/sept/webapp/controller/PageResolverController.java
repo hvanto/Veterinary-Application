@@ -187,6 +187,6 @@ public class PageResolverController {
         model.addAttribute("url", requestURL);
         model.addAttribute("queryString", queryString);
 
-        return "index";
+        return "veterinarian-prescription";
     }
 }
