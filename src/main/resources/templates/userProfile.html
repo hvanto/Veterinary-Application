@@ -276,11 +276,15 @@
                     return;
                 }
             
+                const firstName = document.getElementById('first-name').value || user.firstName;
+                const lastName = document.getElementById('last-name').value || user.lastName;
+                const contact = document.getElementById('mobile').value || user.contact;
+            
                 const formData = new FormData();
                 formData.append('userId', user.id);
-                formData.append('firstName', document.getElementById('first-name').value);
-                formData.append('lastName', document.getElementById('last-name').value);
-                formData.append('contact', document.getElementById('mobile').value);
+                formData.append('firstName', firstName);
+                formData.append('lastName', lastName);
+                formData.append('contact', contact);
             
                 // Only append the profile picture file if it's uploaded
                 const imageFile = document.getElementById('profile-image').files[0];
@@ -297,6 +301,15 @@
                 .then(data => {
                     if (data.message) {
                         alert(data.message);
+            
+                        // Update localStorage with the new user data
+                        user.firstName = firstName;
+                        user.lastName = lastName;
+                        user.contact = contact;
+            
+                        localStorage.setItem('loggedInUser', JSON.stringify(user));
+            
+                        // Reload the page after successful update
                         location.reload();
                     } else {
                         alert(data.error);
@@ -306,7 +319,7 @@
             }
             
             
-            
+
 
             // Function to update user password
             function updatePassword(event) {
