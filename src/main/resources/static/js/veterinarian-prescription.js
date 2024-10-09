@@ -27,16 +27,16 @@ document.addEventListener('alpine:init', () => {
         },
 
         fetchInitialData() {
-            const user = JSON.parse(localStorage.getItem('loggedInUser'));
-            if (!user || !user.id) {
+            const veterinarian = JSON.parse(localStorage.getItem('veterinarian'));
+            if (!veterinarian || !veterinarian.id) {
                 this.isAuthenticated = false;
-                console.error('User not logged in or user ID is missing.');
+                console.error('Veteerinarian not logged in or vet ID is missing.');
                 return;
             }
 
             this.isAuthenticated = true;
 
-            axios.get(`/api/medical-records/user-pets?userId=${user.id}`)
+            axios.get(`/api/prescriptions/vet-pets?vetId=${veterinarian.id}`)
                 .then(response => {
                     console.log('Pets fetched (raw):', response.data);  // Debug log
                     this.pets = response.data.map(pet => Object.assign({}, pet)); // If needed, unwrap Proxy
@@ -49,9 +49,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         fetchCurrentPrescriptions() {
-            const user = JSON.parse(localStorage.getItem('loggedInUser'));
-            if (!user || !user.id || !this.selectedPet) {
-                console.error('User not logged in, user ID is missing, or no pet selected.');
+            const veterinarian = JSON.parse(localStorage.getItem('veterinarian'));
+            if (!veterinarian || !veterinarian.id || !this.selectedPet) {
+                console.error('Vet not logged in, vet ID is missing, or no pet selected.');
                 return;
             }
 
@@ -65,9 +65,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         fetchPrescriptionHistory() {
-            const user = JSON.parse(localStorage.getItem('loggedInUser'));
-            if (!user || !user.id || !this.selectedPet) {
-                console.error('User not logged in, user ID is missing, or no pet selected.');
+            const veterinarian = JSON.parse(localStorage.getItem('veterinarian'));
+            if (!veterinarian || !veterinarian.id || !this.selectedPet) {
+                console.error('Vet not logged in, vet ID is missing, or no pet selected.');
                 return;
             }
 
@@ -231,9 +231,9 @@ document.addEventListener('alpine:init', () => {
                 alert('End date must be after the start date.');
                 return;
             }
-            const user = JSON.parse(localStorage.getItem('loggedInUser'));
-            if (!user || !user.id || !this.selectedPet) {
-                console.error('User not logged in, user ID is missing, or no pet selected.');
+            const veterinarian = JSON.parse(localStorage.getItem('veterinarian'));
+            if (!veterinarian || !veterinarian.id || !this.selectedPet) {
+                console.error('Vet not logged in, vet ID is missing, or no pet selected.');
                 return;
             }
 
