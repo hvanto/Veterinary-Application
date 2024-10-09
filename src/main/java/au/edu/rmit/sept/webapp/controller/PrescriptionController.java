@@ -215,6 +215,12 @@ public class PrescriptionController {
         }
     }
 
+    /**
+     * Fetches all pets associated with the logged-in vet.
+     * This is used to display the pet selection screen.
+     * @param vetId The ID of the logged-in vet.
+     * @return A list of pets for which the vet has a medical history.
+     */
     @GetMapping("/vet-pets")
     @ResponseBody
     public List<Pet> getUserPets(@RequestParam Long vetId) {
