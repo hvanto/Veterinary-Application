@@ -7,11 +7,21 @@ import au.edu.rmit.sept.webapp.repository.PetRepository;
 import au.edu.rmit.sept.webapp.service.PetService;
 import au.edu.rmit.sept.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.List;
+
+import java.nio.file.Path;
 
 @RestController
 @RequestMapping("/api/pets")
@@ -27,26 +37,62 @@ public class PetController {
         this.userService = userService;
     }
 
-    // Add a new pet for the logged-in user
     @PostMapping("/add")
-    public ResponseEntity<String> addPet(@RequestBody PetRequest petRequest) {
-        Optional<User> userOptional = userService.findById(petRequest.getUserId());
+    public ResponseEntity<String> addPet(
+            @RequestParam("name") String name,
+            @RequestParam("gender") String gender,
+            @RequestParam("species") String species,
+            @RequestParam("breed") String breed,
+            @RequestParam("microchipped") boolean microchipped,
+            @RequestParam("dateOfBirth") String dateOfBirth,
+            @RequestParam("notes") String notes,
+            @RequestParam("userId") Long userId,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        Optional<User> userOptional = userService.findById(userId);
         if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body("User not found");
         }
 
         User user = userOptional.get();
-        Pet newPet = new Pet(user, petRequest.getName(), petRequest.getSpecies(), petRequest.getBreed(),
-                             petRequest.getGender(), petRequest.isMicrochipped(), petRequest.getNotes(),
-                             null, LocalDate.parse(petRequest.getDateOfBirth()));
+        Pet newPet = new Pet(user, name, species, breed, gender, microchipped, notes, null, LocalDate.parse(dateOfBirth));
+
+        // Handle image upload
+        if (image != null && !image.isEmpty()) {
+            try {
+                String imagePath = saveImage(image);
+                newPet.setImagePath(imagePath);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save image.");
+            }
+        }
 
         petService.save(newPet);
         return ResponseEntity.ok("Pet added successfully!");
     }
 
+
+    private String saveImage(MultipartFile image) throws IOException {
+        // Set the absolute path to "assets" directory under "static"
+        String uploadDir = Paths.get("src/main/resources/static/assets").toAbsolutePath().toString();
+        
+        // Ensure the directory exists
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
     
-
-
+        // Generate a unique filename
+        String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+        
+        // Save the file to the specified path
+        Path filePath = Paths.get(uploadDir, fileName);
+        Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+    
+        // Return the relative path that can be stored in the database
+        return "/assets/" + fileName;
+    }
+    
 
 
     @GetMapping("/user/{userId}")
@@ -79,6 +125,18 @@ public class PetController {
         petService.save(existingPet);
         return ResponseEntity.ok("Pet updated successfully!");
     }
+
+    // Delete pet by ID
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deletePet(@PathVariable Long id) {
+        Pet pet = petService.getPetById(id);
+        if (pet == null) {
+            return ResponseEntity.badRequest().body("Pet not found");
+        }
+        petService.delete(id);
+        return ResponseEntity.ok("Pet deleted successfully!");
+    }
+
     
 
     // PetRequest DTO class defined inside the PetController
