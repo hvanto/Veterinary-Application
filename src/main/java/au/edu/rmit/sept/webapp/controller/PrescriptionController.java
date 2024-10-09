@@ -1,16 +1,25 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import au.edu.rmit.sept.webapp.model.MedicalHistory;
 import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.model.Prescription;
 import au.edu.rmit.sept.webapp.model.PrescriptionHistory;
+import au.edu.rmit.sept.webapp.model.User;
+import au.edu.rmit.sept.webapp.model.Veterinarian;
 import au.edu.rmit.sept.webapp.repository.PrescriptionRepository;
+import au.edu.rmit.sept.webapp.repository.UserRepository;
+import au.edu.rmit.sept.webapp.repository.VeterinarianRepository;
 import au.edu.rmit.sept.webapp.service.MedicalHistoryService;
 import au.edu.rmit.sept.webapp.service.PetService;
+import au.edu.rmit.sept.webapp.service.UserService;
+import au.edu.rmit.sept.webapp.service.VeterinarianService;
 import au.edu.rmit.sept.webapp.repository.PrescriptionHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +30,15 @@ public class PrescriptionController {
 
     @Autowired
     private PetService petService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private VeterinarianRepository veterinarianRepository;
+    
+    @Autowired
+    private MedicalHistoryService medicalHistoryService;
 
     @Autowired
     private PrescriptionRepository prescriptionRepository;
@@ -201,7 +219,44 @@ public class PrescriptionController {
     @ResponseBody
     public List<Pet> getUserPets(@RequestParam Long vetId) {
         System.out.println("Received request for pets with vetId: " + vetId);
-        List<Pet> pets = petService.getPetsByUserId(vetId);
+        List<Pet> pets = petService.getPetsByVeteterinarianId(vetId);
+        // Only seed data if no pets exist for the vet
+        if (pets.isEmpty()) {
+            seedDataForVet(vetId);
+            pets = petService.getPetsByVeteterinarianId(vetId);
+        }
         return pets;
+    }
+
+    /**
+     * Seeds default perscription or prescription history into the database for a vet.
+     */
+    private void seedDataForVet(Long vetId) {
+        // Get vet
+        Veterinarian vet = veterinarianRepository.findById(vetId).get();
+
+        // Seed user
+        User user = userRepository.save(new User("John", "Doe", "john.doe@example.com", "password123", "123456789"));
+        
+        // Seed pets
+        Pet pet1 = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch", "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
+        Pet pet2 = new Pet(user, "Luna", "Dog", "Siberian Husky", "Female", true, "Very energetic and loves snow", "3_luna_husky.png", LocalDate.of(2019, 3, 10));
+        petService.save(pet1);
+        petService.save(pet2);
+
+        // Convert LocalDate to Date for medical history event dates
+        Date historyDate1 = Date.from(LocalDate.of(2023, 1, 10).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date historyDate2 = Date.from(LocalDate.of(2023, 1, 15).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // Seed medical history
+        MedicalHistory history1 = new MedicalHistory(pet1, vet.getFullName(), "Routine checkup", vet, historyDate1, "All good", null);
+        MedicalHistory history2 = new MedicalHistory(pet2, vet.getFullName(), "Dental cleaning", vet, historyDate2, "Teeth cleaned", null);
+
+        // Save the medical history records
+        medicalHistoryService.save(history1);
+        medicalHistoryService.save(history2);
+        
+        seedPrescriptions();
+        seedPrescriptionHistories();
     }
 }
