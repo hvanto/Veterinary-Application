@@ -1,5 +1,6 @@
 package au.edu.rmit.sept.webapp;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -12,7 +13,12 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import au.edu.rmit.sept.webapp.model.Veterinarian;
 import au.edu.rmit.sept.webapp.repository.MedicalHistoryRepository;
+import au.edu.rmit.sept.webapp.repository.PetRepository;
+import au.edu.rmit.sept.webapp.repository.PhysicalExamRepository;
+import au.edu.rmit.sept.webapp.repository.TreatmentPlanRepository;
+import au.edu.rmit.sept.webapp.repository.VaccinationRepository;
 import au.edu.rmit.sept.webapp.repository.VeterinarianRepository;
+import au.edu.rmit.sept.webapp.repository.WeightRecordRepository;
 import au.edu.rmit.sept.webapp.service.VeterinarianService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,6 +37,12 @@ public class PrescriptionControllerTests {
     @Autowired
     private VeterinarianService veterinarianService;
 
+    @Autowired
+    private PetRepository petRepository;
+
+    @Autowired
+    private MedicalHistoryRepository medicalHistoryRepository;
+
     private Veterinarian veterinarian;
 
     @BeforeAll
@@ -39,6 +51,12 @@ public class PrescriptionControllerTests {
                 .orElseGet(() -> veterinarianService
                         .saveVeterinarian(new Veterinarian("John", "Doe", "drjohn@clinic.com", "123456789",
                                 "password123")));
+    }
+
+    @AfterAll
+    public void teardown() {
+        medicalHistoryRepository.deleteAll();
+        petRepository.deleteAll();
     }
 
     @Test
