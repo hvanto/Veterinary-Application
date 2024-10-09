@@ -35,3 +35,15 @@
 .userProfileSection {
     background-color: rgb(115, 190, 234);
 }
+
+#content-section {
+    background-color: rgb(244, 185, 185);
+}
+
+#user-pets {
+    background-color: rgb(190, 244, 185);
+}
+
+#petCardsContainer {
+    background-color: rgb(190, 244, 185);
+}
