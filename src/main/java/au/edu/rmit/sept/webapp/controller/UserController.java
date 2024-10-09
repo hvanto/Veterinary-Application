@@ -20,12 +20,12 @@ import java.util.UUID;
 import java.nio.file.Path;
 import java.util.Optional;
 
-
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
@@ -87,7 +87,7 @@ public class UserController {
         }
     }
 
-
+    // Update user profile and handle image upload
     @PostMapping("/updateProfile")
     public ResponseEntity<Map<String, String>> updateProfile(@RequestParam("userId") Long userId, 
                                                              @RequestParam(value = "image", required = false) MultipartFile image,
@@ -103,11 +103,7 @@ public class UserController {
         }
     
         User user = userOptional.get();
-        // Update basic user info
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setContact(contact);
-    
+        
         // If an image is uploaded, save it
         if (image != null && !image.isEmpty()) {
             try {
@@ -118,14 +114,13 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
         }
-    
-        // Save the updated user
-        userService.saveUser(user);
+
+        // Call the new update method in UserService to handle updating user details and notifications
+        userService.updateUserDetails(user, firstName, lastName, contact);
+
         response.put("message", "Profile updated successfully!");
         return ResponseEntity.ok(response);
     }
-    
-    
 
     // The same saveImage method you have for pets can be reused here
     private String saveImage(MultipartFile image) throws IOException {

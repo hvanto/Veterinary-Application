@@ -22,13 +22,19 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final VeterinarianRepository veterinarianRepository;
     private final PetRepository petRepository;
+    private final NotificationService notificationService; // Added for notifications
 
     @Autowired
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VeterinarianRepository veterinarianRepository, PetRepository petRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository,
+                              UserRepository userRepository,
+                              VeterinarianRepository veterinarianRepository,
+                              PetRepository petRepository,
+                              NotificationService notificationService) { // Inject NotificationService
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.veterinarianRepository = veterinarianRepository;
         this.petRepository = petRepository;
+        this.notificationService = notificationService;
     }
 
     public Appointment createAppointment(String day, String year, String startTime, String endTime, Long userId, Long veterinarianId, Long petId, String notes) throws Exception {
@@ -51,7 +57,14 @@ public class AppointmentService {
         appointment.setPet(pet);
 
         // Save the appointment
-        return appointmentRepository.save(appointment);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Send a notification after the appointment is successfully created
+        String confirmationMessage = String.format("Your appointment for %s with Dr. %s is confirmed for %s at %s.",
+                pet.getName(), veterinarian.getFirstName() + " " + veterinarian.getLastName(), day + " " + year, startTime);
+        notificationService.createNotification(user, confirmationMessage);
+
+        return savedAppointment;
     }
 
     // Method to find appointments by veterinarian and date

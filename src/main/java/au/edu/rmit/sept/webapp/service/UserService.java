@@ -9,9 +9,19 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
+
     private final EncryptionService encryptionService;
-    private final NotificationService notificationService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    // Find user by ID (existing method)
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 
     @Autowired
     public UserService(UserRepository userRepository, EncryptionService encryptionService, NotificationService notificationService) {
@@ -20,10 +30,13 @@ public class UserService {
         this.notificationService = notificationService;
     }
 
+
     // Check if the email already exists
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+
+
 
     // Save the user with a hashed password
     public User saveUser(User user) {
@@ -83,6 +96,27 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    // New method to update user details and send notification if significant update
+    public void updateUserDetails(User user, String firstName, String lastName, String contact) {
+        // Check if significant updates are made, such as changing the first or last name
+        boolean isSignificantUpdate = !firstName.equals(user.getFirstName()) || !lastName.equals(user.getLastName());
+
+        // Update the user information
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setContact(contact);
+
+        // Save the user with updated details
+        userRepository.save(user);
+
+        // Only create a notification if a significant update is made
+        if (isSignificantUpdate) {
+            notificationService.createNotification(user, "Your account details have been updated.");
+        }
+    }
+
+    
+
     // Update password with hashing
     public void updatePassword(Long userId, String newPassword) throws Exception {
         Optional<User> userOptional = userRepository.findById(userId);
@@ -95,9 +129,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Optional<User> findById(Long userId) {
-        return userRepository.findById(userId);
-    }
 
     // Method to delete all users
     public void deleteAllUsers() {
