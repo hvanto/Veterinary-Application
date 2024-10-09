@@ -241,7 +241,7 @@ document.addEventListener('alpine:init', () => {
             const prescriptionData = {
                 ...this.newPrescription,
                 petId: this.selectedPet.id, // Assuming the selected pet ID is available
-                userId: user.id // Add user ID if needed
+                // userId: user.id // Add user ID if needed
             };
 
             // Send POST request to add the prescription
