@@ -17,9 +17,4 @@ public interface MedicalHistoryRepository extends JpaRepository<MedicalHistory, 
 
     // Fetch medical history by the prescription's id
     List<MedicalHistory> findByPrescriptionId(Long prescriptionId);
-
-    @Query(value = "SELECT DISTINCT p FROM Pet p "
-            + "JOIN medical_history mh ON p.id = mh.pet_id "
-            + "WHERE mh.veterinarian_id = :vet_id", nativeQuery = true)
-    List<Pet> findPetByVeterinarianId(@Param("vet_id") Long veterinarianId);
 }
