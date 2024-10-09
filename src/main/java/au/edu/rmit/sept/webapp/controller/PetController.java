@@ -79,6 +79,18 @@ public class PetController {
         petService.save(existingPet);
         return ResponseEntity.ok("Pet updated successfully!");
     }
+
+    // Delete pet by ID
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deletePet(@PathVariable Long id) {
+        Pet pet = petService.getPetById(id);
+        if (pet == null) {
+            return ResponseEntity.badRequest().body("Pet not found");
+        }
+        petService.delete(id);
+        return ResponseEntity.ok("Pet deleted successfully!");
+    }
+
     
 
     // PetRequest DTO class defined inside the PetController

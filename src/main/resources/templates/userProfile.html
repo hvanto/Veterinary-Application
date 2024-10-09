@@ -334,47 +334,29 @@
                 })
                 .catch(error => console.error('Error:', error));
             }
-
-
-
-            function loadUserProfile() {
-                const user = JSON.parse(localStorage.getItem('loggedInUser'));
-                if (!user) {
-                    alert('Please log in.');
-                    return;
-                }
     
-                // Set the form fields with the user data
-                document.getElementById('first-name').value = user.firstName;
-                document.getElementById('last-name').value = user.lastName;
-                document.getElementById('email').value = user.email;
-                document.getElementById('mobile').value = user.contact;
-                document.getElementById('profile-username').textContent = user.firstName + ' ' + user.lastName;
-            }
-    
-            // Function to load user's pets
             function loadUserPets() {
                 const user = JSON.parse(localStorage.getItem('loggedInUser'));
                 if (!user) {
                     document.getElementById('noPetsMessage').textContent = 'Please log in to view your pets.';
                     return;
                 }
-        
+            
                 fetch(`/api/pets/user/${user.id}`)
                     .then(response => response.json())
                     .then(pets => {
                         const petCardsContainer = document.getElementById('petCardsContainer');
-                        petCardsContainer.innerHTML = '';
-        
+                        petCardsContainer.innerHTML = ''; // Clear the placeholder text
+            
                         if (pets.length === 0) {
                             petCardsContainer.innerHTML = '<p class="text-gray-600">You have no pets added yet.</p>';
                             return;
                         }
-        
+            
                         pets.forEach(pet => {
                             const petForm = `
                                 <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
-                                    <form id="petForm-${pet.id}" onsubmit="updatePet(event, ${pet.id})">
+                                    <form id="petForm-${pet.id}">
                                         <div class="bg-blue-100 p-4">
                                             <input type="text" class="text-xl font-semibold text-gray-800 w-full" value="${pet.name}" id="pet-name-${pet.id}" />
                                         </div>
@@ -412,7 +394,12 @@
                                                 <label class="block text-gray-600">Notes:</label>
                                                 <textarea class="w-full border border-gray-300 rounded-md" id="pet-notes-${pet.id}">${pet.notes || ''}</textarea>
                                             </div>
-                                            <button type="submit" class="mt-4 bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700">Save Changes</button>
+                                            <div class="flex space-x-2">
+                                                <!-- Update button -->
+                                                <button type="submit" class="mt-4 bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700" onclick="updatePet(event, ${pet.id})">Update Pet</button>
+                                                <!-- Delete button -->
+                                                <button type="button" class="mt-4 bg-red-600 text-white w-full py-2 rounded hover:bg-red-700" onclick="deletePet(${pet.id})">Delete Pet</button>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
@@ -425,6 +412,7 @@
                         document.getElementById('noPetsMessage').textContent = 'Failed to fetch pets.';
                     });
             }
+            
         
             // Function to update pet details
             function updatePet(event, petId) {
@@ -465,6 +453,29 @@
                 })
                 .catch(error => console.error('Error updating pet:', error));
             }
+
+            function deletePet(petId) {
+                if (!confirm("Are you sure you want to delete this pet?")) {
+                    return;
+                }
+            
+                fetch(`/api/pets/delete/${petId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Pet deleted successfully!');
+                        loadUserPets(); // Reload the pet list
+                    } else {
+                        alert('Failed to delete pet.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting pet:', error);
+                    alert('Error deleting pet.');
+                });
+            }
+            
         
             window.onload = function() {
                 loadUserProfile();
