@@ -177,4 +177,16 @@ public class PageResolverController {
 
         return "veterinarian-appointments";
     }
+
+    @GetMapping("/veterinarian-prescription")
+    public String veterinarianPrescription(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-prescription");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
 }
