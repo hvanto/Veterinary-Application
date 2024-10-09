@@ -46,7 +46,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
      * @param vetId The ID of the vet.
      * @return List of Pet objects associated with the vet.
      */
-    @Query(value = "SELECT DISTINCT p FROM Pet p "
+    @Query(value = "SELECT DISTINCT p.* FROM pet p "
             + "JOIN medical_history mh ON p.id = mh.pet_id "
             + "WHERE mh.veterinarian_id = :vet_id", nativeQuery = true)
     List<Pet> findByVeterinarianId(@Param("vet_id") Long veterinarianId);
