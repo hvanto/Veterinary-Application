@@ -13,6 +13,7 @@ import com.rometools.rome.io.XmlReader;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,39 +33,69 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Service for managing and searching and creating zip stream of articles.
+ */
 @Service
 public class ArticleService {
     @Autowired
     private ArticleRepository repository;
 
-    private boolean isFetched = false;
+    /**
+     * Checks if an article with the given link already exists in the repository.
+     * 
+     * @param link The link to check.
+     * @return true if the article exists, false otherwise.
+     */
+    private boolean articleExists(String link) {
+        return repository.findByLink(link).isPresent();
+    }
 
+    /**
+     * Retrieves an article by its ID from the repository.
+     * 
+     * @param id The article ID.
+     * @return An Optional containing the article if found, otherwise empty.
+     */
     public Optional<Article> getArticleById(Long id) {
         return repository.findById(id);
     }
 
+    /**
+     * Retrieves an article by its link from the repository.
+     * 
+     * @param link The article link.
+     * @return An Optional containing the article if found, otherwise empty.
+     */
     public Optional<Article> getArticleByLink(String link) {
         return repository.findByLink(link);
     }
 
+    /**
+     * Saves an article to the repository.
+     * 
+     * @param article The article to save.
+     * @return The saved article.
+     */
     public Article saveArticle(Article article) {
         return repository.save(article);
     }
 
+    /**
+     * Deletes an article by its ID from the repository.
+     * 
+     * @param id The article ID.
+     */
     public void deleteArticleById(Long id) {
         repository.deleteById(id);
     }
 
-    public List<Article> getAllArticles() {
-        return repository.findAll();
-    }
-
-    // Check if an article exists by link
-    public boolean articleExists(String link) {
-        return repository.findByLink(link).isPresent();
-    }
-
-    // Pagination for all articles
+    /**
+     * Retrieves a paginated list of all articles.
+     * 
+     * @param page The page number to retrieve.
+     * @return A page of articles.
+     */
     public Page<Article> getArticles(int page) {
         try {
             if (page < 0) {
@@ -83,11 +113,16 @@ public class ArticleService {
 
     }
 
-    // Pagination for search results
+    /**
+     * Retrieves a paginated list of articles that match a given search keyword.
+     * 
+     * @param keyword The search keyword.
+     * @param page The page number to retrieve.
+     * @return A page of search results.
+     */
     public Page<Article> getSearchResult(String keyword, int page) {
         try {
-            if (page < 0)
-            {
+            if (page < 0) {
                 throw new IllegalArgumentException("page cannot be negative");
             }
             // Show 10 articles per page
@@ -102,54 +137,67 @@ public class ArticleService {
 
     }
 
-    // Fetch RSS feed from external URL and save to database
+    /**
+     * Fetches articles from an RSS feed.
+     * 
+     * @param link The RSS feed URL.
+     * @return A list of articles from the feed.
+     */
+    public List<Article> getRssArticles(String link) {
+        List<Article> articles = new ArrayList<>();
+        try {
+            URL url = new URL(link);
+
+            SyndFeedInput input = new SyndFeedInput();
+            SyndFeed feed = input.build(new XmlReader(url));
+
+            // Serialize feed entries to articles
+            for (SyndEntry entry : feed.getEntries()) {
+                articles.add(getArticle(entry));
+            }
+        } catch (MalformedURLException e) {
+            System.err.println("RSS feed URL is malformed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error fetching the RSS feed: " + e.getMessage());
+        } catch (FeedException e) {
+            System.err.println("Error parsing the RSS feed: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+        return articles;
+    }
+
+    /**
+     * Fetches articles from a test RSS feed and saves them to the repository.
+     */
     public void fetchRssFeed() {
-        // Fetch RSS feed only once
-        if (!isFetched) {
-            try {
-                // Delete old RSS feed from the database
-                repository.deleteAll();
-
-                String testLink = "https://www.petmd.com/feed";
-                URL url = new URL(testLink);
-                SyndFeedInput input = new SyndFeedInput();
-                SyndFeed feed = input.build(new XmlReader(url));
-
-                List<Article> articles = new ArrayList<>();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-                for (SyndEntry entry : feed.getEntries()) {
-                    Article article = getArticle(entry);
-                    repository.save(article);
-                }
-                isFetched = true;
-
-            } catch (MalformedURLException e) {
-                System.err.println("The URL is malformed: " + e.getMessage());
-
-            } catch (FeedException e) {
-                System.err.println("Error parsing the RSS feed: " + e.getMessage());
-
-            } catch (IOException e) {
-                System.err.println("Error fetching the RSS feed: " + e.getMessage());
-
-            } catch (Exception e) {
-                System.err.println("An unexpected error occurred: " + e.getMessage());
+        String test_link = "https://www.petmd.com/feed";
+        // Get articles from RSS feed
+        for (Article article : getRssArticles(test_link)) {
+            if (!articleExists(article.getLink())) {
+                repository.save(article);
             }
         }
     }
 
+    /**
+     * Converts an RSS entry into an Article object.
+     * 
+     * @param entry The SyndEntry from the RSS feed.
+     * @return The constructed Article.
+     */
     private static Article getArticle(SyndEntry entry) {
         Article article = new Article();
 
-        article.setTitle(entry.getTitle());
+        article.setTitle(entry.getTitle().replace("'", "\\'"));
         article.setLink(entry.getLink());
-        article.setAuthor(entry.getAuthor());
+        article.setAuthor(entry.getAuthor().replace("'", "\\'"));
         article.setPublishedDate(entry.getPublishedDate());
 
         // Set description if not null
-        if (entry.getDescription() != null && !entry.getDescription().getValue().isEmpty()) {
-            article.setDescription(entry.getDescription().getValue());
+        if (entry.getDescription() != null
+                && !entry.getDescription().getValue().isEmpty()) {
+            article.setDescription(entry.getDescription().getValue().replace("'", "\\'"));
         }
 
         // Get Image from enclosure
@@ -159,69 +207,120 @@ public class ArticleService {
         } else {
             article.setImageUrl("No image available");
         }
-
         return article;
     }
 
-    public static void writeZipToStream(String url, ZipOutputStream zos) throws IOException {
-        Document doc = Jsoup.connect(url).get();
+    /**
+     * Adds the specified HTML elements to a directory in a zip stream.
+     * 
+     * @param elements The HTML elements to add.
+     * @param attribute The attribute name (e.g., src, href) containing the URL.
+     * @param directory The target directory inside the zip.
+     * @param zos The ZipOutputStream to write to.
+     */
+    private static void addElementsToDirectory(Elements elements, String attribute, String directory,
+            ZipOutputStream zos) {
+        // Storing download file name set to avoid repeats
         Set<String> downloaded = new HashSet<>();
 
-        for (Element link : doc.select("link[rel=stylesheet]")) {
-            String absUrl = link.absUrl("href");
+        for (Element element : elements) {
+            String absUrl = element.absUrl(attribute);
 
+            // Skip if the URL starts with 'data:' as it is likely an embedded resource.
             if (!absUrl.startsWith("data:")) {
-                String path = "css/" + getFileName(absUrl);
+                String path = directory + "/" + getFileName(absUrl);
 
+                // Check if the URL has already been downloaded to avoid duplicates.
                 if (!downloaded.contains(absUrl)) {
-                    addFileToZip(path, downloadFile(absUrl), zos);
+                    // Download the file and add it to the zip.
+                    addToZip(path, downloadFile(absUrl), zos);
                     downloaded.add(absUrl);
                 }
-                link.attr("href", path);
+                // Update the element's attribute (href/src) to the new path.
+                element.attr(attribute, path);
             }
         }
-
-        for (Element img : doc.select("img")) {
-            String absUrl = img.absUrl("src");
-
-            if (!absUrl.startsWith("data:")) {
-                String path = "img/" + getFileName(absUrl);
-
-                if (!downloaded.contains(absUrl)) {
-                    addFileToZip(path, downloadFile(absUrl), zos);
-                    downloaded.add(absUrl);
-                }
-                img.attr("src", path);
-            }
-        }
-        addFileToZip("article.html", doc.outerHtml().getBytes(), zos);
     }
 
+    /**
+     * Extracts the file name from a URL.
+     * 
+     * @param url The URL string.
+     * @return The file name.
+     */
     private static String getFileName(String url) {
         int i = url.lastIndexOf("?");
         return url.substring(url.lastIndexOf("/") + 1, (i < 0) ? url.length() : i);
     }
 
-    private static void addFileToZip(String path, byte[] bytes, ZipOutputStream zos) {
+    /**
+     * Adds a file to the zip archive.
+     * 
+     * @param path The file path inside the zip.
+     * @param bytes The file contents as a byte array.
+     * @param zos The ZipOutputStream to write to.
+     */
+    public static void addToZip(String path, byte[] bytes, ZipOutputStream zos) {
         try {
             ZipEntry entry = new ZipEntry(path);
             zos.putNextEntry(entry);
             zos.write(bytes);
             zos.closeEntry();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error writing bytes to zip output stream: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 
-    private static byte[] downloadFile(String fileUrl) throws IOException {
-        URL url = new URL(fileUrl);
-        try (InputStream in = url.openStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                baos.write(buffer, 0, bytesRead);
+    /**
+     * Downloads a file from the given URL and returns its contents as a byte array.
+     * 
+     * @param fileUrl The URL of the file to download.
+     * @return The file contents as a byte array.
+     */
+    public static byte[] downloadFile(String fileUrl) {
+        try {
+            URL url = new URL(fileUrl);
+
+            try (InputStream in = url.openStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    baos.write(buffer, 0, bytesRead);
+                }
+                return baos.toByteArray();
             }
-            return baos.toByteArray();
+        } catch (MalformedURLException e) {
+            System.err.println("Download URL is malformed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error downloading: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+        // Fallback to return empty file
+        return new byte[0];
+    }
+
+    /**
+     * Writes the specified URL's content and its resources (CSS, images) into a zip archive.
+     * 
+     * @param url The URL to fetch content from.
+     * @param zos The ZipOutputStream to write the zipped content.
+     */
+    public static void writeZipToStream(String url, ZipOutputStream zos) {
+        try {
+            Document doc = Jsoup.connect(url).get();
+
+            // Fetch and store stylesheets and images to seperate directories
+            addElementsToDirectory(doc.select("link[rel=stylesheet]"), "href", "css", zos);
+            addElementsToDirectory(doc.select("img"), "src", "img", zos);
+
+            addToZip("article.html", doc.outerHtml().getBytes(), zos);
+        } catch (IOException e) {
+            System.err.println("Error getting document from jsoup connection: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 }

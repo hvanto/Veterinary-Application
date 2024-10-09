@@ -3,7 +3,6 @@ package au.edu.rmit.sept.webapp;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +19,15 @@ import au.edu.rmit.sept.webapp.repository.ArticleRepository;
 import au.edu.rmit.sept.webapp.repository.BookmarkRepository;
 import au.edu.rmit.sept.webapp.repository.UserRepository;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import java.util.Date;
 import java.util.Optional;
@@ -82,7 +84,7 @@ public class ArticleControllerTests {
         }
 
         @Test
-        public void testAddArticle() throws Exception {
+        public void testAddArticle_success() throws Exception {
                 // perform mock post to add article
                 MvcResult result = mockMvc.perform(post("/article/add")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +100,7 @@ public class ArticleControllerTests {
         }
 
         @Test
-        public void testRemoveArticle() throws Exception {
+        public void testRemoveArticle_success() throws Exception {
                 // save Article to repository
                 Long id = articleRepository.save(new Article("Lorem Ipsum", "https://somelink.com", "Dolor amet",
                                 "Nullam Volutpat", new Date(), "https://imagelink.com")).getId();
@@ -114,9 +116,9 @@ public class ArticleControllerTests {
         }
 
         @Test
-        public void testAddBookmark() throws Exception {
+        public void testAddBookmark_success() throws Exception {
                 // Add the bookmark
-                MvcResult result = mockMvc.perform(post("/addBookmark")
+                MvcResult result = mockMvc.perform(post("/api/bookmark/add")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser1.getId() + ""))
@@ -138,7 +140,7 @@ public class ArticleControllerTests {
         @Test
         public void testAddBookmark_duplicate() throws Exception {
                 // Add bookmark for testUser1
-                MvcResult result1 = mockMvc.perform(post("/addBookmark")
+                MvcResult result1 = mockMvc.perform(post("/api/bookmark/add")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser1.getId() + ""))
@@ -153,7 +155,7 @@ public class ArticleControllerTests {
                 assertTrue(bookmark1.isPresent());
 
                 // Add bookmark for testUser2 with the same article
-                MvcResult result2 = mockMvc.perform(post("/addBookmark")
+                MvcResult result2 = mockMvc.perform(post("/api/bookmark/add")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser2.getId() + ""))
@@ -177,15 +179,13 @@ public class ArticleControllerTests {
         }
 
         @Test
-        public void testRemoveBookmark() throws Exception {
+        public void testRemoveBookmark_success() throws Exception {
                 // Create and save test article directly in the repository
                 Article article = new Article("Lorem Ipsum", "https://somelink.com", "Dolor amet",
                                 "Nullam Volutpat", new Date(), "https://imagelink.com");
                 articleRepository.save(article);
                 // Create and save a bookmark for testUser1 directly in the repository
-                Bookmark bookmark = new Bookmark();
-                bookmark.setUser(testUser1);
-                bookmark.setArticle(article);
+                Bookmark bookmark = new Bookmark(testUser1, article);
                 bookmarkRepository.save(bookmark);
                 Long bookmarkId = bookmark.getId(); // Store the bookmark ID
 
@@ -193,7 +193,7 @@ public class ArticleControllerTests {
                 assertTrue(bookmarkRepository.findById(bookmarkId).isPresent());
 
                 // Perform POST request to remove the bookmark
-                mockMvc.perform(post("/removeBookmark")
+                mockMvc.perform(post("/api/bookmark/remove")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(testArticle)
                                 .param("userId", testUser1.getId() + ""))
@@ -201,5 +201,37 @@ public class ArticleControllerTests {
 
                 // Assert that the bookmark has been deleted
                 assertFalse(bookmarkRepository.findById(bookmarkId).isPresent());
+        }
+
+        @Test
+        public void testSearchArticle_success() throws Exception {
+                Article article = new Article("Lorem Ipsum", "https://somelink.com", "Dolor amet",
+                                "Nullam Volutpat", new Date(), "https://imagelink.com");
+                articleRepository.save(article);
+
+                // Check whether the returned webpage contains the article link
+                mockMvc.perform(get("/article/search")
+                                .param("keyword", "Lorem Ipsum")
+                                .param("page", "0"))
+                                .andExpect(status().isOk())
+                                .andExpect(content().string(containsString("https://somelink.com")));
+        }
+
+        @Test
+        public void testSearchArticle_notFound() throws Exception {
+                // Nothing should be found as articles database is empty
+                mockMvc.perform(get("/article/search")
+                                .param("keyword", "Lorem Ipsum")
+                                .param("page", "0"))
+                                .andExpect(status().isOk())
+                                .andExpect(content().string(containsString("No results found.")));
+        }
+
+        @Test
+        public void testDownloadArticle_success() throws Exception {
+                mockMvc.perform(get("/downloadArticle")
+                                .param("link", "https://www.google.com"))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType("application/zip")); // Check if response is a ZIP file
         }
 }
