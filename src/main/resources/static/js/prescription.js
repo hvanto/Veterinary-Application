@@ -22,12 +22,16 @@ document.addEventListener('alpine:init', () => {
         editPrescription: {},
         showRefillModal: false,
         prescriptionId: null,
-        userName: '',
+        firstName: '',
+        lastName: '',
         userPhone: '',
         userId: 0,
         cost: 0,
         address: '',
         creditCardNumber: '',
+        expiryDate: '',
+        cvv: null,
+        submissionDate: new Date(),
 
         init() {
             this.fetchInitialData();
@@ -349,11 +353,15 @@ document.addEventListener('alpine:init', () => {
                 .then(response => {
                     const prescription = response.data;
                     this.prescriptionName = this.prescription.prescription;
-                    this.userName = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).firstName : '';
+                    this.firstName = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).firstName : '';
+                    this.lastName = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).lastName : '';
                     this.userPhone = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).contact : '';
                     this.cost = prescription.cost || 0;
                     this.address = '';
                     this.creditCardNumber = '';
+                    this.expiryDate = '';
+                    this.cvv = '';
+                    //this.submissionDate;
 
                     this.showRefillModal = true;
                 })
@@ -382,13 +390,17 @@ document.addEventListener('alpine:init', () => {
         submitRefill() {
             this.userId = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).id : '';
             const refillData = {
-                userName: this.userName,
+                firstName: this.firstName,
+                lastName: this.lastName,
                 userPhone: this.userPhone,
                 address: this.address,
                 creditCardNumber: this.creditCardNumber,
                 cost: this.cost,
                 prescription: { id: this.prescriptionId },  // Include prescription ID if needed
-                userId: this.userId
+                userId: this.userId,
+                expiryDate: this.expiryDate,
+                cvv: this.cvv,
+                submissionDate: this.submissionDate
             };
 
             fetch(`/api/prescriptions/refills/add`, {

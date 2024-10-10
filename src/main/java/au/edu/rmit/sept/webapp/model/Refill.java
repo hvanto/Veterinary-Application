@@ -15,8 +15,11 @@ public class Refill {
     @JoinColumn(name = "prescription_id", nullable = false)
     private Prescription prescription;
 
-    @Column(name = "user_name", nullable = false)
-    private String userName;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column(name = "user_phone", nullable = false)
     private String userPhone;
@@ -36,18 +39,33 @@ public class Refill {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "cvv", nullable = false)
+    private Long cvv;
+
+    @Column(name = "expiry_date", nullable = false)
+    private String expiryDate;
+
+    @Column(name = "submission_date", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP) // Use this for timestamp
+    private Date submissionDate; // New field for submission date
+
+
     // Constructors
     public Refill() {}
 
-    public Refill(Prescription prescription, String userName, String userPhone, String address, String creditCardNumber, double cost, Long userId) {
+    public Refill(Prescription prescription, String firstName, String lastName, String userPhone, String address, String creditCardNumber, double cost, Long userId, String expiryDate, Long cvv, Date submissionDate) {
         this.prescription = prescription;
-        this.userName = userName;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.userPhone = userPhone;
         this.address = address;
         this.creditCardNumber = creditCardNumber;
+        this.cvv = cvv;
         this.cost = cost;
         this.fulfilled = false;
         this.userId = userId;
+        this.expiryDate = expiryDate;
+        this.submissionDate = submissionDate;
     }
 
     // Getters and Setters
@@ -67,12 +85,20 @@ public class Refill {
         this.prescription = prescription;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getUserPhone() {
@@ -121,5 +147,29 @@ public class Refill {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(String expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public Long getCvv() {
+        return cvv;
+    }
+
+    public void setCvv(Long cvv) {
+        this.cvv = cvv;
+    }
+
+    public Date getSubmissionDate() {
+        return submissionDate;
+    }
+
+    public void setSubmissionDate(Date submissionDate) {
+        this.submissionDate = submissionDate;
     }
 }

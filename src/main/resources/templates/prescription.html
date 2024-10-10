@@ -287,8 +287,12 @@
                     <input type="text" id="prescriptionName" x-model="prescriptionName" readonly class="input-field bg-gray-200">
                 </div>
                 <div class="mb-4">
-                    <label for="userName" class="block text-gray-700">Name</label>
-                    <input type="text" id="userName" x-model="userName" required class="input-field">
+                    <label for="firstName" class="block text-gray-700">First Name</label>
+                    <input type="text" id="firstName" x-model="firstName" required class="input-field">
+                </div>
+                <div class="mb-4">
+                    <label for="lastName" class="block text-gray-700">Last Name</label>
+                    <input type="text" id="lastName" x-model="lastName" required class="input-field">
                 </div>
                 <div class="mb-4">
                     <label for="userPhone" class="block text-gray-700">Phone</label>
@@ -300,11 +304,29 @@
                 </div>
                 <div class="mb-4">
                     <label for="address" class="block text-gray-700">Address</label>
-                    <input type="text" id="address" x-model="address" required class="input-field">
+                    <input type="text" id="address" x-model="address" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" minlength="10"
+                           placeholder="Enter your full address" >
+                    <p class="text-sm text-red-500" x-show="address.length < 10">Address must be at least 10 characters long.</p>
                 </div>
                 <div class="mb-4">
                     <label for="creditCardNumber" class="block text-gray-700">Credit Card Number</label>
-                    <input type="text" id="creditCardNumber" x-model="creditCardNumber" required class="input-field">
+                    <input type="text" id="creditCardNumber" x-model="creditCardNumber" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" pattern="^[0-9]{16}$"
+                           maxlength="16"
+                           placeholder="Enter 16-digit credit card number">
+                    <p class="text-sm text-red-500" x-show="!creditCardNumber.match(/^[0-9]{16}$/)">Enter a valid 16-digit credit card number.</p>
+                </div>
+
+                <div class="mb-4">
+                    <label for="expiryDate" class="block text-gray-700">Expiry Date (MM/YY)</label>
+                    <input type="text" id="expiryDate" x-model="expiryDate" required pattern="^(0[1-9]|1[0-2])\/?([0-9]{2})$" placeholder="MM/YY" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" maxlength="5">
+                    <p class="text-sm text-red-500" x-show="!expiryDate.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)">Enter a valid expiry date (MM/YY).</p>
+                </div>
+                <div class="mb-4">
+                    <label for="cvv" class="block text-gray-700">CVV</label>
+                    <input type="text" id="cvv" x-model="cvv" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" pattern="^[0-9]{3,4}$"
+                           maxlength="4"
+                           placeholder="Enter 3 or 4-digit CVV">
+                    <p class="text-sm text-red-500" x-show="!cvv.match(/^[0-9]{3,4}$/)">Enter a valid 3- or 4-digit CVV.</p>
                 </div>
                 <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Submit Refill</button>
                 <button type="button" @click="closeRefillModal()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Cancel</button>
