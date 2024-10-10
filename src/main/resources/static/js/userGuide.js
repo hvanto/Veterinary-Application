@@ -455,3 +455,43 @@ function startArticleGuide() {
         guide.start()
     });
 }
+
+
+// Automatically start the guide when the page is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const user = localStorage.getItem("loggedInUser")
+    const completedGuide = getGuideStatus();
+
+    // Check if user is logged in and not completed the guide
+    if (user && !completedGuide) {
+        const currentGuide = localStorage.getItem("currentGuide");
+
+        // Check if there is guide to resume
+        if (currentGuide) {
+            if (currentGuide === "medicalRecords") {
+                localStorage.removeItem("currentGuide");
+                startMedicalRecordsGuide();
+
+            } else if (currentGuide === "prescriptions") {
+                localStorage.removeItem("currentGuide");
+                startPrescriptionGuide();
+
+            } else if (currentGuide === "bookAppointment") {
+                localStorage.removeItem("currentGuide");
+                startBookAppointmentGuide();
+
+            } else if (currentGuide === "article") {
+                localStorage.removeItem("currentGuide");
+                startArticleGuide();
+            }
+
+        } else {
+            // Redirect user to home page if there is no current guide to resume
+            if (window.location.pathname !== "/") {
+                window.location.href = "/";
+            } else {
+                startDashBoardGuide();
+            }
+        }
+    }
+});
