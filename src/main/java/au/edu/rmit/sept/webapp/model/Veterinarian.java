@@ -19,7 +19,7 @@ public class Veterinarian {
     private String LastName;
 
     @Column(unique = true)
-    private String Email;
+    private String email;
     private String Contact;
     private String Image;
 
@@ -75,7 +75,7 @@ public class Veterinarian {
     public Veterinarian(String firstName, String lastName, String email, String contact, String password) {
         FirstName = firstName;
         LastName = lastName;
-        Email = email;
+        this.email = email;
         Contact = contact;
         Password = password;
     }
@@ -109,12 +109,16 @@ public class Veterinarian {
         LastName = lastName;
     }
 
+    public String getFullName() {
+        return this.FirstName + " " + this.LastName;
+    }
+
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
 
     public String getContact() {

@@ -117,4 +117,76 @@ public class PageResolverController {
 
          return "index";
      }
+
+    @GetMapping("/veterinarian-signup")
+    public String veterinarianSignup(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-signup");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
+    @GetMapping("/veterinarian-login")
+    public String veterinarianLogin(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-login");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
+    @GetMapping("/veterinarian-dashboard")
+    public String veterinarianDashboard(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-dashboard");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "veterinarian-dashboard";
+    }
+
+    @GetMapping("/veterinarian-upload-records")
+    public String veterinarianUploadRecords(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-upload-records");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "veterinarian-upload-records";
+    }
+
+    @GetMapping("/veterinarian-appointments")
+    public String veterinarianAppointments(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-appointments");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "veterinarian-appointments";
+    }
+
+    @GetMapping("/veterinarian-prescription")
+    public String veterinarianPrescription(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "veterinarian-prescription");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "veterinarian-prescription";
+    }
 }

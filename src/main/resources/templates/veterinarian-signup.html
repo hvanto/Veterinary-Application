@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Veterinarian Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+<main th:fragment="main" class="max-w-screen-2xl mx-auto flex justify-center items-center h-screen signup-content">
+
+    <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md signup-form">
+        <h1 class="text-2xl font-semibold text-center mb-6">Veterinarian Sign Up</h1>
+        <form id="vetSignupForm" class="space-y-6" onsubmit="return false">
+            <!-- First Name -->
+            <div class="form-group">
+                <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                <input type="text" id="firstName" name="firstName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="firstNameError" class="text-red-600 text-sm mt-2 hidden">First name must contain only
+                    letters.</p>
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-group">
+                <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                <input type="text" id="lastName" name="lastName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="lastNameError" class="text-red-600 text-sm mt-2 hidden">Last name must contain only letters.</p>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="email"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="emailError" class="text-red-600 text-sm mt-2 hidden">Please enter a valid email address.</p>
+                <p id="emailTakenError" class="text-red-600 text-sm mt-2 hidden">Email already exists.</p>
+            </div>
+
+            <!-- Contact (Mobile) -->
+            <div class="form-group">
+                <label for="contact" class="block text-sm font-medium text-gray-700">Contact</label>
+                <input type="text" id="contact" name="contact"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="contactError" class="text-red-600 text-sm mt-2 hidden">Contact must contain only numbers.</p>
+            </div>
+
+            <!-- Clinic Name (optional for independent veterinarians) -->
+            <div class="form-group">
+                <label for="clinicName" class="block text-sm font-medium text-gray-700">Clinic Name (Optional)</label>
+                <input type="text" id="clinicName" name="clinicName"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <p id="clinicNameError" class="text-red-600 text-sm mt-2 hidden">Clinic name is required.</p>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" name="password"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="passwordErrorLength" class="text-red-600 text-sm mt-2 hidden">Password must be at least 8
+                    characters long.</p>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                       required>
+                <p id="passwordError" class="text-red-600 text-sm mt-2 hidden">Passwords do not match.</p>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="button"
+                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onclick="validateVetForm()">Sign Up
+            </button>
+        </form>
+
+        <!-- Response Message -->
+        <div id="responseMessage" class="text-center mt-6"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        function validateVetForm() {
+            const firstNameError = document.getElementById('firstNameError');
+            const lastNameError = document.getElementById('lastNameError');
+            const emailError = document.getElementById('emailError');
+            const emailTakenError = document.getElementById('emailTakenError');
+            const contactError = document.getElementById('contactError');
+            const clinicNameError = document.getElementById('clinicNameError');
+            const passwordError = document.getElementById('passwordError');
+            const passwordErrorLength = document.getElementById('passwordErrorLength');
+            const responseMessage = document.getElementById('responseMessage');
+
+            // Reset response message between submissions
+            responseMessage.innerText = '';
+            responseMessage.classList.remove('text-red-600', 'text-green-600');
+
+            firstNameError.classList.add('hidden');
+            lastNameError.classList.add('hidden');
+            emailError.classList.add('hidden');
+            emailTakenError.classList.add('hidden');
+            contactError.classList.add('hidden');
+            clinicNameError.classList.add('hidden');
+            passwordError.classList.add('hidden');
+            passwordErrorLength.classList.add('hidden');
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const contact = document.getElementById('contact').value.trim();
+            const clinicName = document.getElementById('clinicName').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            const namePattern = /^[A-Za-z]+$/;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const contactPattern = /^[0-9]+$/;
+
+            let valid = true;
+
+            if (!namePattern.test(firstName)) {
+                firstNameError.classList.remove('hidden');
+                valid = false;
+            }
+
+            if (!namePattern.test(lastName)) {
+                lastNameError.classList.remove('hidden');
+                valid = false;
+            }
+
+            if (!emailPattern.test(email)) {
+                emailError.classList.remove('hidden');
+                valid = false;
+            }
+
+            if (!contactPattern.test(contact)) {
+                contactError.classList.remove('hidden');
+                valid = false;
+            }
+
+            if (password.length < 8) {
+                passwordErrorLength.classList.remove('hidden');
+                valid = false;
+            }
+
+            if (password !== confirmPassword) {
+                passwordError.classList.remove('hidden');
+                valid = false;
+            }
+
+            if (valid) {
+                submitVetForm();
+            }
+        }
+
+        function submitVetForm() {
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                contact: document.getElementById('contact').value,
+                clinicName: document.getElementById('clinicName').value, // Ensure clinicName is passed here
+                password: document.getElementById('password').value
+            };
+
+            axios.post('/api/veterinarian/signup', formData)
+                .then(function (response) {
+                    const responseMessage = document.getElementById('responseMessage');
+                    responseMessage.innerText = "Veterinarian signed up successfully!";
+                    responseMessage.classList.add('text-green-600');
+
+                    // Redirect to veterinarian login after success
+                    setTimeout(() => {
+                        window.location.href = '/veterinarian-login';
+                    }, 2000);
+                })
+                .catch(function (error) {
+                    const responseMessage = document.getElementById('responseMessage');
+                    if (error.response && error.response.data === "Clinic not found. Please register the clinic first.") {
+                        responseMessage.innerText = "Error: " + error.response.data;
+                        responseMessage.classList.add('text-red-600');
+                    } else if (error.response && error.response.data === 'Email already exists') {
+                        document.getElementById('emailTakenError').classList.remove('hidden');
+                    } else {
+                        responseMessage.innerText = "Error: Signup failed. Please try again.";
+                        responseMessage.classList.add('text-red-600');
+                    }
+                });
+        }
+    </script>
+
+</main>
+</body>
+</html>

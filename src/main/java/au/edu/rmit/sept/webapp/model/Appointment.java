@@ -29,17 +29,17 @@ public class Appointment {
     private String Notes;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference("user-appointments")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "veterinarian_id")
+    @JoinColumn(name = "veterinarian_id", nullable = false)
     @JsonBackReference("veterinarian-appointments")
     private Veterinarian veterinarian;
 
     @ManyToOne
-    @JoinColumn(name = "pet_id")
+    @JoinColumn(name = "pet_id", nullable = false)
     @JsonBackReference("pet-appointments")
     private Pet pet;
 

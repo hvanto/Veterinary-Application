@@ -1,27 +1,148 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="en"-->
-<!--        xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>Title</title>-->
-<!--</head>-->
-<!--<body>-->
-    <div th:fragment="main" class="grid grid-cols-1 md:grid-cols-3 gap-4 home-content">
-        <div class="box rounded-lg bg-red-500 text-white p-6 text-center shadow-lg cursor-pointer">
-            <h2>Medical Records</h2>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>VetCare - Your Pet's Health Companion</title>
+</head>
+
+<body class="bg-gray-50">
+
+<!-- Main Fragment -->
+<div th:fragment="main">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <!-- Faded Overlay -->
+        <div class="hero-overlay"></div>
+
+        <!-- Hero Text Content -->
+        <div class="hero-text">
+            <h1>Working with you for the health and happiness of your pet</h1>
+            <p>Because they deserve to be pampered.</p>
         </div>
-        <div class="box rounded-lg bg-orange-400 text-white p-6 text-center shadow-lg cursor-pointer">
-            <h2>Prescriptions</h2>
+    </section>
+
+    <!-- Service Selection (Service Cards) -->
+    <section class="pt-20 pb-16 bg-gray-100">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">Select a Service</h2>
         </div>
-        <div class="box rounded-lg bg-yellow-400 text-white p-6 text-center shadow-lg cursor-pointer">
-            <h2>Track Your Orders</h2>
+
+        <div class="flex flex-wrap justify-center gap-6 p-4 bg-gray-50 rounded-lg container mx-auto">
+            <a th:href="@{/medical-records}" class="block">
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
+                    <div class="block">
+                        <div class="bg-blue-100 p-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Medical Records</h3>
+                        </div>
+                        <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                            <img src="/assets/Medical-Record.jpg" alt="Medical Records" class="object-contain h-full w-full">
+                        </div>
+                        <div class="p-4 text-center">
+                            <p class="text-gray-600">Access and manage all your pet's medical history.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Service Card: Prescriptions -->
+            <a th:href="@{/prescription}" class="block">
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
+                <div class="block">
+                    <div class="bg-orange-100 p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Prescriptions</h3>
+                    </div>
+                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                        <img src="/assets/prescription_service.jpg" alt="Prescriptions" class="object-contain h-full w-full">
+                    </div>
+                    <div class="p-4 text-center">
+                        <p class="text-gray-600">Review, refill, and track your pet's prescriptions.</p>
+                    </div>
+                </div>
+            </div>
+            </a>
+
+            <!-- Service Card: Manage Appointments -->
+            <a th:href="@{/book-appointment}" class="block">
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
+                <div class="block">
+                    <div class="bg-green-100 p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Book & Manage Appointments</h3>
+                    </div>
+                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                        <img src="/assets/manage_appointment_service.png" alt="Appointments" class="object-contain h-full w-full">
+                    </div>
+                    <div class="p-4 text-center">
+                        <p class="text-gray-600">Book and Manage your pet's appointments with the veterinarians. </p>
+                    </div>
+                </div>
+            </div>
+            </a>
+
+            <!-- Service Card: Educational Services -->
+            <a th:href="@{/article}" class="block">
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
+                <div class="block">
+                    <div class="bg-yellow-100 p-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Educational Resources</h3>
+                    </div>
+                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                        <img src="/assets/educational_resources_service.jpeg" alt="Educational Resources" class="object-contain h-full w-full">
+                    </div>
+                    <div class="p-4 text-center">
+                        <p class="text-gray-600">View Educational Resources for learn more about pampering your pet. </p>
+                    </div>
+                </div>
+            </div>
+            </a>
+
         </div>
-        <div class="box rounded-lg bg-green-500 text-white p-6 text-center shadow-lg cursor-pointer">
-            <h2>Book an appointment</h2>
-        </div>
-        <div class="box rounded-lg bg-blue-500 text-white p-6 text-center shadow-lg cursor-pointer">
-            <h2>Manage appointments</h2>
-        </div>
-    </div>
-<!--</body>-->
-<!--</html>-->
+    </section>
+    <style>
+        /* Styling the Hero Section */
+        .hero-section {
+            position: relative;
+            background-image: url('/assets/Home_vet.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Overlay for fading effect */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.6); /* Slight fade to make text visible */
+        }
+
+        /* Styling for text */
+        .hero-text {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .hero-text h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #2d3748; /* Dark gray color for readability */
+        }
+
+        .hero-text p {
+            font-size: 2rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+    </style>
+</div>
+
+</body>
+</html>

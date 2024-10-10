@@ -126,7 +126,13 @@ public class FileGenerationService {
             table.addCell(createTableCell(history.getEventDate().toString()));
             table.addCell(createTableCell(history.getTreatment()));
             table.addCell(createTableCell(history.getPractitioner()));
-            table.addCell(createTableCell(history.getVeterinarian()));
+
+            // Get the full name of the veterinarian
+            Veterinarian vet = history.getVeterinarian();
+            String vetFullName = vet.getFirstName() + " " + vet.getLastName();
+
+            table.addCell(createTableCell(vetFullName)); // Add veterinarian's full name to the table
+
             table.addCell(createTableCell(history.getNotes()));
         }
 

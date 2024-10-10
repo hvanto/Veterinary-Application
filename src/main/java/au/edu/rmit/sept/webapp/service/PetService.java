@@ -12,6 +12,7 @@ public class PetService {
 
     @Autowired
     private PetRepository petRepository;
+    
 
     public Pet getPetById(Long petId) {
         return petRepository.findById(petId).orElse(null);
@@ -27,5 +28,13 @@ public class PetService {
 
     public void save(Pet pet) {
         petRepository.save(pet);
+    }
+
+    public void delete(Long petId) {
+        petRepository.deleteById(petId);
+    }
+
+    public List<Pet> getPetsByVeteterinarianId(Long veterinarianId) {
+        return petRepository.findByVeterinarianId(veterinarianId);
     }
 }
