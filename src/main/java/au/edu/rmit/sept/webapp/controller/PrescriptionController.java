@@ -1,13 +1,20 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.model.Prescription;
 import au.edu.rmit.sept.webapp.model.PrescriptionHistory;
+import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.repository.PrescriptionRepository;
+import au.edu.rmit.sept.webapp.repository.UserRepository;
+import au.edu.rmit.sept.webapp.service.PetService;
+import au.edu.rmit.sept.webapp.service.UserService;
+import au.edu.rmit.sept.webapp.repository.PetRepository;
 import au.edu.rmit.sept.webapp.repository.PrescriptionHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,14 +24,20 @@ import java.util.Optional;
 public class PrescriptionController {
 
     @Autowired
+    private PetService petService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
     private PrescriptionRepository prescriptionRepository;
 
     @Autowired
     private PrescriptionHistoryRepository prescriptionHistoryRepository;
 
-
     /**
      * Fetches all prescriptions. Seeds data if no prescriptions are found.
+     * 
      * @return List of all prescriptions.
      */
     @GetMapping("/all")
@@ -39,7 +52,7 @@ public class PrescriptionController {
         if (prescriptions.isEmpty()) {
             System.out.println("No prescriptions found. Seeding data...");
             seedPrescriptions();
-            prescriptions = prescriptionRepository.findAll();  // Fetch again after seeding
+            prescriptions = prescriptionRepository.findAll(); // Fetch again after seeding
         }
 
         return prescriptions;
@@ -47,6 +60,7 @@ public class PrescriptionController {
 
     /**
      * Fetches all prescription history records. Seeds data if none are found.
+     * 
      * @return List of all prescription histories.
      */
     @GetMapping("/history/all")
@@ -61,7 +75,7 @@ public class PrescriptionController {
         if (histories.isEmpty()) {
             System.out.println("No prescription histories found. Seeding data...");
             seedPrescriptionHistories();
-            histories = prescriptionHistoryRepository.findAll();  // Fetch again after seeding
+            histories = prescriptionHistoryRepository.findAll(); // Fetch again after seeding
         }
 
         return histories;
@@ -70,7 +84,16 @@ public class PrescriptionController {
     /**
      * Seeds default prescriptions into the database.
      */
-    private void seedPrescriptions() {
+    private void seedPrescriptions(Long userId) {
+        System.out.println("Seeding data for user with ID: " + userId);
+
+        User user = userService.findById(userId).orElse(null);
+
+        // Seed pets
+        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch",
+                "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
+        petService.save(pet);
+
         // Set dummy start and end dates
         Date startDate1 = new Date();
         Date endDate1 = new Date();
@@ -80,24 +103,26 @@ public class PrescriptionController {
 
         // Create prescription records
         Prescription prescription1 = new Prescription(
+                user,
+                pet,
                 "Amoxicillin",
                 "Dr. John Doe",
                 "Dr. Sarah Lee",
                 "250mg twice a day",
                 startDate1,
                 endDate1,
-                "For bacterial infection"
-        );
+                "For bacterial infection");
 
         Prescription prescription2 = new Prescription(
+                user,
+                pet,
                 "Metronidazole",
                 "Dr. Jane Smith",
                 "Dr. Emily Brown",
                 "500mg once a day",
                 startDate2,
                 endDate2,
-                "For gastrointestinal issues"
-        );
+                "For gastrointestinal issues");
 
         // Save the records to the database
         prescriptionRepository.save(prescription1);
@@ -109,7 +134,16 @@ public class PrescriptionController {
     /**
      * Seeds default prescription history into the database.
      */
-    private void seedPrescriptionHistories() {
+    private void seedPrescriptionHistories(Long userId) {
+        System.out.println("Seeding data for user with ID: " + userId);
+
+        User user = userService.findById(userId).orElse(null);
+
+        // Seed pets
+        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch",
+                "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
+        petService.save(pet);
+
         // Set dummy start and end dates
         Date startDate1 = new Date();
         Date endDate1 = new Date();
@@ -119,24 +153,26 @@ public class PrescriptionController {
 
         // Create prescription history records
         PrescriptionHistory history1 = new PrescriptionHistory(
+                user,
+                pet,
                 "Dr. Alice Green",
                 "Amoxicillin",
                 "Vet A",
                 "250mg twice a day",
                 startDate1,
                 endDate1,
-                "Follow up in a week"
-        );
+                "Follow up in a week");
 
         PrescriptionHistory history2 = new PrescriptionHistory(
+                user,
+                pet,
                 "Dr. Bob White",
                 "Metronidazole",
                 "Vet B",
                 "500mg once a day",
                 startDate2,
                 endDate2,
-                "Monitor for side effects"
-        );
+                "Monitor for side effects");
 
         // Save the records to the database
         prescriptionHistoryRepository.save(history1);
@@ -147,6 +183,7 @@ public class PrescriptionController {
 
     /**
      * Adds a new prescription.
+     * 
      * @param prescription The prescription to be added.
      * @return The added prescription.
      */
@@ -158,7 +195,8 @@ public class PrescriptionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long id, @RequestBody Prescription updatedPrescription) {
+    public ResponseEntity<Prescription> updatePrescription(@PathVariable Long id,
+            @RequestBody Prescription updatedPrescription) {
         return prescriptionRepository.findById(id)
                 .map(prescription -> {
                     // Update fields
@@ -169,7 +207,7 @@ public class PrescriptionController {
                     prescription.setStartDate(updatedPrescription.getStartDate());
                     prescription.setEndDate(updatedPrescription.getEndDate());
                     prescription.setDescription(updatedPrescription.getDescription());
-                    //prescription.setOrderTracking(updatedPrescription.getOrderTracking());
+                    // prescription.setOrderTracking(updatedPrescription.getOrderTracking());
 
                     Prescription savedPrescription = prescriptionRepository.save(prescription);
                     return ResponseEntity.ok(savedPrescription);
@@ -179,6 +217,7 @@ public class PrescriptionController {
 
     /**
      * Deletes a prescription.
+     * 
      * @param id The ID of the prescription to be deleted.
      */
     @DeleteMapping("/{id}")

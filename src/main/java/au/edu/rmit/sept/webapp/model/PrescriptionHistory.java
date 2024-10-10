@@ -11,11 +11,13 @@ public class PrescriptionHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "pet_id", nullable = false)
-    private Long petId;
+    @ManyToOne
+    @JoinColumn(name = "pet_id", nullable = false)
+    private Pet pet;
 
     @Column(name = "practitioner", nullable = false)
     private String practitioner;
@@ -43,9 +45,9 @@ public class PrescriptionHistory {
     // Constructors
     public PrescriptionHistory() {}
 
-    public PrescriptionHistory(Long userId, Long petId, String practitioner, String prescription, String vet, String dosage, Date startDate, Date endDate, String moreInformation) {
-        this.userId = userId;
-        this.petId = petId;
+    public PrescriptionHistory(User user, Pet pet, String practitioner, String prescription, String vet, String dosage, Date startDate, Date endDate, String moreInformation) {
+        this.user = user;
+        this.pet = pet;
         this.practitioner = practitioner;
         this.prescription = prescription;
         this.vet = vet;
@@ -55,9 +57,9 @@ public class PrescriptionHistory {
         this.moreInformation = moreInformation;
     }
 
-    public PrescriptionHistory(Long userId, Long petId, String practitioner, String prescription, String dosage, Date startDate, Date endDate, String moreInformation) {
-        this.userId = userId;
-        this.petId = petId;
+    public PrescriptionHistory(User user, Pet pet, String practitioner, String prescription, String dosage, Date startDate, Date endDate, String moreInformation) {
+        this.user = user;
+        this.pet = pet;
         this.practitioner = practitioner;
         this.prescription = prescription;
         this.dosage = dosage;
@@ -75,20 +77,20 @@ public class PrescriptionHistory {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Long getPetId() {
-        return petId;
+    public Pet getPet() {
+        return pet;
     }
 
-    public void setPetId(Long petId) {
-        this.petId = petId;
+    public void setPet(Pet pet) {
+        this.pet = pet;
     }
 
     public String getPractitioner() {
