@@ -52,6 +52,9 @@ public class User {
     @Column(columnDefinition = "TINYINT(1)")
     private boolean deleted;
 
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean completedGuide = false;
+
     @PrePersist
     protected void onCreate() {
         this.createdOn = new Date();
@@ -169,4 +172,8 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public boolean isCompletedGuide() { return completedGuide; }
+
+    public void setCompletedGuide(boolean completedGuide) { this.completedGuide = completedGuide; }
 }
