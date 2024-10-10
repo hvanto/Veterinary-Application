@@ -55,7 +55,11 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            axios.get(`/api/prescriptions/all`)
+            axios.get(`/api/prescriptions/all`, {
+                params: {
+                    petId: this.selectedPet.id
+                }
+            })
                 .then(response => {
                     this.prescriptionsCurrent = response.data; // Assuming the API returns a list of current prescriptions
                 })
@@ -71,7 +75,11 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            axios.get(`/api/prescriptions/history/all`)
+            axios.get(`/api/prescriptions/history/all`, {
+                params: {
+                    petId: this.selectedPet.id
+                }
+            })
                 .then(response => {
                     this.prescriptionsHistory = response.data; // Assuming the API returns a list of prescription history
                 })
@@ -81,16 +89,16 @@ document.addEventListener('alpine:init', () => {
         },
 
         fetchPetDetails(selectedPetId) {
-             axios.get(`/api/medical-records/${selectedPetId}`)
-                 .then(response => {
-                 const data = response.data;
-                 this.selectedPet = data.selectedPet;
-                 this.fetchCurrentPrescriptions(); // Fetch current prescriptions
-                 this.fetchPrescriptionHistory();   // Fetch prescription history
-                 })
-                 .catch(error => {
-                     console.error('Error', error);
-                 });
+            axios.get(`/api/medical-records/${selectedPetId}`)
+                .then(response => {
+                    const data = response.data;
+                    this.selectedPet = data.selectedPet;
+                    this.fetchCurrentPrescriptions(); // Fetch current prescriptions
+                    this.fetchPrescriptionHistory();   // Fetch prescription history
+                })
+                .catch(error => {
+                    console.error('Error', error);
+                });
         },
 
         formatDate(date) {
@@ -99,20 +107,20 @@ document.addEventListener('alpine:init', () => {
         },
 
         toggleSection(section) {
-                    if (section === 'prescriptionsCurrent') {
-                        this.prescriptionOpen = !this.prescriptionOpen;
-                    } else if (section === 'prescriptionsHistory') {
-                        this.prescriptionHistoryOpen = !this.prescriptionHistoryOpen;
-                    }
+            if (section === 'prescriptionsCurrent') {
+                this.prescriptionOpen = !this.prescriptionOpen;
+            } else if (section === 'prescriptionsHistory') {
+                this.prescriptionHistoryOpen = !this.prescriptionHistoryOpen;
+            }
         },
 
         // Computed property for filtered current prescriptions
         get filteredCurrentPrescriptions() {
             return this.prescriptionsCurrent.filter(prescription => {
                 return prescription.practitioner.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
-                       prescription.prescription.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
-                       prescription.vet.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
-                       prescription.dosage.toLowerCase().includes(this.searchPrescriptions.toLowerCase());
+                    prescription.prescription.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
+                    prescription.vet.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
+                    prescription.dosage.toLowerCase().includes(this.searchPrescriptions.toLowerCase());
             }).map(prescription => {
                 // Optionally format dates or modify prescription properties before returning
                 return {
@@ -127,9 +135,9 @@ document.addEventListener('alpine:init', () => {
         get filteredPrescriptionHistory() {
             return this.prescriptionsHistory.filter(prescription => {
                 return prescription.practitioner.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
-                       prescription.prescription.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
-                       prescription.vet.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
-                       prescription.dosage.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase());
+                    prescription.prescription.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
+                    prescription.vet.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
+                    prescription.dosage.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase());
             }).map(prescription => {
                 // Optionally format dates or modify prescription properties before returning
                 return {
@@ -255,7 +263,7 @@ document.addEventListener('alpine:init', () => {
                     console.error('Error adding prescription:', error);
                 });
         },
-         // Method to open the edit prescription modal
+        // Method to open the edit prescription modal
         openEditPrescriptionModal(prescription) {
             this.editPrescription = { ...prescription }; // Pre-fill the edit form
             this.editPrescription.startDate = this.formatDateForInput(new Date(prescription.startDate)); // Format start date

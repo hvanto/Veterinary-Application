@@ -38,21 +38,23 @@ public class PrescriptionController {
     /**
      * Fetches all prescriptions. Seeds data if no prescriptions are found.
      * 
-     * @return List of all prescriptions.
+     * @return List of all prescriptions of a user.
      */
     @GetMapping("/all")
     @ResponseBody
-    public List<Prescription> getAllPrescriptions() {
+    public List<Prescription> getAllPrescriptions(@RequestParam Long petId) {
         System.out.println("Fetching all prescriptions");
 
+        Pet pet = petService.getPetById(petId);
+
         // Get prescriptions from repository
-        List<Prescription> prescriptions = prescriptionRepository.findAll();
+        List<Prescription> prescriptions = prescriptionRepository.findByPet(pet);
 
         // If no prescriptions exist, seed data
         if (prescriptions.isEmpty()) {
             System.out.println("No prescriptions found. Seeding data...");
-            seedPrescriptions();
-            prescriptions = prescriptionRepository.findAll(); // Fetch again after seeding
+            seedPrescriptions(petId);
+            prescriptions = prescriptionRepository.findByPet(pet); // Fetch again after seeding
         }
 
         return prescriptions;
@@ -61,21 +63,23 @@ public class PrescriptionController {
     /**
      * Fetches all prescription history records. Seeds data if none are found.
      * 
-     * @return List of all prescription histories.
+     * @return List of all prescription histories of a user.
      */
     @GetMapping("/history/all")
     @ResponseBody
-    public List<PrescriptionHistory> getAllPrescriptionHistories() {
+    public List<PrescriptionHistory> getAllPrescriptionHistories(@RequestParam Long petId) {
         System.out.println("Fetching all prescription histories");
 
+        Pet pet = petService.getPetById(petId);
+
         // Get prescription history from repository
-        List<PrescriptionHistory> histories = prescriptionHistoryRepository.findAll();
+        List<PrescriptionHistory> histories = prescriptionHistoryRepository.findByPet(pet);
 
         // If no prescription histories exist, seed data
         if (histories.isEmpty()) {
             System.out.println("No prescription histories found. Seeding data...");
-            seedPrescriptionHistories();
-            histories = prescriptionHistoryRepository.findAll(); // Fetch again after seeding
+            seedPrescriptionHistories(petId);
+            histories = prescriptionHistoryRepository.findByPet(pet); // Fetch again after seeding
         }
 
         return histories;
@@ -84,15 +88,10 @@ public class PrescriptionController {
     /**
      * Seeds default prescriptions into the database.
      */
-    private void seedPrescriptions(Long userId) {
-        System.out.println("Seeding data for user with ID: " + userId);
+    private void seedPrescriptions(Long petId) {
+        System.out.println("Seeding prescription for pet with ID: " + petId);
 
-        User user = userService.findById(userId).orElse(null);
-
-        // Seed pets
-        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch",
-                "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
-        petService.save(pet);
+        Pet pet = petService.getPetById(petId);
 
         // Set dummy start and end dates
         Date startDate1 = new Date();
@@ -103,7 +102,6 @@ public class PrescriptionController {
 
         // Create prescription records
         Prescription prescription1 = new Prescription(
-                user,
                 pet,
                 "Amoxicillin",
                 "Dr. John Doe",
@@ -114,7 +112,6 @@ public class PrescriptionController {
                 "For bacterial infection");
 
         Prescription prescription2 = new Prescription(
-                user,
                 pet,
                 "Metronidazole",
                 "Dr. Jane Smith",
@@ -134,15 +131,10 @@ public class PrescriptionController {
     /**
      * Seeds default prescription history into the database.
      */
-    private void seedPrescriptionHistories(Long userId) {
-        System.out.println("Seeding data for user with ID: " + userId);
+    private void seedPrescriptionHistories(Long petId) {
+        System.out.println("Seeding prescription history for pet with ID: " + petId);
 
-        User user = userService.findById(userId).orElse(null);
-
-        // Seed pets
-        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch",
-                "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
-        petService.save(pet);
+        Pet pet = petService.getPetById(petId);
 
         // Set dummy start and end dates
         Date startDate1 = new Date();
@@ -153,7 +145,6 @@ public class PrescriptionController {
 
         // Create prescription history records
         PrescriptionHistory history1 = new PrescriptionHistory(
-                user,
                 pet,
                 "Dr. Alice Green",
                 "Amoxicillin",
@@ -164,7 +155,6 @@ public class PrescriptionController {
                 "Follow up in a week");
 
         PrescriptionHistory history2 = new PrescriptionHistory(
-                user,
                 pet,
                 "Dr. Bob White",
                 "Metronidazole",

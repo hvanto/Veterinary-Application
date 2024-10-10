@@ -12,10 +12,6 @@ public class Prescription {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
 
@@ -45,8 +41,7 @@ public class Prescription {
     // Constructors
     public Prescription() {}
 
-    public Prescription(User user, Pet pet, String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description) {
-        this.user = user;
+    public Prescription(Pet pet, String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description) {
         this.pet = pet;
         this.prescription = prescription;
         this.practitioner = practitioner;
@@ -56,8 +51,7 @@ public class Prescription {
         this.description = description;
     }
 
-    public Prescription(User user, Pet pet, String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description) {
-        this.user = user;
+    public Prescription(Pet pet, String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description) {
         this.pet = pet;
         this.prescription = prescription;
         this.practitioner = practitioner;
@@ -75,14 +69,6 @@ public class Prescription {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Pet getPet() {
