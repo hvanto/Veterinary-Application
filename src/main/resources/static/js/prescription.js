@@ -32,6 +32,7 @@ document.addEventListener('alpine:init', () => {
         expiryDate: '',
         cvv: null,
         submissionDate: new Date(),
+        showSuccessModal: false,
 
         init() {
             this.fetchInitialData();
@@ -411,18 +412,22 @@ document.addEventListener('alpine:init', () => {
                 body: JSON.stringify(refillData)
             }).then(response => {
                 if (response.ok) {
-                    alert('Refill request submitted!');
-                    this.closeRefillModal();
+                    //alert('Refill request submitted!');
+                    this.showRefillModal = false; // Close the refill modal
+                    this.showSuccessModal = true; // Open the success modal
                 } else {
                     return response.json().then(errorData => {
                         console.error('Error details:', errorData);
-                        alert('Failed to submit refill request: ' + errorData.message);
+                        //alert('Failed to submit refill request: ' + errorData.message);
                     });
                 }
             }).catch(error => {
                 console.error('Fetch error:', error);
-                alert('An error occurred while submitting the refill request.');
+                //alert('An error occurred while submitting the refill request.');
             });
+        },
+        returnToHomepage() {
+            window.location.href = '/'; // Change this to your homepage URL if it's different
         }
     }));
 });
