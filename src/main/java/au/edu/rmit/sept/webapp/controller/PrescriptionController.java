@@ -22,53 +22,36 @@ public class PrescriptionController {
     @Autowired
     private PrescriptionHistoryRepository prescriptionHistoryRepository;
 
-
     /**
-     * Fetches all prescriptions. Seeds data if no prescriptions are found.
-     * @return List of all prescriptions.
+     * Fetches all prescriptions for a specific user and pet.
+     * @param userId ID of the user.
+     * @param petId ID of the pet.
+     * @return List of prescriptions.
      */
     @GetMapping("/all")
     @ResponseBody
-    public List<Prescription> getAllPrescriptions() {
-        System.out.println("Fetching all prescriptions");
+    public List<Prescription> getAllPrescriptions(@RequestParam Long userId, @RequestParam Long petId) {
+        System.out.println("Fetching all prescriptions for userId: " + userId + " and petId: " + petId);
 
-        // Get prescriptions from repository
-        List<Prescription> prescriptions = prescriptionRepository.findAll();
-
-        // If no prescriptions exist, seed data
-        if (prescriptions.isEmpty()) {
-            System.out.println("No prescriptions found. Seeding data...");
-            seedPrescriptions();
-            prescriptions = prescriptionRepository.findAll();  // Fetch again after seeding
-        }
-
-        return prescriptions;
+        return prescriptionRepository.findByUserIdAndPetId(userId, petId);
     }
 
     /**
-     * Fetches all prescription history records. Seeds data if none are found.
-     * @return List of all prescription histories.
+     * Fetches all prescription history records for a specific user and pet.
+     * @param userId ID of the user.
+     * @param petId ID of the pet.
+     * @return List of prescription histories.
      */
     @GetMapping("/history/all")
     @ResponseBody
-    public List<PrescriptionHistory> getAllPrescriptionHistories() {
-        System.out.println("Fetching all prescription histories");
+    public List<PrescriptionHistory> getAllPrescriptionHistories(@RequestParam Long userId, @RequestParam Long petId) {
+        System.out.println("Fetching all prescription histories for userId: " + userId + " and petId: " + petId);
 
-        // Get prescription history from repository
-        List<PrescriptionHistory> histories = prescriptionHistoryRepository.findAll();
-
-        // If no prescription histories exist, seed data
-        if (histories.isEmpty()) {
-            System.out.println("No prescription histories found. Seeding data...");
-            seedPrescriptionHistories();
-            histories = prescriptionHistoryRepository.findAll();  // Fetch again after seeding
-        }
-
-        return histories;
+        return prescriptionHistoryRepository.findByUserIdAndPetId(userId, petId);
     }
 
     /**
-     * Seeds default prescriptions into the database.
+     * Seeds default prescriptions into the database with userId and petId.
      */
     private void seedPrescriptions() {
         // Set dummy start and end dates
@@ -78,24 +61,20 @@ public class PrescriptionController {
         Date startDate2 = new Date();
         Date endDate2 = new Date();
 
-        // Create prescription records
+        // Create prescription records with userId and petId
         Prescription prescription1 = new Prescription(
-                "Amoxicillin",
+                1L, 17L, "Amoxicillin",
                 "Dr. John Doe",
-                "Dr. Sarah Lee",
                 "250mg twice a day",
-                startDate1,
-                endDate1,
+                startDate1, endDate1,
                 "For bacterial infection"
         );
 
         Prescription prescription2 = new Prescription(
-                "Metronidazole",
+                1L, 18L, "Metronidazole",
                 "Dr. Jane Smith",
-                "Dr. Emily Brown",
                 "500mg once a day",
-                startDate2,
-                endDate2,
+                startDate2, endDate2,
                 "For gastrointestinal issues"
         );
 
@@ -107,7 +86,7 @@ public class PrescriptionController {
     }
 
     /**
-     * Seeds default prescription history into the database.
+     * Seeds default prescription history into the database with userId and petId.
      */
     private void seedPrescriptionHistories() {
         // Set dummy start and end dates
@@ -117,24 +96,22 @@ public class PrescriptionController {
         Date startDate2 = new Date();
         Date endDate2 = new Date();
 
-        // Create prescription history records
+        // Create prescription history records with userId and petId
         PrescriptionHistory history1 = new PrescriptionHistory(
-                "Dr. Alice Green",
+                1L, 17L, "Dr. Alice Green",
                 "Amoxicillin",
                 "Vet A",
                 "250mg twice a day",
-                startDate1,
-                endDate1,
+                startDate1, endDate1,
                 "Follow up in a week"
         );
 
         PrescriptionHistory history2 = new PrescriptionHistory(
-                "Dr. Bob White",
+                1L, 18L, "Dr. Bob White",
                 "Metronidazole",
                 "Vet B",
                 "500mg once a day",
-                startDate2,
-                endDate2,
+                startDate2, endDate2,
                 "Monitor for side effects"
         );
 
@@ -146,22 +123,30 @@ public class PrescriptionController {
     }
 
     /**
-     * Adds a new prescription.
+     * Adds a new prescription for a specific user and pet.
      * @param prescription The prescription to be added.
      * @return The added prescription.
      */
-    @PostMapping("/add") // Updated mapping to "/add"
+    @PostMapping("/add")
     @ResponseBody
     public Prescription addPrescription(@RequestBody Prescription prescription) {
-        System.out.println("Adding prescription: " + prescription);
+        System.out.println("Adding prescription for userId: " + prescription.getUserId() + " and petId: " + prescription.getPetId());
         return prescriptionRepository.save(prescription);
     }
 
+    /**
+     * Updates an existing prescription.
+     * @param id The ID of the prescription to be updated.
+     * @param updatedPrescription The updated prescription object.
+     * @return The updated prescription.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Prescription> updatePrescription(@PathVariable Long id, @RequestBody Prescription updatedPrescription) {
         return prescriptionRepository.findById(id)
                 .map(prescription -> {
                     // Update fields
+                    prescription.setUserId(updatedPrescription.getUserId());
+                    prescription.setPetId(updatedPrescription.getPetId());
                     prescription.setPractitioner(updatedPrescription.getPractitioner());
                     prescription.setPrescription(updatedPrescription.getPrescription());
                     prescription.setVet(updatedPrescription.getVet());
@@ -169,7 +154,6 @@ public class PrescriptionController {
                     prescription.setStartDate(updatedPrescription.getStartDate());
                     prescription.setEndDate(updatedPrescription.getEndDate());
                     prescription.setDescription(updatedPrescription.getDescription());
-                    //prescription.setOrderTracking(updatedPrescription.getOrderTracking());
 
                     Prescription savedPrescription = prescriptionRepository.save(prescription);
                     return ResponseEntity.ok(savedPrescription);
@@ -178,16 +162,16 @@ public class PrescriptionController {
     }
 
     /**
-     * Deletes a prescription.
+     * Deletes a prescription by its ID.
      * @param id The ID of the prescription to be deleted.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePrescription(@PathVariable Long id) {
         if (prescriptionRepository.existsById(id)) {
             prescriptionRepository.deleteById(id);
-            return ResponseEntity.noContent().build(); // Return 204 No Content
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // Return 404 Not Found
+            return ResponseEntity.notFound().build();
         }
     }
 }
