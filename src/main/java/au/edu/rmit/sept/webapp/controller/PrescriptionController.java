@@ -86,7 +86,7 @@ public class PrescriptionController {
     }
 
     /**
-     * Seeds default prescriptions into the database.
+     * Seeds default prescriptions into the database with userId and petId.
      */
     private void seedPrescriptions(Long petId) {
         System.out.println("Seeding prescription for pet with ID: " + petId);
@@ -100,12 +100,11 @@ public class PrescriptionController {
         Date startDate2 = new Date();
         Date endDate2 = new Date();
 
-        // Create prescription records
+        // Create prescription records with userId and petId
         Prescription prescription1 = new Prescription(
                 pet,
                 "Amoxicillin",
                 "Dr. John Doe",
-                "Dr. Sarah Lee",
                 "250mg twice a day",
                 startDate1,
                 endDate1,
@@ -115,7 +114,6 @@ public class PrescriptionController {
                 pet,
                 "Metronidazole",
                 "Dr. Jane Smith",
-                "Dr. Emily Brown",
                 "500mg once a day",
                 startDate2,
                 endDate2,
@@ -129,7 +127,7 @@ public class PrescriptionController {
     }
 
     /**
-     * Seeds default prescription history into the database.
+     * Seeds default prescription history into the database with userId and petId.
      */
     private void seedPrescriptionHistories(Long petId) {
         System.out.println("Seeding prescription history for pet with ID: " + petId);
@@ -143,7 +141,7 @@ public class PrescriptionController {
         Date startDate2 = new Date();
         Date endDate2 = new Date();
 
-        // Create prescription history records
+        // Create prescription history records with userId and petId
         PrescriptionHistory history1 = new PrescriptionHistory(
                 pet,
                 "Dr. Alice Green",
@@ -172,24 +170,30 @@ public class PrescriptionController {
     }
 
     /**
-     * Adds a new prescription.
-     * 
+     * Adds a new prescription for a specific user and pet.
      * @param prescription The prescription to be added.
      * @return The added prescription.
      */
-    @PostMapping("/add") // Updated mapping to "/add"
+    @PostMapping("/add")
     @ResponseBody
     public Prescription addPrescription(@RequestBody Prescription prescription) {
-        System.out.println("Adding prescription: " + prescription);
+        System.out.println("Adding prescription for petId: " + prescription.getPet().getId());
         return prescriptionRepository.save(prescription);
     }
 
+    /**
+     * Updates an existing prescription.
+     * @param id The ID of the prescription to be updated.
+     * @param updatedPrescription The updated prescription object.
+     * @return The updated prescription.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Prescription> updatePrescription(@PathVariable Long id,
             @RequestBody Prescription updatedPrescription) {
         return prescriptionRepository.findById(id)
                 .map(prescription -> {
                     // Update fields
+                    prescription.setPet(updatedPrescription.getPet());
                     prescription.setPractitioner(updatedPrescription.getPractitioner());
                     prescription.setPrescription(updatedPrescription.getPrescription());
                     prescription.setVet(updatedPrescription.getVet());
@@ -197,7 +201,6 @@ public class PrescriptionController {
                     prescription.setStartDate(updatedPrescription.getStartDate());
                     prescription.setEndDate(updatedPrescription.getEndDate());
                     prescription.setDescription(updatedPrescription.getDescription());
-                    // prescription.setOrderTracking(updatedPrescription.getOrderTracking());
 
                     Prescription savedPrescription = prescriptionRepository.save(prescription);
                     return ResponseEntity.ok(savedPrescription);
@@ -206,17 +209,16 @@ public class PrescriptionController {
     }
 
     /**
-     * Deletes a prescription.
-     * 
+     * Deletes a prescription by its ID.
      * @param id The ID of the prescription to be deleted.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePrescription(@PathVariable Long id) {
         if (prescriptionRepository.existsById(id)) {
             prescriptionRepository.deleteById(id);
-            return ResponseEntity.noContent().build(); // Return 204 No Content
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // Return 404 Not Found
+            return ResponseEntity.notFound().build();
         }
     }
 }
