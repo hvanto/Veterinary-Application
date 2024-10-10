@@ -134,4 +134,16 @@ public class UserService {
     public void deleteAllUsers() {
         userRepository.deleteAll();
     }
+
+    //  Method to update completed guide status
+    public void updateCompletedGuide(Long userId, boolean completedGuide) throws Exception {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new Exception("User not found");
+        }
+
+        User user = userOptional.get();
+        user.setCompletedGuide(completedGuide);
+        userRepository.save(user);
+    }
 }
