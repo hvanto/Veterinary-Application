@@ -1,7 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
-
 import java.util.Date;
 
 @Entity
@@ -11,6 +10,12 @@ public class Prescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "pet_id", nullable = false)
+    private Long petId;
 
     @Column(name = "practitioner", nullable = false)
     private String practitioner;
@@ -36,10 +41,11 @@ public class Prescription {
     private String description;
 
     // Constructors
-    public Prescription() {
-    }
+    public Prescription() {}
 
-    public Prescription(String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description) {
+    public Prescription(Long userId, Long petId, String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description) {
+        this.userId = userId;
+        this.petId = petId;
         this.prescription = prescription;
         this.practitioner = practitioner;
         this.dosage = dosage;
@@ -48,7 +54,9 @@ public class Prescription {
         this.description = description;
     }
 
-    public Prescription(String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description) {
+    public Prescription(Long userId, Long petId, String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description) {
+        this.userId = userId;
+        this.petId = petId;
         this.prescription = prescription;
         this.practitioner = practitioner;
         this.vet = vet;
@@ -67,25 +75,45 @@ public class Prescription {
         this.id = id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getPetId() {
+        return petId;
+    }
+
+    public void setPetId(Long petId) {
+        this.petId = petId;
+    }
+
     public String getPrescription() {
         return prescription;
     }
-
-    public String getPractitioner() {return practitioner; }
-
-    public void setPractitioner(String practitioner) {this.practitioner = practitioner; }
 
     public void setPrescription(String prescription) {
         this.prescription = prescription;
     }
 
-    public String getVet() {return vet;}
+    public String getPractitioner() {
+        return practitioner;
+    }
 
-    public void setVet(String vet) {this.vet = vet; }
+    public void setPractitioner(String practitioner) {
+        this.practitioner = practitioner;
+    }
 
-    public String getDescription() {return description;}
+    public String getVet() {
+        return vet;
+    }
 
-    public void setDescription(String description) {this.description = description;}
+    public void setVet(String vet) {
+        this.vet = vet;
+    }
 
     public String getDosage() {
         return dosage;
@@ -109,5 +137,13 @@ public class Prescription {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
