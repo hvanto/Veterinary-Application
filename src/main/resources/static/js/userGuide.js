@@ -1,3 +1,97 @@
+function loadIntroJs(callback) {
+    // Check if intro js is already loaded
+    if (typeof introJs !== 'undefined') {
+        callback();
+        return;
+    }
+
+    // Dynamically create link tag to import intro js css
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = "https://cdnjs.cloudflare.com/ajax/libs/intro.js/5.0.0/introjs.min.css";
+    document.head.appendChild(link);
+
+    // Dynamically create script tag to import intro js
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/intro.js/minified/intro.min.js";
+    script.onload = callback;
+    document.body.appendChild(script);
+
+    addGuideStyle();
+}
+
+
+function getGuideStatus() {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (loggedInUser) {
+        const loggedInUserData = JSON.parse(loggedInUser);
+        // Get the user id
+        return loggedInUserData.completedGuide;
+    }
+    return null;
+}
+
+
+function updateGuideStatus(status) {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (loggedInUser) {
+        const loggedInUserData = JSON.parse(loggedInUser);
+        // Get the user id
+        const userId = loggedInUserData.id;
+
+        // Create a payload
+        const payload = {
+            userId: userId,
+            completedGuide: status
+        };
+
+        // Send a put request to update completed guide status
+        fetch("/api/users/updateCompletedGuide", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(payload)
+
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Completed guide status updated successfully");
+                } else {
+                    console.error("Failed to update completed guide status");
+                }
+            })
+            .catch(error => {
+                console.error("Error during guide status update:", error);
+            });
+    }
+}
+
+
+function updateLocalStorageGuideStatus(status) {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (loggedInUser) {
+        const loggedInUserData = JSON.parse(loggedInUser);
+
+        // Update the completedGuide field
+        loggedInUserData.completedGuide = status;
+
+        const updatedUserString = JSON.stringify(loggedInUserData);
+
+        // Save the updated user object back to local storage
+        localStorage.setItem("loggedInUser", updatedUserString);
+
+        console.log("Local storage updated with new guide status:", loggedInUserData.completedGuide);
+
+    } else {
+        console.error("No logged in user found in local storage");
+    }
+}
+
 function startDashBoardGuide() {
     loadIntroJs(function () {
         const guide = introJs();
