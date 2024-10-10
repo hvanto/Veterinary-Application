@@ -306,7 +306,6 @@
                         user.firstName = firstName;
                         user.lastName = lastName;
                         user.contact = contact;
-            
                         localStorage.setItem('loggedInUser', JSON.stringify(user));
             
                         // Reload the page after successful update
@@ -315,8 +314,35 @@
                         alert(data.error);
                     }
                 })
+                .then(() => {
+                    // After the account is updated, create a notification
+                    createAccountUpdateNotification(user.id);
+                })
                 .catch(error => console.error('Error:', error));
             }
+            
+            function createAccountUpdateNotification(userId) {
+                const notificationMessage = 'Your account details have been successfully updated!';
+                
+                // Send the notification request to the server
+                fetch(`/api/notifications/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, message: notificationMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 201) {
+                        console.log('Notification sent successfully.');
+                    } else {
+                        console.error('Failed to send notification:', data);
+                    }
+                })
+                .catch(error => console.error('Error creating notification:', error));
+            }
+            
             
             
 

@@ -35,9 +35,11 @@ public class NotificationService {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
+        notification.setRead(false);
         notificationRepository.save(notification);
     }
-
+    
+    
     /**
      * Marks a notification as read.
      * @param notificationId
