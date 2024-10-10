@@ -1,11 +1,15 @@
 package au.edu.rmit.sept.webapp.controller;
 
+import au.edu.rmit.sept.webapp.model.MedicalHistory;
 import au.edu.rmit.sept.webapp.model.Pet;
 import au.edu.rmit.sept.webapp.model.Prescription;
 import au.edu.rmit.sept.webapp.model.PrescriptionHistory;
 import au.edu.rmit.sept.webapp.model.User;
+import au.edu.rmit.sept.webapp.model.Veterinarian;
 import au.edu.rmit.sept.webapp.repository.PrescriptionRepository;
 import au.edu.rmit.sept.webapp.repository.UserRepository;
+import au.edu.rmit.sept.webapp.repository.VeterinarianRepository;
+import au.edu.rmit.sept.webapp.service.MedicalHistoryService;
 import au.edu.rmit.sept.webapp.service.PetService;
 import au.edu.rmit.sept.webapp.service.UserService;
 import au.edu.rmit.sept.webapp.repository.PetRepository;
@@ -15,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +34,12 @@ public class PrescriptionController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private VeterinarianRepository veterinarianRepository;
+
+    @Autowired
+    private MedicalHistoryService medicalHistoryService;
 
     @Autowired
     private PrescriptionRepository prescriptionRepository;
@@ -171,6 +183,7 @@ public class PrescriptionController {
 
     /**
      * Adds a new prescription for a specific user and pet.
+     * 
      * @param prescription The prescription to be added.
      * @return The added prescription.
      */
@@ -183,7 +196,8 @@ public class PrescriptionController {
 
     /**
      * Updates an existing prescription.
-     * @param id The ID of the prescription to be updated.
+     * 
+     * @param id                  The ID of the prescription to be updated.
      * @param updatedPrescription The updated prescription object.
      * @return The updated prescription.
      */
@@ -210,6 +224,7 @@ public class PrescriptionController {
 
     /**
      * Deletes a prescription by its ID.
+     * 
      * @param id The ID of the prescription to be deleted.
      */
     @DeleteMapping("/{id}")
@@ -220,5 +235,58 @@ public class PrescriptionController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    /**
+     * Fetches all pets associated with the logged-in vet.
+     * This is used to display the pet selection screen.
+     * 
+     * @param vetId The ID of the logged-in vet.
+     * @return A list of pets for which the vet has a medical history.
+     */
+    @GetMapping("/vet-pets")
+    @ResponseBody
+    public List<Pet> getVetPets(@RequestParam Long vetId) {
+        System.out.println("Received request for pets with vetId: " + vetId);
+
+        // Return empty list of vet does not exists
+        if (!veterinarianRepository.existsById(vetId)) {
+            return new ArrayList<Pet>();
+        }
+
+        List<Pet> pets = petService.getPetsByVeteterinarianId(vetId);
+        // Only seed data if no pets exist for the vet
+        if (pets.isEmpty()) {
+            seedDataForVet(vetId);
+            pets = petService.getPetsByVeteterinarianId(vetId);
+        }
+        return pets;
+    }
+
+    /**
+     * Seeds default perscription or prescription history into the database for a vet.
+     */
+    private void seedDataForVet(Long vetId) {
+        // Get vet
+        Veterinarian vet = veterinarianRepository.findById(vetId).get();
+
+        // Seed user
+        User user = userService.saveUser(new User("John", "Doe", "john.doe@example.com", "password123", "123456789"));
+        
+        // Seed pets
+        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch", "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
+        petService.save(pet);
+
+        // Convert LocalDate to Date for medical history event dates
+        Date historyDate1 = Date.from(LocalDate.of(2023, 1, 10).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // Seed medical history
+        MedicalHistory history = new MedicalHistory(pet, vet.getFullName(), "Routine checkup", vet, historyDate1, "All good", null);
+
+        // Save the medical history records
+        medicalHistoryService.save(history);
+        
+        seedPrescriptions(pet.getId());
+        seedPrescriptionHistories(pet.getId());
     }
 }
