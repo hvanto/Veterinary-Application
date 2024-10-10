@@ -38,10 +38,13 @@ public class Prescription {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Column(name = "cost", nullable = false)
+    private double cost;
+
     // Constructors
     public Prescription() {}
 
-    public Prescription(Pet pet, String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description) {
+    public Prescription(Pet pet, String prescription, String practitioner, String dosage, Date startDate, Date endDate, String description, double cost) {
         this.pet = pet;
         this.prescription = prescription;
         this.practitioner = practitioner;
@@ -49,9 +52,10 @@ public class Prescription {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
+        this.cost = cost;
     }
 
-    public Prescription(Pet pet, String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description) {
+    public Prescription(Pet pet, String prescription, String practitioner, String vet, String dosage, Date startDate, Date endDate, String description, double cost) {
         this.pet = pet;
         this.prescription = prescription;
         this.practitioner = practitioner;
@@ -60,6 +64,7 @@ public class Prescription {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
+        this.cost = cost;
     }
 
     // Getters and Setters
@@ -133,5 +138,13 @@ public class Prescription {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 }

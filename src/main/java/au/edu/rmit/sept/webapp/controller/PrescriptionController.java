@@ -1,19 +1,10 @@
 package au.edu.rmit.sept.webapp.controller;
 
-import au.edu.rmit.sept.webapp.model.MedicalHistory;
-import au.edu.rmit.sept.webapp.model.Pet;
-import au.edu.rmit.sept.webapp.model.Prescription;
-import au.edu.rmit.sept.webapp.model.PrescriptionHistory;
-import au.edu.rmit.sept.webapp.model.User;
-import au.edu.rmit.sept.webapp.model.Veterinarian;
-import au.edu.rmit.sept.webapp.repository.PrescriptionRepository;
-import au.edu.rmit.sept.webapp.repository.UserRepository;
-import au.edu.rmit.sept.webapp.repository.VeterinarianRepository;
+import au.edu.rmit.sept.webapp.model.*;
+import au.edu.rmit.sept.webapp.repository.*;
 import au.edu.rmit.sept.webapp.service.MedicalHistoryService;
 import au.edu.rmit.sept.webapp.service.PetService;
 import au.edu.rmit.sept.webapp.service.UserService;
-import au.edu.rmit.sept.webapp.repository.PetRepository;
-import au.edu.rmit.sept.webapp.repository.PrescriptionHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +37,9 @@ public class PrescriptionController {
 
     @Autowired
     private PrescriptionHistoryRepository prescriptionHistoryRepository;
+
+    @Autowired
+    private RefillRepository refillRepository;
 
     /**
      * Fetches all prescriptions. Seeds data if no prescriptions are found.
@@ -120,7 +114,8 @@ public class PrescriptionController {
                 "250mg twice a day",
                 startDate1,
                 endDate1,
-                "For bacterial infection");
+                "For bacterial infection",
+                12.3);
 
         Prescription prescription2 = new Prescription(
                 pet,
@@ -129,7 +124,8 @@ public class PrescriptionController {
                 "500mg once a day",
                 startDate2,
                 endDate2,
-                "For gastrointestinal issues");
+                "For gastrointestinal issues",
+                45.6);
 
         // Save the records to the database
         prescriptionRepository.save(prescription1);
@@ -289,4 +285,39 @@ public class PrescriptionController {
         seedPrescriptions(pet.getId());
         seedPrescriptionHistories(pet.getId());
     }
+
+    /**
+     * Adds a refill request for a specific prescription.
+     *
+     * @param prescriptionId The ID of the prescription to refill.
+     * @param refillRequest  The refill request object from the client.
+     * @return The created refill request.
+     */
+    @PostMapping("/refills/add")
+    @ResponseBody
+    public ResponseEntity<Refill> addRefill(@RequestBody Refill refillRequest) {
+        // Validate refillRequest here (e.g., check if prescription exists)
+        if (refillRequest.getPrescription() == null || refillRequest.getPrescription().getId() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        // Assume you want to set some default fields or perform any operations here
+        refillRequest.setFulfilled(false);
+        Refill savedRefill = refillRepository.save(refillRequest);
+        return ResponseEntity.ok(savedRefill);
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Prescription> getPrescriptionById(@PathVariable Long id) {
+        Optional<Prescription> prescription = prescriptionRepository.findById(id);
+        if (prescription.isPresent()) {
+            return ResponseEntity.ok(prescription.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
 }

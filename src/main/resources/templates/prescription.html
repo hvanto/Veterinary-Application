@@ -106,6 +106,7 @@
                         <td class="border border-gray-300 px-4 py-2">
                             <button @click="openEditPrescriptionModal(prescription)" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 hide-on-print">Edit</button>
                             <button @click="openDeleteConfirmationModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Delete</button>
+                            <button @click="openRefillModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Refill</button>
                         </td>
                     </tr>
                 </template>
@@ -274,6 +275,40 @@
                 <button @click="deletePrescription" class="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
                 <button @click="closeDeleteConfirmationModal" class="ml-2 bg-gray-300 px-4 py-2 rounded">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <div x-show="showRefillModal" @click.away="closeRefillModal()" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+            <h2 class="text-2xl font-bold mb-4">Request Refill</h2>
+            <form @submit.prevent="submitRefill">
+                <div class="mb-4">
+                    <label for="prescriptionName" class="block text-gray-700">Prescription Name</label>
+                    <input type="text" id="prescriptionName" x-model="prescriptionName" readonly class="input-field bg-gray-200">
+                </div>
+                <div class="mb-4">
+                    <label for="userName" class="block text-gray-700">Name</label>
+                    <input type="text" id="userName" x-model="userName" required class="input-field">
+                </div>
+                <div class="mb-4">
+                    <label for="userPhone" class="block text-gray-700">Phone</label>
+                    <input type="text" id="userPhone" x-model="userPhone" required class="input-field">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700">Cost</label>
+                    <span x-text="'$' + parseFloat(cost).toFixed(2) + ' AUD'" class="text-gray-600"></span>
+                </div>
+                <div class="mb-4">
+                    <label for="address" class="block text-gray-700">Address</label>
+                    <input type="text" id="address" x-model="address" required class="input-field">
+                </div>
+                <div class="mb-4">
+                    <label for="creditCardNumber" class="block text-gray-700">Credit Card Number</label>
+                    <input type="text" id="creditCardNumber" x-model="creditCardNumber" required class="input-field">
+                </div>
+                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Submit Refill</button>
+                <button type="button" @click="closeRefillModal()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Cancel</button>
+            </form>
         </div>
     </div>
 

@@ -20,7 +20,14 @@ document.addEventListener('alpine:init', () => {
         prescriptionToDeleteId: null, // ID of the prescription to delete
         newPrescription: {},
         editPrescription: {},
-
+        showRefillModal: false,
+        prescriptionId: null,
+        userName: '',
+        userPhone: '',
+        userId: 0,
+        cost: 0,
+        address: '',
+        creditCardNumber: '',
 
         init() {
             this.fetchInitialData();
@@ -331,6 +338,79 @@ document.addEventListener('alpine:init', () => {
                         console.error('Error deleting prescription:', error);
                     });
             }
+        },
+
+        openRefillModal(id) {
+            this.showRefillModal = true;
+            this.prescriptionId = id;
+
+            // Fetch the prescription details to pre-fill the modal
+            axios.get(`/api/prescriptions/${this.prescriptionId}`)
+                .then(response => {
+                    const prescription = response.data;
+                    this.prescriptionName = this.prescription.prescription;
+                    this.userName = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).firstName : '';
+                    this.userPhone = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).contact : '';
+                    this.cost = prescription.cost || 0;
+                    this.address = '';
+                    this.creditCardNumber = '';
+
+                    this.showRefillModal = true;
+                })
+                .catch(error => {
+                    console.error('Error fetching prescription details:', error);
+                });
+
+
+        },
+
+        closeRefillModal() {
+            this.showRefillModal = false;
+            this.clearForm();
+        },
+
+        clearForm() {
+            this.prescriptionId = null;
+            this.userName = '';
+            this.userPhone = '';
+            this.cost = '';
+            this.address = '';
+            this.creditCardNumber = '';
+        },
+
+
+        submitRefill() {
+            this.userId = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).id : '';
+            const refillData = {
+                userName: this.userName,
+                userPhone: this.userPhone,
+                address: this.address,
+                creditCardNumber: this.creditCardNumber,
+                cost: this.cost,
+                prescription: { id: this.prescriptionId },  // Include prescription ID if needed
+                userId: this.userId
+            };
+
+            fetch(`/api/prescriptions/refills/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(refillData)
+            }).then(response => {
+                if (response.ok) {
+                    alert('Refill request submitted!');
+                    this.closeRefillModal();
+                } else {
+                    return response.json().then(errorData => {
+                        console.error('Error details:', errorData);
+                        alert('Failed to submit refill request: ' + errorData.message);
+                    });
+                }
+            }).catch(error => {
+                console.error('Fetch error:', error);
+                alert('An error occurred while submitting the refill request.');
+            });
         }
     }));
 });
