@@ -21,36 +21,45 @@
         <label class="block text-gray-700 font-semibold">Select Record Category:</label>
         <div class="mt-4">
             <label>
-                <input type="radio" name="category" value="weight-record" @click="selectedCategory = 'weight-record'"> Weight Record
+                <input type="radio" name="category" value="weight-record" @click="selectedCategory = 'weight-record'">
+                Weight Record
             </label>
             <label class="ml-4">
-                <input type="radio" name="category" value="vaccination" @click="selectedCategory = 'vaccination'"> Vaccination
+                <input type="radio" name="category" value="vaccination" @click="selectedCategory = 'vaccination'">
+                Vaccination
             </label>
             <label class="ml-4">
-                <input type="radio" name="category" value="treatment-plan" @click="selectedCategory = 'treatment-plan'"> Treatment Plan
+                <input type="radio" name="category" value="treatment-plan" @click="selectedCategory = 'treatment-plan'">
+                Treatment Plan
             </label>
             <label class="ml-4">
-                <input type="radio" name="category" value="medical-history" @click="selectedCategory = 'medical-history'" checked> Medical Diagnosis
+                <input type="radio" name="category" value="medical-history"
+                       @click="selectedCategory = 'medical-history'" checked> Medical Diagnosis
             </label>
             <label class="ml-4">
-                <input type="radio" name="category" value="physical-exam" @click="selectedCategory = 'physical-exam'"> Physical Exam
+                <input type="radio" name="category" value="physical-exam" @click="selectedCategory = 'physical-exam'">
+                Physical Exam
             </label>
         </div>
     </div>
 
     <!-- Upload Form -->
-    <form @submit.prevent="uploadMedicalRecord" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+    <form @submit.prevent="uploadMedicalRecord" class="bg-white p-6 rounded-lg shadow-md">
 
         <!-- Dynamically Rendered Inputs based on Category -->
         <!-- Weight Record Fields -->
         <div x-show="selectedCategory === 'weight-record'">
             <div class="mb-4">
-                <label for="weight" class="block text-gray-700 font-semibold">Weight (kg):</label>
-                <input type="number" step="0.01" id="weight" x-model="weightRecord.weight" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="weightRecordWeight" class="block text-gray-700 font-semibold">Weight (kg):</label>
+                <input type="number" step="0.01" id="weightRecordWeight" x-model="weightRecord.weight"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.weight"></span> <!-- Error for weight -->
             </div>
             <div class="mb-4">
-                <label for="date" class="block text-gray-700 font-semibold">Date:</label>
-                <input type="date" id="date" x-model="weightRecord.date" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="weightRecordDate" class="block text-gray-700 font-semibold">Date:</label>
+                <input type="date" id="weightRecordDate" x-model="weightRecord.date"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.date"></span> <!-- Error for date -->
             </div>
         </div>
 
@@ -58,19 +67,29 @@
         <div x-show="selectedCategory === 'vaccination'">
             <div class="mb-4">
                 <label for="vaccineName" class="block text-gray-700 font-semibold">Vaccine Name:</label>
-                <input type="text" id="vaccineName" x-model="vaccinationRecord.vaccineName" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <input type="text" id="vaccineName" x-model="vaccinationRecord.vaccineName"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.vaccineName"></span> <!-- Error for vaccine name -->
             </div>
             <div class="mb-4">
                 <label for="vaccinationDate" class="block text-gray-700 font-semibold">Vaccination Date:</label>
-                <input type="date" id="vaccinationDate" x-model="vaccinationRecord.vaccinationDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <input type="date" id="vaccinationDate" x-model="vaccinationRecord.vaccinationDate"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.vaccinationDate"></span>
+                <!-- Error for vaccination date -->
             </div>
             <div class="mb-4">
                 <label for="administeredBy" class="block text-gray-700 font-semibold">Administered By:</label>
-                <input type="text" id="administeredBy" x-model="vaccinationRecord.administeredBy" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <input type="text" id="administeredBy" x-model="vaccinationRecord.administeredBy"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.administeredBy"></span>
+                <!-- Error for administered by -->
             </div>
             <div class="mb-4">
                 <label for="nextDueDate" class="block text-gray-700 font-semibold">Next Due Date:</label>
-                <input type="date" id="nextDueDate" x-model="vaccinationRecord.nextDueDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <input type="date" id="nextDueDate" x-model="vaccinationRecord.nextDueDate"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.nextDueDate"></span> <!-- Error for next due date -->
             </div>
         </div>
 
@@ -78,108 +97,95 @@
         <div x-show="selectedCategory === 'treatment-plan'">
             <div class="mb-4">
                 <label for="planDate" class="block text-gray-700 font-semibold">Plan Date:</label>
-                <input type="date" id="planDate" x-model="treatmentPlan.planDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <input type="date" id="planDate" x-model="treatmentPlan.planDate"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.planDate"></span> <!-- Error for plan date -->
             </div>
             <div class="mb-4">
-                <label for="description" class="block text-gray-700 font-semibold">Treatment Description:</label>
-                <textarea id="description" x-model="treatmentPlan.description" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+                <label for="treatmentPlanDescription" class="block text-gray-700 font-semibold">Treatment
+                    Description:</label>
+                <textarea id="treatmentPlanDescription" x-model="treatmentPlan.description" rows="4"
+                          class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+                <span class="text-red-500 text-sm" x-text="errors.description"></span> <!-- Error for description -->
             </div>
             <div class="mb-4">
-                <label for="practitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
-                <input type="text" id="practitioner" x-model="treatmentPlan.practitioner" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="treatmentPlanPractitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
+                <input type="text" id="treatmentPlanPractitioner" x-model="treatmentPlan.practitioner"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.practitioner"></span> <!-- Error for practitioner -->
             </div>
             <div class="mb-4">
-                <label for="notes" class="block text-gray-700 font-semibold">Notes:</label>
-                <textarea id="notes" x-model="treatmentPlan.notes" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+                <label for="treatmentPlanNotes" class="block text-gray-700 font-semibold">Notes:</label>
+                <textarea id="treatmentPlanNotes" x-model="treatmentPlan.notes" rows="4"
+                          class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
             </div>
         </div>
 
         <!-- Medical Diagnosis Fields -->
         <div x-show="selectedCategory === 'medical-history'">
             <div class="mb-4">
-                <label for="eventDate" class="block text-gray-700 font-semibold">Diagnosis Date:</label>
-                <input type="date" id="eventDate" x-model="medicalHistory.eventDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="medicalHistoryEventDate" class="block text-gray-700 font-semibold">Diagnosis Date:</label>
+                <input type="date" id="medicalHistoryEventDate" x-model="medicalHistory.eventDate"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.eventDate"></span> <!-- Error for event date -->
             </div>
             <div class="mb-4">
-                <label for="treatment" class="block text-gray-700 font-semibold">Diagnosis Description:</label>
-                <textarea id="treatment" x-model="medicalHistory.treatment" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+                <label for="medicalHistoryTreatment" class="block text-gray-700 font-semibold">Diagnosis
+                    Treatment:</label>
+                <textarea id="medicalHistoryTreatment" x-model="medicalHistory.treatment" rows="4"
+                          class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+                <span class="text-red-500 text-sm" x-text="errors.treatment"></span> <!-- Error for treatment -->
             </div>
             <div class="mb-4">
-                <label for="practitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
-                <input type="text" id="practitioner" x-model="medicalHistory.practitioner" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="medicalHistoryPractitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
+                <input type="text" id="medicalHistoryPractitioner" x-model="medicalHistory.practitioner"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.practitioner"></span> <!-- Error for practitioner -->
             </div>
             <div class="mb-4">
-                <label for="veterinarian" class="block text-gray-700 font-semibold">Veterinarian:</label>
-                <input type="text" id="veterinarian" x-model="medicalHistory.veterinarian" class="w-full border border-gray-300 px-4 py-2 rounded-md">
-            </div>
-            <div class="mb-4">
-                <label for="notes" class="block text-gray-700 font-semibold">Notes:</label>
-                <textarea id="notes" x-model="medicalHistory.notes" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
+                <label for="medicalHistoryNotes" class="block text-gray-700 font-semibold">Diagnosis Description
+                    Notes:</label>
+                <textarea id="medicalHistoryNotes" x-model="medicalHistory.notes" rows="4"
+                          class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
             </div>
         </div>
 
         <!-- Physical Exam Fields -->
         <div x-show="selectedCategory === 'physical-exam'">
             <div class="mb-4">
-                <label for="examDate" class="block text-gray-700 font-semibold">Exam Date:</label>
-                <input type="date" id="examDate" x-model="physicalExam.examDate" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="physicalExamDate" class="block text-gray-700 font-semibold">Exam Date:</label>
+                <input type="date" id="physicalExamDate" x-model="physicalExam.examDate"
+                       class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <span class="text-red-500 text-sm" x-text="errors.examDate"></span> <!-- Error for exam date -->
             </div>
             <div class="mb-4">
-                <label for="veterinarian" class="block text-gray-700 font-semibold">Veterinarian:</label>
-                <input type="text" id="veterinarian" x-model="physicalExam.veterinarian" class="w-full border border-gray-300 px-4 py-2 rounded-md">
+                <label for="physicalExamNotes" class="block text-gray-700 font-semibold">Notes:</label>
+                <textarea id="physicalExamNotes" x-model="physicalExam.notes" rows="4"
+                          class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
             </div>
-            <div class="mb-4">
-                <label for="notes" class="block text-gray-700 font-semibold">Notes:</label>
-                <textarea id="notes" x-model="physicalExam.notes" rows="4" class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
-            </div>
-        </div>
-
-        <!-- Prescription Upload (For Medical Diagnosis Only) -->
-        <div x-show="selectedCategory === 'medical-history'" class="mb-4">
-            <label for="file" class="block text-gray-700 font-semibold">Upload Prescription (PDF):</label>
-            <input type="file" id="file" @change="handleFileUpload" accept="application/pdf" class="w-full border border-gray-300 px-4 py-2 rounded-md">
         </div>
 
         <div class="flex justify-between mt-6">
-            <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600">Upload Record</button>
-            <a href="/veterinarian-dashboard" class="text-gray-600 font-bold py-2 px-4 rounded-md hover:text-gray-900">Cancel</a>
+            <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600">Upload
+                Record
+            </button>
+            <button type="button" @click="resetForm"
+                    class="text-gray-600 font-bold py-2 px-4 rounded-md hover:text-gray-900">Cancel
+            </button>
         </div>
     </form>
 
     <script>
         function uploadMedicalRecords() {
             return {
-                selectedCategory: 'medical-history', // Preselect Medical Diagnosis
-                weightRecord: {
-                    weight: '',
-                    date: ''
-                },
-                vaccinationRecord: {
-                    vaccineName: '',
-                    vaccinationDate: '',
-                    administeredBy: '',
-                    nextDueDate: ''
-                },
-                treatmentPlan: {
-                    planDate: '',
-                    description: '',
-                    practitioner: '',
-                    notes: ''
-                },
-                medicalHistory: {
-                    eventDate: '',
-                    treatment: '',
-                    practitioner: '',
-                    veterinarian: '',
-                    notes: ''
-                },
-                physicalExam: {
-                    examDate: '',
-                    veterinarian: '',
-                    notes: ''
-                },
-                file: null,
+                selectedCategory: 'medical-history',
+                weightRecord: { weight: '', date: '' },
+                vaccinationRecord: { vaccineName: '', vaccinationDate: '', administeredBy: '', nextDueDate: '' },
+                treatmentPlan: { planDate: '', description: '', practitioner: '', notes: '' },
+                medicalHistory: { eventDate: '', treatment: '', practitioner: '', notes: '' },
+                physicalExam: { examDate: '', notes: '' },
                 appointmentId: null,
+                errors: {}, // Object to store errors
 
                 init() {
                     this.setAppointmentIdFromURL();
@@ -190,71 +196,126 @@
                     this.appointmentId = urlParams.get('appointment-id');
                     if (!this.appointmentId) {
                         console.error('Appointment ID not found in the URL.');
-                        alert('Appointment ID is missing in the URL.');
                     }
                 },
 
-                handleFileUpload(event) {
-                    this.file = event.target.files[0]; // Store the selected file
+                // Helper function to format date to 'YYYY-MM-DD'
+                formatDate(date) {
+                    if (!date) return null;
+                    return new Date(date).toISOString().split('T')[0]; // Convert to 'YYYY-MM-DD'
+                },
+
+                // Helper function to check if a date is in the future
+                isFutureDate(date) {
+                    const today = this.formatDate(new Date());
+                    const selectedDate = this.formatDate(date);
+                    return selectedDate > today;
+                },
+
+                // Validate input fields
+                validateFields() {
+                    this.errors = {}; // Reset errors
+                    if (this.selectedCategory === 'weight-record') {
+                        if (!this.weightRecord.weight) this.errors.weight = 'Weight is required.';
+                        if (!this.weightRecord.date) this.errors.date = 'Date is required.';
+                    } else if (this.selectedCategory === 'vaccination') {
+                        if (!this.vaccinationRecord.vaccineName) this.errors.vaccineName = 'Vaccine name is required.';
+                        if (!this.vaccinationRecord.vaccinationDate) this.errors.vaccinationDate = 'Vaccination date is required.';
+                        if (!this.vaccinationRecord.administeredBy) this.errors.administeredBy = 'Administered by is required.';
+                        if (!this.vaccinationRecord.nextDueDate) {
+                            this.errors.nextDueDate = 'Next due date is required.';
+                        } else if (!this.isFutureDate(this.vaccinationRecord.nextDueDate)) {
+                            this.errors.nextDueDate = 'Next due date must be in the future.';
+                        }
+                    } else if (this.selectedCategory === 'treatment-plan') {
+                        if (!this.treatmentPlan.planDate) this.errors.planDate = 'Plan date is required.';
+                        if (!this.isFutureDate(this.treatmentPlan.planDate)) this.errors.planDate = 'Plan date must be in the future.';
+                        if (!this.treatmentPlan.description) this.errors.description = 'Description is required.';
+                        if (!this.treatmentPlan.practitioner) this.errors.practitioner = 'Practitioner is required.';
+                    } else if (this.selectedCategory === 'medical-history') {
+                        if (!this.medicalHistory.eventDate) this.errors.eventDate = 'Event date is required.';
+                        if (!this.medicalHistory.treatment) this.errors.treatment = 'Treatment is required.';
+                        if (!this.medicalHistory.practitioner) this.errors.practitioner = 'Practitioner is required.';
+                        if (!this.medicalHistory.notes) this.errors.notes = 'Notes are required.';
+                    } else if (this.selectedCategory === 'physical-exam') {
+                        if (!this.physicalExam.examDate) this.errors.examDate = 'Exam date is required.';
+                        if (!this.physicalExam.notes) this.errors.notes = 'Notes are required.';
+                    }
+
+                    return Object.keys(this.errors).length === 0; // Return true if no errors
                 },
 
                 uploadMedicalRecord() {
-                    if (!this.appointmentId || !this.selectedCategory || (this.selectedCategory === 'medical-history' && !this.file)) {
-                        alert('Please fill in all fields and select a file to upload.');
+                    if (!this.appointmentId || !this.selectedCategory) {
+                        alert('Please fill in all fields.');
+                        return;
+                    }
+
+                    // Validate fields
+                    if (!this.validateFields()) {
+                        return; // Don't proceed if validation fails
+                    }
+
+                    // Fetch the veterinarian's information from localStorage
+                    const user = JSON.parse(localStorage.getItem('veterinarian'));
+                    if (!user || !user.id) {
+                        alert('Unable to upload record: Veterinarian not logged in.');
                         return;
                     }
 
                     const formData = new FormData();
                     formData.append('appointmentId', this.appointmentId);
                     formData.append('category', this.selectedCategory);
+                    formData.append('veterinarianId', user.id); // Include veterinarian ID from local storage
 
+                    // Prepare form data based on category and format the dates
                     if (this.selectedCategory === 'weight-record') {
                         formData.append('weight', this.weightRecord.weight);
-                        formData.append('date', this.weightRecord.date);
+                        formData.append('date', this.formatDate(this.weightRecord.date)); // Format date
                     } else if (this.selectedCategory === 'vaccination') {
                         formData.append('vaccineName', this.vaccinationRecord.vaccineName);
-                        formData.append('vaccinationDate', this.vaccinationRecord.vaccinationDate);
+                        formData.append('vaccinationDate', this.formatDate(this.vaccinationRecord.vaccinationDate)); // Format date
                         formData.append('administeredBy', this.vaccinationRecord.administeredBy);
-                        formData.append('nextDueDate', this.vaccinationRecord.nextDueDate);
+                        formData.append('nextDueDate', this.formatDate(this.vaccinationRecord.nextDueDate)); // Format date
                     } else if (this.selectedCategory === 'treatment-plan') {
-                        formData.append('planDate', this.treatmentPlan.planDate);
+                        formData.append('planDate', this.formatDate(this.treatmentPlan.planDate)); // Format date
                         formData.append('description', this.treatmentPlan.description);
                         formData.append('practitioner', this.treatmentPlan.practitioner);
                         formData.append('notes', this.treatmentPlan.notes);
                     } else if (this.selectedCategory === 'medical-history') {
-                        formData.append('eventDate', this.medicalHistory.eventDate);
+                        formData.append('eventDate', this.formatDate(this.medicalHistory.eventDate)); // Format date
                         formData.append('treatment', this.medicalHistory.treatment);
                         formData.append('practitioner', this.medicalHistory.practitioner);
-                        formData.append('veterinarian', this.medicalHistory.veterinarian);
                         formData.append('notes', this.medicalHistory.notes);
                     } else if (this.selectedCategory === 'physical-exam') {
-                        formData.append('examDate', this.physicalExam.examDate);
-                        formData.append('veterinarian', this.physicalExam.veterinarian);
+                        formData.append('examDate', this.formatDate(this.physicalExam.examDate)); // Format date
                         formData.append('notes', this.physicalExam.notes);
                     }
 
-                    if (this.selectedCategory === 'medical-history' && this.file) {
-                        formData.append('file', this.file);
-                    }
-
-                    axios.post('/api/veterinarian/upload-records', formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
+                    // Submit the form data using axios
+                    axios.post('/api/medical-records/upload-records', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
                     })
                         .then(response => {
                             alert('Medical record uploaded successfully!');
-                            console.log('Upload response:', response.data);
                         })
                         .catch(error => {
                             console.error('Error uploading medical record:', error);
-                            alert('Error uploading medical record. Please try again.');
+                            if (error.response && error.response.data) {
+                                alert(`Error: ${error.response.data}`);
+                            }
                         });
+                },
+
+                // Reset the form fields
+                resetForm() {
+                    location.reload(); // Reload the page to reset the form
                 }
             }
         }
     </script>
-</div>
+
+        </div>
 <div th:replace="~{fragments/footer :: footer}" class="mt-auto"></div>
 </body>
 </html>

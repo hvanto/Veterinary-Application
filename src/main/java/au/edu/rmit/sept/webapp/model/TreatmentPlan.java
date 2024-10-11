@@ -22,9 +22,6 @@ public class TreatmentPlan {
     @Column(length = 1000)
     private String notes;
 
-    @Column(name = "follow_up_date")
-    private LocalDate followUpDate;
-
     @ManyToOne
     @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
@@ -37,13 +34,12 @@ public class TreatmentPlan {
     public TreatmentPlan() {}
 
     // Constructor for seeding data
-    public TreatmentPlan(Pet pet, LocalDate planDate, String description, String practitioner, String notes, LocalDate followUpDate) {
+    public TreatmentPlan(Pet pet, LocalDate planDate, String description, String practitioner, String notes) {
         this.pet = pet;
         this.planDate = planDate;
         this.description = description;
         this.practitioner = practitioner;
         this.notes = notes;
-        this.followUpDate = followUpDate;
     }
 
     // Getters
@@ -65,10 +61,6 @@ public class TreatmentPlan {
 
     public String getNotes() {
         return notes;
-    }
-
-    public LocalDate getFollowUpDate() {
-        return followUpDate;
     }
 
     public Pet getPet() {
@@ -98,10 +90,6 @@ public class TreatmentPlan {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public void setFollowUpDate(LocalDate followUpDate) {
-        this.followUpDate = followUpDate;
     }
 
     public void setPet(Pet pet) {

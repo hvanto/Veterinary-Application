@@ -1,4 +1,4 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.service;
 
 import au.edu.rmit.sept.webapp.model.*;
 import au.edu.rmit.sept.webapp.service.FileGenerationService;
@@ -54,7 +54,7 @@ public class FileGenerationServiceTests {
         medicalHistoryList = Collections.singletonList(new MedicalHistory(testPet, "Checkup", "Dr. John", drJohn, new java.util.Date(), "All good", null));
         physicalExamList = Collections.singletonList(new PhysicalExam(testPet, LocalDate.of(2023, 1, 1), "Dr. John", "Healthy"));
         vaccinationList = Collections.singletonList(new Vaccination(testPet, "Rabies", new java.util.Date(), "Dr. John", new java.util.Date()));
-        treatmentPlanList = Collections.singletonList(new TreatmentPlan(testPet, LocalDate.of(2023, 1, 1), "Routine checkup", "Dr. John", "No issues found", null));
+        treatmentPlanList = Collections.singletonList(new TreatmentPlan(testPet, LocalDate.of(2023, 1, 1), "Routine checkup", "Dr. John", "No issues found"));
         weightRecordList = Collections.singletonList(new WeightRecord(testPet, new java.util.Date(), 12.5));
     }
 

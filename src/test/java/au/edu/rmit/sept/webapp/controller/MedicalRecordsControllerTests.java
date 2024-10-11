@@ -1,4 +1,4 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.controller;
 
 import au.edu.rmit.sept.webapp.repository.MedicalHistoryRepository;
 import au.edu.rmit.sept.webapp.repository.PetRepository;

@@ -1,7 +1,7 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.controller;
 
-import au.edu.rmit.sept.webapp.model.Veterinarian;
-import au.edu.rmit.sept.webapp.service.VeterinarianService;
+import au.edu.rmit.sept.webapp.model.Service;
+import au.edu.rmit.sept.webapp.service.ServiceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +17,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class VeterinarianControllerTests {
+public class ServiceControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private VeterinarianService veterinarianService;
+    private ServiceService serviceService;
 
     @BeforeEach
     public void setUp() {
@@ -31,26 +31,18 @@ public class VeterinarianControllerTests {
     }
 
     @Test
-    public void getAllVeterinarians_Success() throws Exception {
-        // Test fetching all veterinarians
-        mockMvc.perform(post("/api/veterinarian/all")
+    public void getAllServices_Success() throws Exception {
+        // Test fetching all services
+        mockMvc.perform(post("/api/service/all")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").isNotEmpty());
     }
 
     @Test
-    public void getVeterinariansByClinic_Success() throws Exception {
-        // Test fetching veterinarians by clinic ID
-        mockMvc.perform(post("/api/veterinarian/clinic/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void getVeterinariansByService_Success() throws Exception {
-        // Test fetching veterinarians by service ID
-        mockMvc.perform(post("/api/veterinarian/service/1")
+    public void getServiceById_Success() throws Exception {
+        // Test fetching a specific service by ID
+        mockMvc.perform(post("/api/service/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

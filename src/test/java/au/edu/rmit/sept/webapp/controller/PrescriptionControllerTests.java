@@ -1,4 +1,4 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.controller;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

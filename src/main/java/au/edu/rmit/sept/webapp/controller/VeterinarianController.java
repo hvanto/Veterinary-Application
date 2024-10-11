@@ -6,13 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.security.Principal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,31 +16,11 @@ public class VeterinarianController {
 
     private final VeterinarianService veterinarianService;
     private final ClinicService clinicService;
-    private final PetService petService;
-    private final AppointmentService appointmentService;
-    private final MedicalHistoryService medicalHistoryService;
-    private final TreatmentPlanService treatmentPlanService;
-    private final VaccinationService vaccinationService;
-    private final PhysicalExamService physicalExamService;
-    private final UserService userService;
 
     @Autowired
-    public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService,
-                                  PetService petService, AppointmentService appointmentService,
-                                  MedicalHistoryService medicalHistoryService,
-                                  TreatmentPlanService treatmentPlanService,
-                                  VaccinationService vaccinationService,
-                                  PhysicalExamService physicalExamService,
-                                  UserService userService) {
+    public VeterinarianController(VeterinarianService veterinarianService, ClinicService clinicService) {
         this.veterinarianService = veterinarianService;
         this.clinicService = clinicService;
-        this.petService = petService;
-        this.appointmentService = appointmentService;
-        this.medicalHistoryService = medicalHistoryService;
-        this.treatmentPlanService = treatmentPlanService;
-        this.vaccinationService = vaccinationService;
-        this.physicalExamService = physicalExamService;
-        this.userService = userService;
     }
 
     // Get all veterinarians
@@ -211,42 +184,6 @@ public class VeterinarianController {
         }
     }
 
-    @GetMapping("/veterinarian-upload-records")
-    public ResponseEntity<?> veterinarianUploadRecords(@RequestParam("appointmentId") Long appointmentId) {
-        try {
-            // Fetch the appointment by ID
-            System.out.println("Fetching appointment with ID: " + appointmentId);
-            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-
-            // Log if the appointment is null
-            if (appointment == null) {
-                System.out.println("Appointment not found");
-                throw new Exception("Appointment not found");
-            }
-
-            // Fetch the associated pet from the appointment
-            Pet pet = appointment.getPet();
-
-            // Fetch veterinarian associated with the appointment
-            Veterinarian veterinarian = appointment.getVeterinarian();
-
-            // Log to check pet and veterinarian existence
-            System.out.println("Appointment found: " + appointment);
-            System.out.println("Associated pet: " + appointment.getPet());
-            System.out.println("Associated veterinarian: " + appointment.getVeterinarian());
-
-            // Build a response map to send relevant data back to the frontend
-            Map<String, Object> responseData = new HashMap<>();
-            responseData.put("appointment", appointment);
-            responseData.put("pet", pet);
-            responseData.put("veterinarian", veterinarian);
-
-            return ResponseEntity.ok(responseData);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error loading data: " + e.getMessage());
-        }
-    }
-
     // Get veterinarians by clinic_id
     @PostMapping("/{veterinarianID}/appointments")
     public ResponseEntity<?> getAppointmentsByVeterinarian(@PathVariable Long veterinarianID) {
@@ -256,85 +193,5 @@ public class VeterinarianController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-    }
-
-    @PostMapping("/veterinarian/upload-records")
-    public ResponseEntity<?> uploadMedicalRecord(@RequestParam("appointmentId") Long appointmentId,
-                                                 @RequestParam("description") String description,
-                                                 @RequestParam("file") MultipartFile file,
-                                                 @RequestParam("category") String category,
-                                                 Principal principal) {
-        try {
-            // Fetch the veterinarian by their username (email)
-            Veterinarian veterinarian = veterinarianService.findByEmail(principal.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("Veterinarian not found"));
-
-            // Fetch the appointment and pet
-            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-            if (appointment == null) {
-                return ResponseEntity.badRequest().body("Appointment not found with ID: " + appointmentId);
-            }
-
-            Pet pet = appointment.getPet();
-            if (pet == null) {
-                return ResponseEntity.badRequest().body("Pet not found for this appointment");
-            }
-
-            // Create and save data based on the selected category
-            switch (category.toLowerCase()) {
-                case "treatment-plan":
-                    TreatmentPlan treatmentPlan = new TreatmentPlan(
-                            pet,
-                            convertToLocalDateViaInstant(new Date()), // Convert to LocalDate
-                            description,
-                            veterinarian.getFullName(),
-                            description,
-                            null
-                    );
-                    treatmentPlanService.save(treatmentPlan);
-                    break;
-                case "vaccination":
-                    Vaccination vaccination = new Vaccination(
-                            pet,
-                            description,
-                            convertToDateViaInstant(convertToLocalDateViaInstant(new Date())), // Convert LocalDate to Date
-                            veterinarian.getFullName(),
-                            convertToDateViaInstant(convertToLocalDateViaInstant(new Date())) // Convert LocalDate to Date
-                    );
-                    vaccinationService.save(vaccination);
-                    break;
-                case "physical-exam":
-                    PhysicalExam physicalExam = new PhysicalExam(
-                            pet,
-                            convertToLocalDateViaInstant(new Date()), // Convert to LocalDate
-                            veterinarian.getFullName(),
-                            description
-                    );
-                    physicalExamService.save(physicalExam);
-                    break;
-                case "weight-record":
-                    // Handle weight record if necessary
-                    break;
-                default:
-                    return ResponseEntity.badRequest().body("Invalid category");
-            }
-
-            return ResponseEntity.ok("Medical record uploaded successfully");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error uploading medical record: " + e.getMessage());
-        }
-    }
-
-    // Helper method to convert Date to LocalDate
-    private LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
-        return dateToConvert.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
-
-    // Helper method to convert LocalDate to Date
-    private Date convertToDateViaInstant(LocalDate localDateToConvert) {
-        return Date.from(localDateToConvert.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }
