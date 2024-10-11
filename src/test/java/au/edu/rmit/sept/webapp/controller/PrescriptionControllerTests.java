@@ -17,6 +17,8 @@ import au.edu.rmit.sept.webapp.model.Prescription;
 import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.model.Veterinarian;
 import au.edu.rmit.sept.webapp.repository.MedicalHistoryRepository;
+import au.edu.rmit.sept.webapp.repository.PetRepository;
+import au.edu.rmit.sept.webapp.repository.PrescriptionHistoryRepository;
 import au.edu.rmit.sept.webapp.repository.PrescriptionRepository;
 import au.edu.rmit.sept.webapp.service.PetService;
 import au.edu.rmit.sept.webapp.service.UserService;
@@ -59,6 +61,11 @@ public class PrescriptionControllerTests {
 
     @Autowired
     private PrescriptionRepository prescriptionRepository;
+    @Autowired
+    private PrescriptionHistoryRepository prescriptionHistoryRepository;
+
+    @Autowired
+    private PetRepository petRepository;
 
     private Veterinarian veterinarian;
     private Pet pet;
@@ -132,6 +139,9 @@ public class PrescriptionControllerTests {
     @AfterAll
     public void teardown() {
         medicalHistoryRepository.deleteAll();
+        prescriptionRepository.deleteAll();
+        prescriptionHistoryRepository.deleteAll();
+        petRepository.deleteAll();
     }
 
     @Test
