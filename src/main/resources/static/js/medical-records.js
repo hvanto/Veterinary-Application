@@ -97,96 +97,196 @@ document.addEventListener('alpine:init', () => {
         },
 
         formatDate(timestamp) {
-            // Convert the timestamp to a date object
-            const date = new Date(Number(timestamp));
-            // Format the date as desired (e.g., 'MM/DD/YYYY')
-            return date.toLocaleDateString('en-US');
+            if (!timestamp || isNaN(new Date(timestamp))) {
+                return 'Invalid Date'; // Fallback if the date is invalid or null
+            }
+
+            const date = new Date(timestamp);
+            const day = ('0' + date.getDate()).slice(-2); // Get day and add leading zero if needed
+            const month = ('0' + (date.getMonth() + 1)).slice(-2); // Get month and add leading zero
+            const year = date.getFullYear(); // Get full year
+            return `${day}/${month}/${year}`; // Return date as DD/MM/YYYY
         },
 
         toggleSection(section) {
             this[section + 'Open'] = !this[section + 'Open'];
         },
 
+        // Sorting logic
         sortTable(key) {
-            this.sortKey = key;
-            this.sortAsc = this.sortKey === key ? !this.sortAsc : true;
-
-            let sortedList = [];
-
-            switch (key) {
-                case 'examDate':
-                    sortedList = this.physicalExamList.sort((a, b) => this.sortAsc
-                        ? new Date(a.examDate) - new Date(b.examDate)
-                        : new Date(b.examDate) - new Date(a.examDate));
-                    this.physicalExamList = sortedList;
-                    break;
-                case 'veterinarian':
-                    sortedList = this.physicalExamList.sort((a, b) => this.sortAsc
-                        ? a.veterinarian.localeCompare(b.veterinarian)
-                        : b.veterinarian.localeCompare(a.veterinarian));
-                    this.physicalExamList = sortedList;
-                    break;
-                case 'notes':
-                    sortedList = this.physicalExamList.sort((a, b) => this.sortAsc
-                        ? a.notes.localeCompare(b.notes)
-                        : b.notes.localeCompare(a.notes));
-                    this.physicalExamList = sortedList;
-                    break;
-                // Add more cases for different tables and keys as needed
+            // Toggle the sort direction if the same key is clicked
+            if (this.sortKey === key) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortAsc = true;
+                this.sortKey = key;
             }
         },
 
+        // Filtered and sorted Physical Exams
         get filteredPhysicalExams() {
-            return this.physicalExamList.filter(exam =>
-                exam.veterinarian.toLowerCase().includes(this.searchPhysicalExam.toLowerCase()) ||
-                exam.notes.toLowerCase().includes(this.searchPhysicalExam.toLowerCase())
-            ).map(exam => {
-                // Format the examDate before returning
-                return {
-                    ...exam,
-                    examDate: this.formatDate(exam.examDate)
-                };
+            let exams = this.physicalExamList.filter(exam => {
+                const formattedExamDate = this.formatDateWithLeadingZeros(exam.examDate);
+                const searchQuery = this.searchPhysicalExam.toLowerCase();
+
+                return exam.veterinarian.toLowerCase().includes(searchQuery) ||
+                    exam.notes.toLowerCase().includes(searchQuery) ||
+                    formattedExamDate.includes(searchQuery);
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                exams = [...exams].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'examDate':
+                            return direction * (new Date(a.examDate) - new Date(b.examDate));
+                        case 'veterinarian':
+                            return direction * a.veterinarian.localeCompare(b.veterinarian);
+                        case 'notes':
+                            return direction * a.notes.localeCompare(b.notes);
+                    }
+                });
+            }
+
+            return exams.map(exam => ({
+                ...exam,
+                examDate: this.formatDateWithLeadingZeros(exam.examDate),
+            }));
         },
 
+        // Filtered and sorted Vaccinations
         get filteredVaccinations() {
-            return this.vaccinationList.filter(vaccination =>
-                vaccination.vaccineName.toLowerCase().includes(this.searchVaccination.toLowerCase()) ||
-                vaccination.administeredBy.toLowerCase().includes(this.searchVaccination.toLowerCase())
-            ).map(vaccination => {
-                // Format the vaccinationDate and nextDueDate before returning
-                return {
-                    ...vaccination,
-                    vaccinationDate: this.formatDate(vaccination.vaccinationDate),
-                    nextDueDate: this.formatDate(vaccination.nextDueDate)
-                };
+            let vaccinations = this.vaccinationList.filter(vaccination => {
+                const formattedVaccinationDate = this.formatDateWithLeadingZeros(vaccination.vaccinationDate);
+                const formattedNextDueDate = this.formatDateWithLeadingZeros(vaccination.nextDueDate);
+                const searchQuery = this.searchVaccination.toLowerCase();
+
+                return vaccination.vaccineName.toLowerCase().includes(searchQuery) ||
+                    vaccination.administeredBy.toLowerCase().includes(searchQuery) ||
+                    formattedVaccinationDate.includes(searchQuery) ||
+                    formattedNextDueDate.includes(searchQuery);
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                vaccinations = [...vaccinations].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'vaccineName':
+                            return direction * a.vaccineName.localeCompare(b.vaccineName);
+                        case 'vaccinationDate':
+                            return direction * (new Date(a.vaccinationDate) - new Date(b.vaccinationDate));
+                        case 'administeredBy':
+                            return direction * a.administeredBy.localeCompare(b.administeredBy);
+                        case 'nextDueDate':
+                            return direction * (new Date(a.nextDueDate) - new Date(b.nextDueDate));
+                    }
+                });
+            }
+
+            return vaccinations.map(vaccination => ({
+                ...vaccination,
+                vaccinationDate: this.formatDateWithLeadingZeros(vaccination.vaccinationDate),
+                nextDueDate: this.formatDateWithLeadingZeros(vaccination.nextDueDate),
+            }));
         },
 
+        // Filtered and sorted Medical History
         get filteredMedicalHistory() {
-            return this.medicalHistoryList.filter(history =>
-                history.treatment.toLowerCase().includes(this.searchMedicalHistory.toLowerCase()) ||
-                history.notes.toLowerCase().includes(this.searchMedicalHistory.toLowerCase())
-            ).map(history => {
-                // Format the eventDate before returning
-                return {
-                    ...history,
-                    eventDate: this.formatDate(history.eventDate)
-                };
+            let history = this.medicalHistoryList.filter(history => {
+                const formattedEventDate = this.formatDateWithLeadingZeros(history.eventDate);
+                const searchQuery = this.searchMedicalHistory.toLowerCase();
+
+                // Make sure to safely access veterinarian.fullName and practitioner
+                const practitionerName = history.practitioner ? history.practitioner.toLowerCase() : '';
+                const veterinarianName = history.veterinarian && history.veterinarian.fullName
+                    ? history.veterinarian.fullName.toLowerCase()
+                    : '';
+
+                return history.treatment.toLowerCase().includes(searchQuery) ||
+                    history.notes.toLowerCase().includes(searchQuery) ||
+                    practitionerName.includes(searchQuery) ||  // Compare practitioner
+                    veterinarianName.includes(searchQuery) ||  // Compare veterinarian.fullName
+                    formattedEventDate.includes(searchQuery);  // Compare date
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                history = [...history].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'practitioner':
+                            return direction * (a.practitioner || '').localeCompare(b.practitioner || '');
+                        case 'eventDate':
+                            return direction * (new Date(a.eventDate) - new Date(b.eventDate));
+                        case 'treatment':
+                            return direction * a.treatment.localeCompare(b.treatment);
+                        case 'medical_veterinarian':
+                            return direction * (a.veterinarian?.fullName || '').localeCompare(b.veterinarian?.fullName || '');
+                        case 'medical_notes':
+                            return direction * a.notes.localeCompare(b.notes);
+                    }
+                });
+            }
+
+            return history.map(history => ({
+                ...history,
+                eventDate: this.formatDateWithLeadingZeros(history.eventDate),
+            }));
         },
 
+        // Filtered and sorted Treatment Plans
         get filteredTreatmentPlans() {
-            return this.treatmentPlanList.filter(plan =>
-                plan.description.toLowerCase().includes(this.searchTreatmentPlan.toLowerCase()) ||
-                plan.notes.toLowerCase().includes(this.searchTreatmentPlan.toLowerCase())
-            ).map(plan => {
-                // Format the planDate before returning
-                return {
-                    ...plan,
-                    planDate: this.formatDate(plan.planDate)
-                };
+            let plans = this.treatmentPlanList.filter(plan => {
+                const formattedPlanDate = this.formatDateWithLeadingZeros(plan.planDate);
+                const searchQuery = this.searchTreatmentPlan.toLowerCase();
+
+                // Ensure safe access to practitioner (handle cases where it's missing)
+                const practitionerName = plan.practitioner ? plan.practitioner.toLowerCase() : '';
+
+                // Perform case-insensitive filtering on description, notes, practitioner, and formatted date
+                return plan.description.toLowerCase().includes(searchQuery) ||
+                    plan.notes.toLowerCase().includes(searchQuery) ||
+                    practitionerName.includes(searchQuery) ||  // Compare practitioner
+                    formattedPlanDate.includes(searchQuery);   // Compare plan date
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                plans = [...plans].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'planDate':
+                            return direction * (new Date(a.planDate) - new Date(b.planDate));
+                        case 'description':
+                            return direction * a.description.localeCompare(b.description);
+                        case 'plan_notes':
+                            return direction * a.notes.localeCompare(b.notes);
+                        case 'plan_practitioner':
+                            // Ensure safe comparison of practitioner names (if available)
+                            return direction * (a.practitioner || '').localeCompare(b.practitioner || '');
+                    }
+                });
+            }
+
+            return plans.map(plan => ({
+                ...plan,
+                planDate: this.formatDateWithLeadingZeros(plan.planDate),
+            }));
+        },
+
+        formatDateWithLeadingZeros(date) {
+            if (!date || isNaN(new Date(date))) {
+                return 'Invalid Date'; // Handle invalid dates
+            }
+
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+
+            return `${day}/${month}/${year}`;
         },
 
         handleDownload() {
@@ -203,27 +303,13 @@ document.addEventListener('alpine:init', () => {
         },
 
         getSortIcon(key) {
-            if (this.sortKey === key) {
-                return this.sortAsc ? 'fa-chevron-up' : 'fa-chevron-down';
-            }
-            return 'fa-sort';
+            return this.sortKey === key ? (this.sortAsc ? 'fa-chevron-up' : 'fa-chevron-down') : 'fa-sort';
         },
 
         get formattedDateOfBirth() {
             if (!this.selectedPet || !this.selectedPet.dateOfBirth) return '';
-
-            // Assuming the date is a Unix timestamp in milliseconds
             const date = new Date(this.selectedPet.dateOfBirth);
-
-            // If the timestamp is in seconds, multiply by 1000
-            // const date = new Date(this.selectedPet.dateOfBirth * 1000);
-
-            // Check if the date is valid
-            if (isNaN(date.getTime())) {
-                return 'Invalid Date';
-            }
-
-            return date.toLocaleDateString('en-US'); // Format date as 'MM/DD/YYYY'
-        }
+            return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString('en-US');
+        },
     }));
 });

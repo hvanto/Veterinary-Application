@@ -60,7 +60,7 @@
                         <p class="text-gray-600" x-text="selectedPet.species"></p>
                         <p class="text-gray-600">Breed: <span x-text="selectedPet.breed"></span></p>
                         <p class="text-gray-600">Gender: <span x-text="selectedPet.gender"></span></p>
-                        <p class="text-gray-600">Date Of Birth: <span x-text="formattedDateOfBirth"></span> years</p>
+                        <p class="text-gray-600">Date Of Birth: <span x-text="formattedDateOfBirth"></span></p>
                         <p class="text-gray-600">Microchipped: <span x-text="selectedPet.microchipped ? 'Yes' : 'No'"></span></p>
                         <p class="text-gray-600">Notes: <span x-text="selectedPet.notes"></span></p>
                     </div>
@@ -173,13 +173,13 @@
                                 <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('treatment')">
                                     Treatment <i :class="`fas ${getSortIcon('treatment')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('veterinarian')">
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('medical_veterinarian')">
                                     Veterinarian <i :class="`fas ${getSortIcon('veterinarian')}`"></i>
                                 </th>
                                 <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('eventDate')">
                                     Date <i :class="`fas ${getSortIcon('eventDate')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('notes')">
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('medical_notes')">
                                     Notes <i :class="`fas ${getSortIcon('notes')}`"></i>
                                 </th>
                                 <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700">Prescription</th>
@@ -190,7 +190,7 @@
                                 <tr class="bg-white hover:bg-gray-100">
                                     <td class="px-6 py-4 border border-gray-300" x-text="history.practitioner"></td>
                                     <td class="px-6 py-4 border border-gray-300" x-text="history.treatment"></td>
-                                    <td class="px-6 py-4 border border-gray-300" x-text="history.veterinarian"></td>
+                                    <td class="px-6 py-4 border border-gray-300" x-text="history.veterinarian.fullName"></td>
                                     <td class="px-6 py-4 border border-gray-300" x-text="history.eventDate"></td>
                                     <td class="px-6 py-4 border border-gray-300" x-text="history.notes"></td>
                                     <td class="px-6 py-4 border border-gray-300">
@@ -223,10 +223,10 @@
                                 <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('description')">
                                     Description <i :class="`fas ${getSortIcon('description')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('practitioner')">
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('plan_practitioner')">
                                     Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i>
                                 </th>
-                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('notes')">
+                                <th class="px-6 py-3 border border-gray-300 text-left font-medium text-gray-700 cursor-pointer" @click="sortTable('plan_notes')">
                                     Notes <i :class="`fas ${getSortIcon('notes')}`"></i>
                                 </th>
                             </tr>
