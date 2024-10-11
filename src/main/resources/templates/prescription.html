@@ -10,7 +10,7 @@
     @page {
             size: A4 landscape; /* Set A4 size to landscape */
             margin: 20mm; /* Adjust margins */
-        }
+    }
 
     @media print {
         /* Hide add, edit, delete buttons during print */
@@ -104,8 +104,8 @@
                         <td class="border border-gray-300 px-4 py-2" x-text="prescription.description"></td>
                         <td class="border border-gray-300 px-4 py-2" x-text="prescription.orderTracking"></td>
                         <td class="border border-gray-300 px-4 py-2">
-                            <button @click="openEditPrescriptionModal(prescription)" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 hide-on-print">Edit</button>
-                            <button @click="openDeleteConfirmationModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Delete</button>
+<!--                            <button @click="openEditPrescriptionModal(prescription)" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 hide-on-print">Edit</button>-->
+<!--                            <button @click="openDeleteConfirmationModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Delete</button>-->
                             <button @click="openRefillModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Refill</button>
                         </td>
                     </tr>
@@ -149,27 +149,47 @@
             </table>
         </div>
 
-        <button @click="openAddPrescriptionModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hide-on-print">
-            Add Prescription
-        </button>
+<!--        <button @click="openAddPrescriptionModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hide-on-print">-->
+<!--            Add Prescription-->
+<!--        </button>-->
 
         <button id="downloadButton" class="absolute right-0 mr-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hide-on-print">
             Download
         </button>
 
         <script>
+            // Function to hide elements before printing
+            function hideElementsForPrint() {
+                document.querySelectorAll('.hide-on-print').forEach(button => {
+                    button.style.display = 'none';
+                });
+            }
+
+            // Function to show elements after printing
+            function showElementsAfterPrint() {
+                document.querySelectorAll('.hide-on-print').forEach(button => {
+                    button.style.display = 'block';
+                });
+            }
+
+            // Attach listener to the download button
             document.getElementById('downloadButton').addEventListener('click', function() {
-                // Add the class to hide buttons before printing
-                document.querySelectorAll('.hide-on-print').forEach(button => button.classList.add('hidden'));
-
-                // Trigger print
-                window.print();
-
-                // Remove the class after printing is done
-                window.onafterprint = function() {
-                    document.querySelectorAll('.hide-on-print').forEach(button => button.classList.remove('hidden'));
-                };
+                hideElementsForPrint(); // Hide elements before printing
+                window.print(); // Trigger the print dialog
             });
+
+            // Use window.matchMedia to detect when the print dialog is closed
+            const mediaQueryList = window.matchMedia('print');
+
+            // Listener for when the print dialog is opened or closed
+            mediaQueryList.addListener(function(mql) {
+                if (!mql.matches) {
+                    // The print dialog is closed (either printed or canceled)
+                    showElementsAfterPrint(); // Show elements again
+                }
+            });
+
+
         </script>
 
     </div>
