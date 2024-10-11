@@ -2,6 +2,7 @@ package au.edu.rmit.sept.webapp.controller;
 
 import au.edu.rmit.sept.webapp.model.*;
 import au.edu.rmit.sept.webapp.service.*;
+import com.github.javafaker.App;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -46,6 +47,9 @@ public class MedicalRecordsController {
 
     @Autowired
     private VeterinarianService veterinarianService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     /**
      * Fetches all pets for the logged-in user.
@@ -208,5 +212,93 @@ public class MedicalRecordsController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType("pdf".equalsIgnoreCase(format) ? MediaType.APPLICATION_PDF : MediaType.APPLICATION_XML)
                 .body(new InputStreamResource(inputStream));
+    }
+
+    @PostMapping("/upload-records")
+    public ResponseEntity<String> uploadMedicalRecord(
+            @RequestParam("appointmentId") Long appointmentId,
+            @RequestParam("category") String category,
+            @RequestParam("veterinarianId") Long veterinarianId,  // Veterinarian ID passed from the frontend
+            @RequestParam(value = "weight", required = false) Double weight,
+            @RequestParam(value = "date", required = false) LocalDate date,  // Used for weight-record, medical-history, and general
+            @RequestParam(value = "vaccineName", required = false) String vaccineName,
+            @RequestParam(value = "vaccinationDate", required = false) LocalDate vaccinationDate, // New field for vaccination
+            @RequestParam(value = "administeredBy", required = false) String administeredBy,
+            @RequestParam(value = "nextDueDate", required = false) LocalDate nextDueDate,
+            @RequestParam(value = "planDate", required = false) LocalDate planDate,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "practitioner", required = false) String practitioner,
+            @RequestParam(value = "notes", required = false) String notes,
+            @RequestParam(value = "eventDate", required = false) LocalDate eventDate, // New field for medical-history
+            @RequestParam(value = "treatment", required = false) String treatment,    // New field for medical-history
+            @RequestParam(value = "examDate", required = false) LocalDate examDate,   // New field for physical-exam
+            @RequestParam(value = "followUpDate", required = false) LocalDate followUpDate) {
+
+        try {
+            // Fetch the veterinarian using the passed veterinarianId
+            Veterinarian vet = veterinarianService.findById(veterinarianId)
+                    .orElseThrow(() -> new Exception("Veterinarian not found with ID: " + veterinarianId));
+
+            // Fetch the appointment and associated pet
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            Pet pet = appointment.getPet();
+
+            if (pet == null) {
+                return ResponseEntity.badRequest().body("Pet not found for appointment ID: " + appointmentId);
+            }
+
+            // Handle each category as before, associating the record with the fetched veterinarian
+            switch (category) {
+                case "weight-record":
+                    if (weight != null && date != null) {
+                        WeightRecord weightRecord = new WeightRecord(pet, java.sql.Date.valueOf(date), weight);
+                        weightRecordService.save(weightRecord);
+                        return ResponseEntity.ok("Weight record uploaded successfully.");
+                    }
+                    break;
+
+                case "vaccination":
+                    if (vaccineName != null && vaccinationDate != null && administeredBy != null && nextDueDate != null) {
+                        Vaccination vaccination = new Vaccination(pet, vaccineName, java.sql.Date.valueOf(vaccinationDate), administeredBy, java.sql.Date.valueOf(nextDueDate));
+                        vaccinationService.save(vaccination);
+                        return ResponseEntity.ok("Vaccination record uploaded successfully.");
+                    }
+                    break;
+
+                case "treatment-plan":
+                    if (planDate != null && description != null && practitioner != null) {
+                        TreatmentPlan treatmentPlan = new TreatmentPlan(pet, planDate, description, practitioner, notes, followUpDate);
+                        treatmentPlanService.save(treatmentPlan);
+                        return ResponseEntity.ok("Treatment plan uploaded successfully.");
+                    }
+                    break;
+
+                case "medical-history":
+                    if (eventDate != null && treatment != null && practitioner != null && notes != null) {
+                        MedicalHistory medicalHistory = new MedicalHistory(
+                                pet, practitioner, treatment, vet, java.sql.Date.valueOf(eventDate), notes, null);
+                        medicalHistoryService.save(medicalHistory);
+                        return ResponseEntity.ok("Medical history uploaded successfully.");
+                    }
+                    break;
+
+                case "physical-exam":
+                    if (examDate != null && notes != null) {
+                        PhysicalExam physicalExam = new PhysicalExam(pet, examDate, vet.getFullName(), notes);
+                        physicalExamService.save(physicalExam);
+                        return ResponseEntity.ok("Physical exam uploaded successfully.");
+                    }
+                    break;
+
+                default:
+                    return ResponseEntity.badRequest().body("Invalid category provided.");
+            }
+
+            return ResponseEntity.badRequest().body("Required fields missing for category: " + category);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error processing the medical record upload: " + e.getMessage());
+        }
     }
 }

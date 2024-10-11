@@ -144,4 +144,8 @@ public class VeterinarianService {
         Date today = new Date();
         return appointmentRepository.findAllByVeterinarianWithDateOnOrAfter(veterinarianID, today);
     }
+
+    public Optional<Veterinarian> findById(Long veterinarianId) {
+        return veterinarianRepository.findById(veterinarianId);
+    }
 }
