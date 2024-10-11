@@ -17,6 +17,11 @@ document.addEventListener('alpine:init', () => {
         searchTreatmentPlan: '',
         sortKey: '', // to track the current sort key
         sortAsc: true, // to track the current sort direction
+        weightRecordsSelected: false,
+        physicalExamsSelected: false,
+        vaccinationsSelected: false,
+        medicalHistorySelected: true, // Medical History is preselected
+        treatmentPlansSelected: false,
 
         init() {
             this.fetchInitialData();
@@ -300,6 +305,30 @@ document.addEventListener('alpine:init', () => {
 
         closeShareModal() {
             document.getElementById('shareModal').classList.add('hidden');
+        },
+
+        handleShare() {
+            const payload = {
+                email: this.email,  // The email address to send the PDF
+                selectedPetId: this.selectedPet.id,  // ID of the selected pet
+                sections: {
+                    weightRecords: this.sections.weightRecords,
+                    physicalExams: this.sections.physicalExams,
+                    vaccinations: this.sections.vaccinations,
+                    full: this.sections.full,
+                    treatmentPlans: this.sections.treatmentPlans
+                }
+            };
+
+            axios.post('/api/medical-records/share', payload)
+                .then(response => {
+                    alert('Medical records shared successfully!');
+                    this.closeShareModal();
+                })
+                .catch(error => {
+                    console.error('Error sharing medical records:', error);
+                    alert('Failed to share medical records.');
+                });
         },
 
         getSortIcon(key) {
