@@ -1,4 +1,4 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.service;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

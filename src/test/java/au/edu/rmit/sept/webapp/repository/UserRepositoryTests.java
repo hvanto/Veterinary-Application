@@ -1,4 +1,4 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.repository;
 
 import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.repository.UserRepository;

@@ -1,7 +1,7 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.controller;
 
-import au.edu.rmit.sept.webapp.model.Service;
-import au.edu.rmit.sept.webapp.service.ServiceService;
+import au.edu.rmit.sept.webapp.model.VeterinarianAvailability;
+import au.edu.rmit.sept.webapp.service.VeterinarianAvailabilityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +17,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ServiceControllerTests {
+public class VeterinarianAvailabilityControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ServiceService serviceService;
+    private VeterinarianAvailabilityService veterinarianAvailabilityService;
 
     @BeforeEach
     public void setUp() {
@@ -31,19 +31,11 @@ public class ServiceControllerTests {
     }
 
     @Test
-    public void getAllServices_Success() throws Exception {
-        // Test fetching all services
-        mockMvc.perform(post("/api/service/all")
+    public void getAvailabilityByVeterinarianId_Success() throws Exception {
+        // Test fetching availability for a veterinarian
+        mockMvc.perform(post("/api/veterinarian-availability/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").isNotEmpty());
-    }
-
-    @Test
-    public void getServiceById_Success() throws Exception {
-        // Test fetching a specific service by ID
-        mockMvc.perform(post("/api/service/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
     }
 }
