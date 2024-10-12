@@ -153,6 +153,14 @@ function updateLocalStorageGuideStatus(status) {
     }
 }
 
+function deleteLocalStorageCurrentGuide() {
+    const currentGuide = localStorage.getItem("currentGuide");
+
+    if (currentGuide) {
+        localStorage.removeItem("currentGuide");
+    }
+}
+
 function startDashBoardGuide() {
     loadIntroJs(function () {
         const guide = introJs();
@@ -309,7 +317,7 @@ function startMedicalRecordsGuide() {
     });
 }
 
-// TODO: Complete guide for prescriptions page
+
 function startPrescriptionGuide() {
     loadIntroJs(function () {
         const guide = introJs();
@@ -317,7 +325,7 @@ function startPrescriptionGuide() {
         guide.setOptions({
             steps: [
                 {
-                    intro: "This is the prescriptions page where you can view your pet's current and past prescriptions.",
+                    intro: "This is the prescriptions page where you can view your pet's current and past prescriptions or request a refill for the prescription.",
                 },
                 {
                     element: firstPet,
@@ -328,7 +336,7 @@ function startPrescriptionGuide() {
                 },
                 {
                     element: "#guide-pet-current-prescription",
-                    intro: "You can view Buddy's current prescriptions."
+                    intro: "You can view Buddy's current prescriptions and request a refill for the prescription."
                 },
                 {
                     element: "#guide-pet-prescription-history",
@@ -370,7 +378,7 @@ function startPrescriptionGuide() {
     });
 }
 
-// TODO: Complete the guide for book appointment page
+
 function startBookAppointmentGuide() {
     loadIntroJs(function () {
         const guide = introJs();
@@ -400,6 +408,12 @@ function startBookAppointmentGuide() {
                 },
                 {
                     intro: "Please wait..."
+                },
+                {
+                    intro: "Please wait..."
+                },
+                {
+                    intro: "Please wait..."
                 }
 
             ],
@@ -416,11 +430,6 @@ function startBookAppointmentGuide() {
                 // Redirect to next page
                 window.location.href = "/article";
             }
-        });
-
-        guide.onexit(function() {
-            updateLocalStorageGuideStatus(true);
-            updateGuideStatus(true);
         });
 
         guide.start()
