@@ -50,6 +50,7 @@ public class UserService {
     }
 
 
+
     // Find a user by email
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -96,24 +97,24 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    // New method to update user details and send notification if significant update
     public void updateUserDetails(User user, String firstName, String lastName, String contact) {
-        // Check if significant updates are made, such as changing the first or last name
+        // Check if there are significant updates to send a notification
         boolean isSignificantUpdate = !firstName.equals(user.getFirstName()) || !lastName.equals(user.getLastName());
-
+    
         // Update the user information
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setContact(contact);
-
-        // Save the user with updated details
+    
+        // Save the updated user details
         userRepository.save(user);
-
-        // Only create a notification if a significant update is made
+    
+        // Send a notification if significant updates are made
         if (isSignificantUpdate) {
             notificationService.createNotification(user, "Your account details have been updated.");
         }
     }
+    
 
     
 

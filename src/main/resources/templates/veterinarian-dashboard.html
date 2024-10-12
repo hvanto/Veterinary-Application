@@ -5,51 +5,73 @@
     <title>Veterinarian Dashboard</title>
 </head>
 <body class="min-h-screen flex flex-col bg-gray-100">
+
+<!-- Main CSS for the page -->
 <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<!-- Veterinarian Navigation Fragment -->
+
+<!--
+    Veterinarian Navigation Fragment
+    This fragment includes the navigation bar for the veterinarian's dashboard. It is dynamically replaced using Thymeleaf.
+-->
 <div th:replace="fragments/_veterinarianNavigation :: veterinarian-navigation"></div>
 
-<!-- Veterinarian Dashboard Content -->
+<!--
+    Veterinarian Dashboard Content
+    This is the main content area of the veterinarian dashboard where key features and functionalities are displayed as cards.
+-->
 <div class="container mx-auto mt-12 flex-grow">
     <h1 class="text-3xl font-bold text-gray-800 mb-8">Welcome, Veterinarian!</h1>
 
+    <!-- Dashboard Cards for Main Features -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card: Manage Appointments -->
+
+        <!--
+            Card: Manage Appointments
+            Displays a link to the veterinarian's appointment management section.
+        -->
         <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="text-blue-500 text-3xl mr-4">
-                    <!-- Icon for Appointments -->
+                    <!-- Icon representing appointments -->
                     <i class="fas fa-calendar-alt"></i>
                 </div>
                 <div>
                     <h2 class="text-xl font-semibold text-gray-700">Manage Your Appointments</h2>
                     <p class="text-gray-600 mt-1">View and manage your upcoming appointments.</p>
-                    <a th:href="@{/veterinarian-appointments}" class="text-blue-500 hover:underline mt-2 block">View Appointments</a>
+                    <a th:href="@{/veterinarian-appointments}" class="text-blue-500 hover:underline mt-2 block">View
+                        Appointments</a>
                 </div>
             </div>
         </div>
 
-        <!-- Card: Manage Prescriptions -->
+        <!--
+            Card: Manage Prescriptions
+            Allows the veterinarian to manage and create prescriptions for patients.
+        -->
         <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="text-green-500 text-3xl mr-4">
-                    <!-- Icon for Prescriptions -->
+                    <!-- Icon representing prescriptions -->
                     <i class="fas fa-prescription-bottle-alt"></i>
                 </div>
                 <div>
                     <h2 class="text-xl font-semibold text-gray-700">Manage Prescriptions</h2>
                     <p class="text-gray-600 mt-1">View and create prescriptions for patients.</p>
-                    <a href="/veterinarian-prescription" class="text-blue-500 hover:underline mt-2 block">Manage Prescriptions</a>
+                    <a href="/veterinarian-prescription" class="text-blue-500 hover:underline mt-2 block">Manage
+                        Prescriptions</a>
                 </div>
             </div>
         </div>
 
-        <!-- Card: Patient Records -->
+        <!--
+            Card: Patient Records
+            Allows veterinarians to view and manage patient medical records and history.
+        -->
         <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="text-purple-500 text-3xl mr-4">
-                    <!-- Icon for Patient Records -->
+                    <!-- Icon representing patient records -->
                     <i class="fas fa-folder-open"></i>
                 </div>
                 <div>
@@ -61,12 +83,16 @@
         </div>
     </div>
 
-    <!-- Optional Scripts for FontAwesome Icons -->
+    <!-- Scripts for FontAwesome Icons and Axios for any future asynchronous requests -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </div>
 
-<!-- Footer -->
+<!--
+    Footer Fragment
+    Dynamically includes the footer using Thymeleaf fragment replacement.
+-->
 <div th:replace="fragments/footer :: footer" class="mt-auto"></div>
+
 </body>
 </html>

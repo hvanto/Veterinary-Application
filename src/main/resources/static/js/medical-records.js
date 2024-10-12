@@ -1,27 +1,44 @@
 document.addEventListener('alpine:init', () => {
+    /**
+     * Initializes Alpine.js component for managing medical records.
+     * @returns {Object} Component state and methods.
+     */
     Alpine.data('medicalRecordsData', () => ({
-        isAuthenticated: false,
-        selectedPet: null,
-        pets: [],
-        petCards: '',
-        generalHealthOpen: true,
-        medicalHistoryOpen: true,
-        weightRecords: [],
-        physicalExamList: [],
-        vaccinationList: [],
-        medicalHistoryList: [],
-        treatmentPlanList: [],
-        searchPhysicalExam: '',
-        searchVaccination: '',
-        searchMedicalHistory: '',
-        searchTreatmentPlan: '',
-        sortKey: '', // to track the current sort key
-        sortAsc: true, // to track the current sort direction
+        // Component state variables
+        isAuthenticated: false, // User authentication status
+        selectedPet: null, // Currently selected pet
+        pets: [], // List of pets
+        petCards: '', // UI component for displaying pet cards
+        generalHealthOpen: true, // Flag for general health section visibility
+        medicalHistoryOpen: true, // Flag for medical history section visibility
+        weightRecords: [], // Records of pet weights
+        physicalExamList: [], // List of physical exams
+        vaccinationList: [], // List of vaccinations
+        medicalHistoryList: [], // List of medical history entries
+        treatmentPlanList: [], // List of treatment plans
+        searchPhysicalExam: '', // Search query for physical exams
+        searchVaccination: '', // Search query for vaccinations
+        searchMedicalHistory: '', // Search query for medical history
+        searchTreatmentPlan: '', // Search query for treatment plans
+        sortKey: '', // Currently active sort key for sorting
+        sortAsc: true, // Flag indicating sort direction (ascending or descending)
+        weightRecordsSelected: false, // Flag for weight records section
+        physicalExamsSelected: false, // Flag for physical exams section
+        vaccinationsSelected: false, // Flag for vaccinations section
+        medicalHistorySelected: true, // Flag for medical history section (preselected)
+        treatmentPlansSelected: false, // Flag for treatment plans section
 
+        /**
+         * Lifecycle method to fetch initial data.
+         */
         init() {
             this.fetchInitialData();
         },
 
+        /**
+         * Fetches user pets from localStorage and API.
+         * @returns {void}
+         */
         fetchInitialData() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
             if (!user || !user.id) {
@@ -32,18 +49,24 @@ document.addEventListener('alpine:init', () => {
 
             this.isAuthenticated = true;
 
+            // Fetch pets for the authenticated user
             axios.get(`/api/medical-records/user-pets?userId=${user.id}`)
                 .then(response => {
-                    console.log('Pets fetched (raw):', response.data);  // Debug log
-                    this.pets = response.data.map(pet => Object.assign({}, pet)); // If needed, unwrap Proxy
-                    this.selectedPet = null;
-                    console.log('Pets processed:', this.pets);  // Debug log
+                    console.log('Pets fetched (raw):', response.data); // Debug log
+                    this.pets = response.data.map(pet => Object.assign({}, pet)); // Process pets
+                    this.selectedPet = null; // Reset selected pet
+                    console.log('Pets processed:', this.pets); // Debug log
                 })
                 .catch(error => {
                     console.error('Error fetching user pets:', error);
                 });
         },
 
+        /**
+         * Fetches medical records for the selected pet.
+         * @param {string} selectedPetId - The ID of the selected pet.
+         * @returns {void}
+         */
         fetchMedicalRecords(selectedPetId) {
             axios.get(`/api/medical-records/${selectedPetId}`)
                 .then(response => {
@@ -54,13 +77,17 @@ document.addEventListener('alpine:init', () => {
                     this.vaccinationList = data.vaccinationList;
                     this.medicalHistoryList = data.medicalHistoryList;
                     this.treatmentPlanList = data.treatmentPlanList;
-                    this.drawWeightChart();
+                    this.drawWeightChart(); // Draw chart with fetched weight records
                 })
                 .catch(error => {
                     console.error('Error fetching medical records:', error);
                 });
         },
 
+        /**
+         * Draws the weight chart using Chart.js.
+         * @returns {void}
+         */
         drawWeightChart() {
             const ctx = document.getElementById('weightChart').getContext('2d');
             new Chart(ctx, {
@@ -96,134 +123,301 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
+        /**
+         * Formats a timestamp into a readable date string.
+         * @param {number|string} timestamp - The timestamp to format.
+         * @returns {string} Formatted date as DD/MM/YYYY or 'Invalid Date'.
+         */
         formatDate(timestamp) {
-            // Convert the timestamp to a date object
-            const date = new Date(Number(timestamp));
-            // Format the date as desired (e.g., 'MM/DD/YYYY')
-            return date.toLocaleDateString('en-US');
+            if (!timestamp || isNaN(new Date(timestamp))) {
+                return 'Invalid Date'; // Fallback for invalid date
+            }
+
+            const date = new Date(timestamp);
+            const day = ('0' + date.getDate()).slice(-2); // Add leading zero for day
+            const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add leading zero for month
+            const year = date.getFullYear(); // Full year
+            return `${day}/${month}/${year}`; // Return formatted date as DD/MM/YYYY
         },
 
+        /**
+         * Toggles visibility of the specified section.
+         * @param {string} section - The section to toggle.
+         * @returns {void}
+         */
         toggleSection(section) {
             this[section + 'Open'] = !this[section + 'Open'];
         },
 
+        /**
+         * Sorts the table based on the given key.
+         * @param {string} key - The key to sort by.
+         * @returns {void}
+         */
         sortTable(key) {
-            this.sortKey = key;
-            this.sortAsc = this.sortKey === key ? !this.sortAsc : true;
-
-            let sortedList = [];
-
-            switch (key) {
-                case 'examDate':
-                    sortedList = this.physicalExamList.sort((a, b) => this.sortAsc
-                        ? new Date(a.examDate) - new Date(b.examDate)
-                        : new Date(b.examDate) - new Date(a.examDate));
-                    this.physicalExamList = sortedList;
-                    break;
-                case 'veterinarian':
-                    sortedList = this.physicalExamList.sort((a, b) => this.sortAsc
-                        ? a.veterinarian.localeCompare(b.veterinarian)
-                        : b.veterinarian.localeCompare(a.veterinarian));
-                    this.physicalExamList = sortedList;
-                    break;
-                case 'notes':
-                    sortedList = this.physicalExamList.sort((a, b) => this.sortAsc
-                        ? a.notes.localeCompare(b.notes)
-                        : b.notes.localeCompare(a.notes));
-                    this.physicalExamList = sortedList;
-                    break;
-                // Add more cases for different tables and keys as needed
+            // Toggle sort direction if the same key is clicked
+            if (this.sortKey === key) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortAsc = true; // Reset sort direction to ascending
+                this.sortKey = key; // Set new sort key
             }
         },
 
+        /**
+         * Gets filtered and sorted Physical Exams.
+         * @returns {Array} List of filtered and sorted physical exams.
+         */
         get filteredPhysicalExams() {
-            return this.physicalExamList.filter(exam =>
-                exam.veterinarian.toLowerCase().includes(this.searchPhysicalExam.toLowerCase()) ||
-                exam.notes.toLowerCase().includes(this.searchPhysicalExam.toLowerCase())
-            ).map(exam => {
-                // Format the examDate before returning
-                return {
-                    ...exam,
-                    examDate: this.formatDate(exam.examDate)
-                };
+            let exams = this.physicalExamList.filter(exam => {
+                const formattedExamDate = this.formatDateWithLeadingZeros(exam.examDate);
+                const searchQuery = this.searchPhysicalExam.toLowerCase();
+
+                // Filter exams based on search criteria
+                return exam.veterinarian.toLowerCase().includes(searchQuery) ||
+                    exam.notes.toLowerCase().includes(searchQuery) ||
+                    formattedExamDate.includes(searchQuery);
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                exams = [...exams].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'examDate':
+                            return direction * (new Date(a.examDate) - new Date(b.examDate));
+                        case 'veterinarian':
+                            return direction * a.veterinarian.localeCompare(b.veterinarian);
+                        case 'notes':
+                            return direction * a.notes.localeCompare(b.notes);
+                    }
+                });
+            }
+
+            return exams.map(exam => ({
+                ...exam,
+                examDate: this.formatDateWithLeadingZeros(exam.examDate),
+            }));
         },
 
+        /**
+         * Gets filtered and sorted Vaccinations.
+         * @returns {Array} List of filtered and sorted vaccinations.
+         */
         get filteredVaccinations() {
-            return this.vaccinationList.filter(vaccination =>
-                vaccination.vaccineName.toLowerCase().includes(this.searchVaccination.toLowerCase()) ||
-                vaccination.administeredBy.toLowerCase().includes(this.searchVaccination.toLowerCase())
-            ).map(vaccination => {
-                // Format the vaccinationDate and nextDueDate before returning
-                return {
-                    ...vaccination,
-                    vaccinationDate: this.formatDate(vaccination.vaccinationDate),
-                    nextDueDate: this.formatDate(vaccination.nextDueDate)
-                };
+            let vaccinations = this.vaccinationList.filter(vaccination => {
+                const formattedVaccinationDate = this.formatDateWithLeadingZeros(vaccination.vaccinationDate);
+                const formattedNextDueDate = this.formatDateWithLeadingZeros(vaccination.nextDueDate);
+                const searchQuery = this.searchVaccination.toLowerCase();
+
+                // Filter vaccinations based on search criteria
+                return vaccination.vaccineName.toLowerCase().includes(searchQuery) ||
+                    vaccination.administeredBy.toLowerCase().includes(searchQuery) ||
+                    formattedVaccinationDate.includes(searchQuery) ||
+                    formattedNextDueDate.includes(searchQuery);
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                vaccinations = [...vaccinations].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'vaccineName':
+                            return direction * a.vaccineName.localeCompare(b.vaccineName);
+                        case 'vaccinationDate':
+                            return direction * (new Date(a.vaccinationDate) - new Date(b.vaccinationDate));
+                        case 'administeredBy':
+                            return direction * a.administeredBy.localeCompare(b.administeredBy);
+                        case 'nextDueDate':
+                            return direction * (new Date(a.nextDueDate) - new Date(b.nextDueDate));
+                    }
+                });
+            }
+
+            return vaccinations.map(vaccination => ({
+                ...vaccination,
+                vaccinationDate: this.formatDateWithLeadingZeros(vaccination.vaccinationDate),
+                nextDueDate: this.formatDateWithLeadingZeros(vaccination.nextDueDate),
+            }));
         },
 
+        /**
+         * Gets filtered and sorted Medical History.
+         * @returns {Array} List of filtered and sorted medical history entries.
+         */
         get filteredMedicalHistory() {
-            return this.medicalHistoryList.filter(history =>
-                history.treatment.toLowerCase().includes(this.searchMedicalHistory.toLowerCase()) ||
-                history.notes.toLowerCase().includes(this.searchMedicalHistory.toLowerCase())
-            ).map(history => {
-                // Format the eventDate before returning
-                return {
-                    ...history,
-                    eventDate: this.formatDate(history.eventDate)
-                };
+            let history = this.medicalHistoryList.filter(history => {
+                const formattedEventDate = this.formatDateWithLeadingZeros(history.eventDate);
+                const searchQuery = this.searchMedicalHistory.toLowerCase();
+
+                // Make sure to safely access veterinarian.fullName and practitioner
+                const practitionerName = history.practitioner ? history.practitioner.toLowerCase() : '';
+                const veterinarianName = history.veterinarian && history.veterinarian.fullName
+                    ? history.veterinarian.fullName.toLowerCase()
+                    : '';
+
+                return history.treatment.toLowerCase().includes(searchQuery) ||
+                    history.notes.toLowerCase().includes(searchQuery) ||
+                    practitionerName.includes(searchQuery) ||  // Compare practitioner
+                    veterinarianName.includes(searchQuery) ||  // Compare veterinarian.fullName
+                    formattedEventDate.includes(searchQuery);  // Compare date
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                history = [...history].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'practitioner':
+                            return direction * (a.practitioner || '').localeCompare(b.practitioner || '');
+                        case 'eventDate':
+                            return direction * (new Date(a.eventDate) - new Date(b.eventDate));
+                        case 'treatment':
+                            return direction * a.treatment.localeCompare(b.treatment);
+                        case 'medical_veterinarian':
+                            return direction * (a.veterinarian?.fullName || '').localeCompare(b.veterinarian?.fullName || '');
+                        case 'medical_notes':
+                            return direction * a.notes.localeCompare(b.notes);
+                    }
+                });
+            }
+
+            return history.map(history => ({
+                ...history,
+                eventDate: this.formatDateWithLeadingZeros(history.eventDate),
+            }));
         },
 
+        /**
+         * Gets filtered and sorted Treatment Plans.
+         * @returns {Array} List of filtered and sorted treatment plans.
+         */
         get filteredTreatmentPlans() {
-            return this.treatmentPlanList.filter(plan =>
-                plan.description.toLowerCase().includes(this.searchTreatmentPlan.toLowerCase()) ||
-                plan.notes.toLowerCase().includes(this.searchTreatmentPlan.toLowerCase())
-            ).map(plan => {
-                // Format the planDate before returning
-                return {
-                    ...plan,
-                    planDate: this.formatDate(plan.planDate)
-                };
+            let plans = this.treatmentPlanList.filter(plan => {
+                const formattedPlanDate = this.formatDateWithLeadingZeros(plan.planDate);
+                const searchQuery = this.searchTreatmentPlan.toLowerCase();
+
+                // Safely access practitioner (handle cases where it's missing)
+                const practitionerName = plan.practitioner ? plan.practitioner.toLowerCase() : '';
+
+                // Filter treatment plans based on search criteria
+                return plan.description.toLowerCase().includes(searchQuery) ||
+                    plan.notes.toLowerCase().includes(searchQuery) ||
+                    practitionerName.includes(searchQuery) ||
+                    formattedPlanDate.includes(searchQuery);
             });
+
+            // Apply sorting to the filtered list
+            if (this.sortKey) {
+                plans = [...plans].sort((a, b) => {
+                    const direction = this.sortAsc ? 1 : -1;
+                    switch (this.sortKey) {
+                        case 'planDate':
+                            return direction * (new Date(a.planDate) - new Date(b.planDate));
+                        case 'description':
+                            return direction * a.description.localeCompare(b.description);
+                        case 'plan_notes':
+                            return direction * a.notes.localeCompare(b.notes);
+                        case 'plan_practitioner':
+                            return direction * (a.practitioner || '').localeCompare(b.practitioner || '');
+                    }
+                });
+            }
+
+            return plans.map(plan => ({
+                ...plan,
+                planDate: this.formatDateWithLeadingZeros(plan.planDate),
+            }));
         },
 
+        /**
+         * Formats a date with leading zeros.
+         * @param {number|string} date - The date to format.
+         * @returns {string} Formatted date as DD/MM/YYYY or 'Invalid Date'.
+         */
+        formatDateWithLeadingZeros(date) {
+            if (!date || isNaN(new Date(date))) {
+                return 'Invalid Date'; // Handle invalid dates
+            }
+
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0'); // Add leading zero for day
+            const month = String(d.getMonth() + 1).padStart(2, '0'); // Add leading zero for month
+            const year = d.getFullYear(); // Full year
+
+            return `${day}/${month}/${year}`; // Return formatted date as DD/MM/YYYY
+        },
+
+        /**
+         * Handles the download of medical records.
+         * @returns {void}
+         */
         handleDownload() {
             document.getElementById('recordActionForm').action = "/api/medical-records/download";
             document.getElementById('recordActionForm').submit();
         },
 
+        /**
+         * Opens the share modal for sharing medical records.
+         * @returns {void}
+         */
         openShareModal() {
             document.getElementById('shareModal').classList.remove('hidden');
         },
 
+        /**
+         * Closes the share modal.
+         * @returns {void}
+         */
         closeShareModal() {
             document.getElementById('shareModal').classList.add('hidden');
         },
 
-        getSortIcon(key) {
-            if (this.sortKey === key) {
-                return this.sortAsc ? 'fa-chevron-up' : 'fa-chevron-down';
-            }
-            return 'fa-sort';
+        /**
+         * Shares medical records via email.
+         * @returns {void}
+         */
+        handleShare() {
+            const payload = {
+                email: this.email, // Email address to send the PDF
+                selectedPetId: this.selectedPet.id, // ID of the selected pet
+                sections: {
+                    weightRecords: this.sections.weightRecords,
+                    physicalExams: this.sections.physicalExams,
+                    vaccinations: this.sections.vaccinations,
+                    full: this.sections.full,
+                    treatmentPlans: this.sections.treatmentPlans
+                }
+            };
+
+            axios.post('/api/medical-records/share', payload)
+                .then(response => {
+                    alert('Medical records shared successfully!');
+                    this.closeShareModal();
+                })
+                .catch(error => {
+                    console.error('Error sharing medical records:', error);
+                    alert('Failed to share medical records.');
+                });
         },
 
+        /**
+         * Gets the sort icon based on the current sort state.
+         * @param {string} key - The key for which to get the sort icon.
+         * @returns {string} FontAwesome class for the sort icon.
+         */
+        getSortIcon(key) {
+            return this.sortKey === key ? (this.sortAsc ? 'fa-chevron-up' : 'fa-chevron-down') : 'fa-sort';
+        },
+
+        /**
+         * Gets the formatted date of birth for the selected pet.
+         * @returns {string} Formatted date of birth or an empty string.
+         */
         get formattedDateOfBirth() {
             if (!this.selectedPet || !this.selectedPet.dateOfBirth) return '';
-
-            // Assuming the date is a Unix timestamp in milliseconds
             const date = new Date(this.selectedPet.dateOfBirth);
-
-            // If the timestamp is in seconds, multiply by 1000
-            // const date = new Date(this.selectedPet.dateOfBirth * 1000);
-
-            // Check if the date is valid
-            if (isNaN(date.getTime())) {
-                return 'Invalid Date';
-            }
-
-            return date.toLocaleDateString('en-US'); // Format date as 'MM/DD/YYYY'
-        }
+            return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString('en-US');
+        },
     }));
 });

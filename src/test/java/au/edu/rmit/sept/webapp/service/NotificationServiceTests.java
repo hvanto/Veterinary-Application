@@ -1,4 +1,4 @@
-package au.edu.rmit.sept.webapp;
+package au.edu.rmit.sept.webapp.service;
 
 import au.edu.rmit.sept.webapp.model.Notification;
 import au.edu.rmit.sept.webapp.model.User;

@@ -7,30 +7,35 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service class for managing Vaccination entities.
+ * This service handles the business logic related to fetching and saving vaccination records
+ * for pets in the system.
+ */
 @Service
 public class VaccinationService {
 
+    // Autowired repository to handle CRUD operations for Vaccination entities
     @Autowired
     private VaccinationRepository vaccinationRepository;
 
-    public List<Vaccination> getAllVaccinations() {
-        return vaccinationRepository.findAll();
-    }
-
+    /**
+     * Retrieves a list of vaccination records for a specific pet.
+     *
+     * @param petId The ID of the pet whose vaccination records are to be retrieved.
+     * @return A list of Vaccination objects associated with the specified pet.
+     */
     public List<Vaccination> getVaccinationsByPetId(Long petId) {
-        // Fetch vaccinations directly by pet ID
+        // Fetch vaccinations by pet ID
         return vaccinationRepository.findByPetId(petId);
     }
 
-    public Vaccination getVaccinationById(Long id) {
-        return vaccinationRepository.findById(id).orElse(null);
-    }
-
+    /**
+     * Saves a new vaccination record or updates an existing one in the database.
+     *
+     * @param vaccination The Vaccination object to be saved.
+     */
     public void save(Vaccination vaccination) {
         vaccinationRepository.save(vaccination);
-    }
-
-    public void deleteVaccination(Long id) {
-        vaccinationRepository.deleteById(id);
     }
 }

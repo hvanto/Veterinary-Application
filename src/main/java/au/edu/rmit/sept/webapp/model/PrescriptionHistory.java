@@ -1,7 +1,6 @@
 package au.edu.rmit.sept.webapp.model;
 
 import jakarta.persistence.*;
-
 import java.util.Date;
 
 @Entity
@@ -11,6 +10,10 @@ public class PrescriptionHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "pet_id", nullable = false)
+    private Pet pet;
 
     @Column(name = "practitioner", nullable = false)
     private String practitioner;
@@ -35,10 +38,11 @@ public class PrescriptionHistory {
     @Column(name = "more_information", nullable = true)
     private String moreInformation;
 
-    // Constructors, Getters, and Setters
+    // Constructors
     public PrescriptionHistory() {}
 
-    public PrescriptionHistory(String practitioner, String prescription, String vet, String dosage, Date startDate, Date endDate, String moreInformation) {
+    public PrescriptionHistory(Pet pet, String practitioner, String prescription, String vet, String dosage, Date startDate, Date endDate, String moreInformation) {
+        this.pet = pet;
         this.practitioner = practitioner;
         this.prescription = prescription;
         this.vet = vet;
@@ -48,7 +52,8 @@ public class PrescriptionHistory {
         this.moreInformation = moreInformation;
     }
 
-    public PrescriptionHistory(String practitioner, String prescription, String dosage, Date startDate, Date endDate, String moreInformation) {
+    public PrescriptionHistory(Pet pet, String practitioner, String prescription, String dosage, Date startDate, Date endDate, String moreInformation) {
+        this.pet = pet;
         this.practitioner = practitioner;
         this.prescription = prescription;
         this.dosage = dosage;
@@ -64,6 +69,14 @@ public class PrescriptionHistory {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Pet getPet() {
+        return pet;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
     }
 
     public String getPractitioner() {

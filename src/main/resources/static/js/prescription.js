@@ -20,7 +20,19 @@ document.addEventListener('alpine:init', () => {
         prescriptionToDeleteId: null, // ID of the prescription to delete
         newPrescription: {},
         editPrescription: {},
-
+        showRefillModal: false,
+        prescriptionId: null,
+        firstName: '',
+        lastName: '',
+        userPhone: '',
+        userId: 0,
+        cost: 0,
+        address: '',
+        creditCardNumber: '',
+        expiryDate: '',
+        cvv: null,
+        submissionDate: new Date(),
+        showSuccessModal: false,
 
         init() {
             this.fetchInitialData();
@@ -55,7 +67,11 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            axios.get(`/api/prescriptions/all`)
+            axios.get(`/api/prescriptions/all`, {
+                params: {
+                    petId: this.selectedPet.id
+                }
+            })
                 .then(response => {
                     this.prescriptionsCurrent = response.data; // Assuming the API returns a list of current prescriptions
                 })
@@ -71,7 +87,11 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            axios.get(`/api/prescriptions/history/all`)
+            axios.get(`/api/prescriptions/history/all`, {
+                params: {
+                    petId: this.selectedPet.id
+                }
+            })
                 .then(response => {
                     this.prescriptionsHistory = response.data; // Assuming the API returns a list of prescription history
                 })
@@ -81,16 +101,16 @@ document.addEventListener('alpine:init', () => {
         },
 
         fetchPetDetails(selectedPetId) {
-             axios.get(`/api/medical-records/${selectedPetId}`)
-                 .then(response => {
-                 const data = response.data;
-                 this.selectedPet = data.selectedPet;
-                 this.fetchCurrentPrescriptions(); // Fetch current prescriptions
-                 this.fetchPrescriptionHistory();   // Fetch prescription history
-                 })
-                 .catch(error => {
-                     console.error('Error', error);
-                 });
+            axios.get(`/api/medical-records/${selectedPetId}`)
+                .then(response => {
+                    const data = response.data;
+                    this.selectedPet = data.selectedPet;
+                    this.fetchCurrentPrescriptions(); // Fetch current prescriptions
+                    this.fetchPrescriptionHistory();   // Fetch prescription history
+                })
+                .catch(error => {
+                    console.error('Error', error);
+                });
         },
 
         formatDate(date) {
@@ -99,20 +119,20 @@ document.addEventListener('alpine:init', () => {
         },
 
         toggleSection(section) {
-                    if (section === 'prescriptionsCurrent') {
-                        this.prescriptionOpen = !this.prescriptionOpen;
-                    } else if (section === 'prescriptionsHistory') {
-                        this.prescriptionHistoryOpen = !this.prescriptionHistoryOpen;
-                    }
+            if (section === 'prescriptionsCurrent') {
+                this.prescriptionOpen = !this.prescriptionOpen;
+            } else if (section === 'prescriptionsHistory') {
+                this.prescriptionHistoryOpen = !this.prescriptionHistoryOpen;
+            }
         },
 
         // Computed property for filtered current prescriptions
         get filteredCurrentPrescriptions() {
             return this.prescriptionsCurrent.filter(prescription => {
                 return prescription.practitioner.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
-                       prescription.prescription.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
-                       prescription.vet.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
-                       prescription.dosage.toLowerCase().includes(this.searchPrescriptions.toLowerCase());
+                    prescription.prescription.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
+                    prescription.vet.toLowerCase().includes(this.searchPrescriptions.toLowerCase()) ||
+                    prescription.dosage.toLowerCase().includes(this.searchPrescriptions.toLowerCase());
             }).map(prescription => {
                 // Optionally format dates or modify prescription properties before returning
                 return {
@@ -127,9 +147,9 @@ document.addEventListener('alpine:init', () => {
         get filteredPrescriptionHistory() {
             return this.prescriptionsHistory.filter(prescription => {
                 return prescription.practitioner.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
-                       prescription.prescription.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
-                       prescription.vet.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
-                       prescription.dosage.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase());
+                    prescription.prescription.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
+                    prescription.vet.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase()) ||
+                    prescription.dosage.toLowerCase().includes(this.searchPrescriptionHistory.toLowerCase());
             }).map(prescription => {
                 // Optionally format dates or modify prescription properties before returning
                 return {
@@ -240,8 +260,7 @@ document.addEventListener('alpine:init', () => {
             // Construct the prescription data to send
             const prescriptionData = {
                 ...this.newPrescription,
-                petId: this.selectedPet.id, // Assuming the selected pet ID is available
-                userId: user.id // Add user ID if needed
+                pet: this.selectedPet, // Assuming the selected pet ID is available
             };
 
             // Send POST request to add the prescription
@@ -255,7 +274,7 @@ document.addEventListener('alpine:init', () => {
                     console.error('Error adding prescription:', error);
                 });
         },
-         // Method to open the edit prescription modal
+        // Method to open the edit prescription modal
         openEditPrescriptionModal(prescription) {
             this.editPrescription = { ...prescription }; // Pre-fill the edit form
             this.editPrescription.startDate = this.formatDateForInput(new Date(prescription.startDate)); // Format start date
@@ -324,6 +343,91 @@ document.addEventListener('alpine:init', () => {
                         console.error('Error deleting prescription:', error);
                     });
             }
+        },
+
+        openRefillModal(id) {
+            this.showRefillModal = true;
+            this.prescriptionId = id;
+
+            // Fetch the prescription details to pre-fill the modal
+            axios.get(`/api/prescriptions/${this.prescriptionId}`)
+                .then(response => {
+                    const prescription = response.data;
+                    this.prescriptionName = this.prescription.prescription;
+                    this.firstName = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).firstName : '';
+                    this.lastName = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).lastName : '';
+                    this.userPhone = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).contact : '';
+                    this.cost = prescription.cost || 0;
+                    this.address = '';
+                    this.creditCardNumber = '';
+                    this.expiryDate = '';
+                    this.cvv = '';
+                    //this.submissionDate;
+
+                    this.showRefillModal = true;
+                })
+                .catch(error => {
+                    console.error('Error fetching prescription details:', error);
+                });
+
+
+        },
+
+        closeRefillModal() {
+            this.showRefillModal = false;
+            this.clearForm();
+        },
+
+        clearForm() {
+            this.prescriptionId = null;
+            this.userName = '';
+            this.userPhone = '';
+            this.cost = '';
+            this.address = '';
+            this.creditCardNumber = '';
+        },
+
+
+        submitRefill() {
+            this.userId = localStorage.getItem('loggedInUser') ? JSON.parse(localStorage.getItem('loggedInUser')).id : '';
+            const refillData = {
+                firstName: this.firstName,
+                lastName: this.lastName,
+                userPhone: this.userPhone,
+                address: this.address,
+                creditCardNumber: this.creditCardNumber,
+                cost: this.cost,
+                prescription: { id: this.prescriptionId },  // Include prescription ID if needed
+                userId: this.userId,
+                expiryDate: this.expiryDate,
+                cvv: this.cvv,
+                submissionDate: this.submissionDate
+            };
+
+            fetch(`/api/prescriptions/refills/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(refillData)
+            }).then(response => {
+                if (response.ok) {
+                    //alert('Refill request submitted!');
+                    this.showRefillModal = false; // Close the refill modal
+                    this.showSuccessModal = true; // Open the success modal
+                } else {
+                    return response.json().then(errorData => {
+                        console.error('Error details:', errorData);
+                        //alert('Failed to submit refill request: ' + errorData.message);
+                    });
+                }
+            }).catch(error => {
+                console.error('Fetch error:', error);
+                //alert('An error occurred while submitting the refill request.');
+            });
+        },
+        returnToHomepage() {
+            window.location.href = '/'; // Change this to your homepage URL if it's different
         }
     }));
 });
