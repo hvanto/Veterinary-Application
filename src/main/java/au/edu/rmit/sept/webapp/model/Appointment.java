@@ -33,12 +33,12 @@ public class Appointment {
     @JsonBackReference("user-appointments")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "veterinarian_id", nullable = false)
     @JsonBackReference("veterinarian-appointments")
     private Veterinarian veterinarian;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = false)
     @JsonBackReference("pet-appointments")
     private Pet pet;
@@ -50,10 +50,14 @@ public class Appointment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date UpdatedOn;
 
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean deleted;
+
     @PrePersist
     protected void onCreate() {
         CreatedOn = new Date();
         UpdatedOn = new Date();
+        deleted = false;
     }
 
     @PreUpdate
@@ -141,5 +145,13 @@ public class Appointment {
 
     public void setPet(Pet pet) {
         this.pet = pet;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

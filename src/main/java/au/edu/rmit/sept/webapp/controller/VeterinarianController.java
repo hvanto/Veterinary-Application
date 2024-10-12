@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller for managing veterinarian-related actions.
@@ -249,6 +250,17 @@ public class VeterinarianController {
         try {
             List<Appointment> appointments = veterinarianService.getAppointmentsByVeterinarian(veterinarianID);
             return ResponseEntity.ok(appointments);  // Return appointments for the veterinarian
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Get veterinarians by clinic_id
+    @PostMapping("/{veterinarianID}/clinic")
+    public ResponseEntity<?> getClinicByVeterinarianId(@PathVariable Long veterinarianID) {
+        try {
+            Optional<Clinic> clinic = veterinarianService.getClinicByVeterinarianId(veterinarianID);
+            return ResponseEntity.ok(clinic);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

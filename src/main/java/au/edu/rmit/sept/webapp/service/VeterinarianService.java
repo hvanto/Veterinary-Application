@@ -148,4 +148,8 @@ public class VeterinarianService {
     public Optional<Veterinarian> findById(Long veterinarianId) {
         return veterinarianRepository.findById(veterinarianId);
     }
+
+    public Optional<Clinic> getClinicByVeterinarianId(Long veterinarianId) {
+        return veterinarianRepository.getClinicByVeterinarianId(veterinarianId);
+    }
 }

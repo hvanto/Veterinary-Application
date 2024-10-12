@@ -1,8 +1,6 @@
 package au.edu.rmit.sept.webapp.repository;
 
-import au.edu.rmit.sept.webapp.model.Appointment;
-import au.edu.rmit.sept.webapp.model.Service;
-import au.edu.rmit.sept.webapp.model.Veterinarian;
+import au.edu.rmit.sept.webapp.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -35,4 +33,7 @@ public interface VeterinarianRepository extends JpaRepository<Veterinarian, Long
 
     // Add a query to find veterinarian by email and clinic ID
     Optional<Veterinarian> findByEmailAndClinic_Id(String email, Long clinicId);
+
+    @Query("SELECT v.clinic FROM Veterinarian v WHERE v.id = :veterinarianId")
+    Optional<Clinic> getClinicByVeterinarianId(Long veterinarianId);
 }
