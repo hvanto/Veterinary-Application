@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/prescriptions")
@@ -301,6 +298,10 @@ public class PrescriptionController {
             return ResponseEntity.badRequest().body(null);
         }
 
+        // Generate a tracking number (e.g., alphanumeric with 12 characters)
+        String trackingNumber = generateTrackingNumber(); // Implement this method to generate your tracking number
+        refillRequest.setTracking(trackingNumber); // Set the generated tracking number
+
         // Assume you want to set some default fields or perform any operations here
         refillRequest.setFulfilled(false);
         Refill savedRefill = refillRepository.save(refillRequest);
@@ -317,6 +318,43 @@ public class PrescriptionController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // Method to generate a tracking number
+    private String generateTrackingNumber() {
+        // Example of generating a random alphanumeric string of length 12
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder trackingNumber = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < 12; i++) {
+            int index = random.nextInt(characters.length());
+            trackingNumber.append(characters.charAt(index));
+        }
+
+        return trackingNumber.toString();
+    }
+
+    @GetMapping("/refills/user/{userId}")
+    public List<Refill> getRefillsByUserId(@PathVariable Long userId) {
+        return refillRepository.findByUserId(userId);
+    }
+
+    /**
+     * Deletes a refill by its ID.
+     *
+     * @param id The ID of the refill to be deleted.
+     * @return A ResponseEntity indicating the result of the operation.
+     */
+    @DeleteMapping("/refills/{id}")
+    public ResponseEntity<Void> deleteRefill(@PathVariable Long id) {
+        if (refillRepository.existsById(id)) {
+            refillRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 
 
