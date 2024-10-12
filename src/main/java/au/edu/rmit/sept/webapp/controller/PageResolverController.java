@@ -59,6 +59,18 @@ public class PageResolverController {
         return "index";
     }
 
+    @GetMapping("/manage-appointment")
+    public String manageAppointment(HttpServletRequest request, Model model) {
+        String requestURL = request.getRequestURL().toString();
+        String queryString = request.getQueryString();
+
+        model.addAttribute("content", "manage-appointment");
+        model.addAttribute("url", requestURL);
+        model.addAttribute("queryString", queryString);
+
+        return "index";
+    }
+
     @GetMapping("/signup")
     public String signup(HttpServletRequest request, Model model) {
         String requestURL = request.getRequestURL().toString();
