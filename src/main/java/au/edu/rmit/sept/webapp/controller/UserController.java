@@ -130,4 +130,24 @@ public class UserController {
         Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         return "/assets/profile_pics/" + fileName;
     }
+
+    // Update completed guide status in the database
+    @PutMapping(value = "/updateCompletedGuide", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, String>> updateCompletedGuide(@RequestBody Map<String, Object> requestBody) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            // Extract the user id and completed guide status from the request body
+            Long userId = Long.parseLong(requestBody.get("userId").toString());
+            boolean completedGuide = Boolean.parseBoolean(requestBody.get("completedGuide").toString());
+
+            userService.updateCompletedGuide(userId, completedGuide);
+
+            response.put("message", "Completed guide status updated successfully.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("error", "Failed to update completed guide status: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

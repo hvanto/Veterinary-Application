@@ -87,4 +87,28 @@ public class AppointmentService {
         return appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new Exception("Appointment not found with ID: " + appointmentId));
     }
+
+    public List<Appointment> getAppointmentsByUser(Long userId) {
+        return appointmentRepository.findAllByUserId(userId);
+    }
+
+    public Veterinarian getAppointmentVeterinarian(Long appointmentId) {
+        return appointmentRepository.getVeterinarianByAppointmentId(appointmentId);
+    }
+
+    public Pet getAppointmentPet(Long appointmentId) {
+        return appointmentRepository.getPetByAppointmentId(appointmentId);
+    }
+
+    public void cancelAppointment(Appointment appointment) {
+        appointmentRepository.markAppointmentAsDeleted(appointment.getId());
+
+        Veterinarian veterinarian = appointment.getVeterinarian();
+
+        // Send a notification after the appointment is successfully cancelled
+        String confirmationMessage = String.format("Your appointment with Dr. %s is cancelled.",
+                veterinarian.getFirstName() + " " + veterinarian.getLastName());
+
+        notificationService.createNotification(appointmentRepository.getUserByAppointmentId(appointment.getId()), confirmationMessage);
+    }
 }
