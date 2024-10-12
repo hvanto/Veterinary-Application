@@ -33,12 +33,12 @@ public class Appointment {
     @JsonBackReference("user-appointments")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "veterinarian_id", nullable = false)
     @JsonBackReference("veterinarian-appointments")
     private Veterinarian veterinarian;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = false)
     @JsonBackReference("pet-appointments")
     private Pet pet;

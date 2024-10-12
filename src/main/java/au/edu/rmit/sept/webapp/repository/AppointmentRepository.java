@@ -19,4 +19,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a FROM Appointment a WHERE a.veterinarian.id = :veterinarianId AND a.appointmentDate >= :today")
     List<Appointment> findAllByVeterinarianWithDateOnOrAfter(@Param("veterinarianId") Long veterinarianId, @Param("today") Date today);
+
+    @Query("SELECT a FROM Appointment a WHERE a.user.id = :userId")
+    List<Appointment> findAllByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT a.veterinarian FROM Appointment a WHERE a.id = :appointmentId")
+    Veterinarian getVeterinarianByAppointmentId(Long appointmentId);
+
+    @Query("SELECT a.pet FROM Appointment a WHERE a.id = :appointmentId")
+    Pet getPetByAppointmentId(Long appointmentId);
 }

@@ -11,7 +11,7 @@ document.addEventListener('alpine:init', () => {
         // }).showToast();
 
         // setTimeout(() => {
-        //     window.location.href = '/login'
+            window.location.href = '/login'
         // }, 2000);
     }
 

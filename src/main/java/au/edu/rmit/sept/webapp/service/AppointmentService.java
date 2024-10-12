@@ -87,4 +87,16 @@ public class AppointmentService {
         return appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new Exception("Appointment not found with ID: " + appointmentId));
     }
+
+    public List<Appointment> getAppointmentsByUser(Long userId) {
+        return appointmentRepository.findAllByUserId(userId);
+    }
+
+    public Veterinarian getAppointmentVeterinarian(Long appointmentId) {
+        return appointmentRepository.getVeterinarianByAppointmentId(appointmentId);
+    }
+
+    public Pet getAppointmentPet(Long appointmentId) {
+        return appointmentRepository.getPetByAppointmentId(appointmentId);
+    }
 }
