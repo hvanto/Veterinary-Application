@@ -52,6 +52,9 @@ public class Refill {
     @Column(name = "order_tracking", nullable = false)
     private String tracking;
 
+    @Column(name = "recurring_refills", nullable = true)
+    private String recurring;
+
 
     // Constructors
     public Refill() {}
@@ -180,4 +183,8 @@ public class Refill {
     public String getTracking() {return tracking;}
 
     public void setTracking(String tracking) {this.tracking = tracking;}
+
+    public String getRecurring() {return recurring;}
+
+    public void setRecurring(String recurring) {this.recurring = recurring;}
 }

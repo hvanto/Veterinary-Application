@@ -19,6 +19,8 @@
         }
     }
 
+
+
 </style>
 <body>
 
@@ -164,6 +166,7 @@
                     <th @click="sortRefillTable('tracking')">Tracking Number <i :class="`fas ${getSortIcon('tracking')}`"></i></th>
                     <th @click="sortRefillTable('submissionDate')">Date Ordered <i :class="`fas ${getSortIcon('submissionDate')}`"></i></th>
                     <th @click="sortRefillTable('fulfilled')">Fulfilled <i :class="`fas ${getSortIcon('fulfilled')}`"></i></th>
+                    <th @click="sortRefillTable('recurring')">Recurring Refill? <i :class="`fas ${getSortIcon('recurring')}`"></i></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -175,6 +178,7 @@
                         <td class="border border-gray-300 px-4 py-2" x-text="refill.tracking"></td>
                         <td class="border border-gray-300 px-4 py-2" x-text="formatDate(refill.submissionDate)"></td>
                         <td class="border border-gray-300 px-4 py-2" x-text="refill.fulfilled ? 'Yes' : 'No'"></td>
+                        <td class="border border-gray-300 px-4 py-2" x-text="refill.recurring"></td>
                         <td class="border border-gray-300 px-4 py-2">
                             <button @click="openDeleteRefillConfirmationModal(refill.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Cancel Order</button>
                         </td>
@@ -334,8 +338,8 @@
         </div>
     </div>
 
-    <div x-show="showRefillModal" @click.away="closeRefillModal()" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+    <div x-show="showRefillModal" @click.away="closeRefillModal()" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full h-auto max-h-[90vh] overflow-y-auto" style="margin-top: 20rem; margin-bottom: 1rem;">
             <h2 class="text-2xl font-bold mb-4">Request Refill</h2>
             <form @submit.prevent="submitRefill">
                 <div class="mb-4">
@@ -383,6 +387,22 @@
                            maxlength="4"
                            placeholder="Enter 3 or 4-digit CVV">
                     <p class="text-sm text-red-500" x-show="!cvv.match(/^[0-9]{3,4}$/)">Enter a valid 3- or 4-digit CVV.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="isRecurring" class="block text-gray-700">Automatic Refills</label>
+                    <input type="checkbox" id="isRecurring" x-model="isRecurring" class="mr-2"> Enable Recurring Refills
+                </div>
+
+                <!-- Show frequency options if recurring refills are enabled -->
+                <div class="mb-4" x-show="isRecurring">
+                    <label for="recurring" class="block text-gray-700">Refill Frequency</label>
+                    <select id="recurring" x-model="recurring" class="input-field">
+                        <option value="">Select Frequency</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Fortnightly">Fortnightly</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Yearly">Yearly</option>
+                    </select>
                 </div>
                 <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Submit Refill</button>
                 <button type="button" @click="closeRefillModal()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Cancel</button>
