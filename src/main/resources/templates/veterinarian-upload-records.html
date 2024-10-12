@@ -10,13 +10,15 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.2.3/dist/cdn.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+
 <!-- Veterinarian Navigation Fragment -->
 <div th:replace="fragments/_veterinarianNavigation :: veterinarian-navigation"></div>
 
+<!-- Main Upload Form Section -->
 <div class="container mx-auto py-12 flex-grow" x-data="uploadMedicalRecords()">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Upload Medical Records</h1>
 
-    <!-- Category Selection -->
+    <!-- Record Category Selection -->
     <div class="mb-6">
         <label class="block text-gray-700 font-semibold">Select Record Category:</label>
         <div class="mt-4">
@@ -34,7 +36,8 @@
             </label>
             <label class="ml-4">
                 <input type="radio" name="category" value="medical-history"
-                       @click="selectedCategory = 'medical-history'" checked> Medical Diagnosis
+                       @click="selectedCategory = 'medical-history'" checked>
+                Medical Diagnosis
             </label>
             <label class="ml-4">
                 <input type="radio" name="category" value="physical-exam" @click="selectedCategory = 'physical-exam'">
@@ -43,76 +46,79 @@
         </div>
     </div>
 
-    <!-- Upload Form -->
+    <!-- Form for Uploading Records -->
     <form @submit.prevent="uploadMedicalRecord" class="bg-white p-6 rounded-lg shadow-md">
 
-        <!-- Dynamically Rendered Inputs based on Category -->
-        <!-- Weight Record Fields -->
+        <!-- Weight Record Fields (if selected) -->
         <div x-show="selectedCategory === 'weight-record'">
             <div class="mb-4">
                 <label for="weightRecordWeight" class="block text-gray-700 font-semibold">Weight (kg):</label>
                 <input type="number" step="0.01" id="weightRecordWeight" x-model="weightRecord.weight"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.weight"></span> <!-- Error for weight -->
+                <span class="text-red-500 text-sm" x-text="errors.weight"></span> <!-- Error message for weight -->
             </div>
             <div class="mb-4">
                 <label for="weightRecordDate" class="block text-gray-700 font-semibold">Date:</label>
                 <input type="date" id="weightRecordDate" x-model="weightRecord.date"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.date"></span> <!-- Error for date -->
+                <span class="text-red-500 text-sm" x-text="errors.date"></span> <!-- Error message for date -->
             </div>
         </div>
 
-        <!-- Vaccination Fields -->
+        <!-- Vaccination Fields (if selected) -->
         <div x-show="selectedCategory === 'vaccination'">
             <div class="mb-4">
                 <label for="vaccineName" class="block text-gray-700 font-semibold">Vaccine Name:</label>
                 <input type="text" id="vaccineName" x-model="vaccinationRecord.vaccineName"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.vaccineName"></span> <!-- Error for vaccine name -->
+                <span class="text-red-500 text-sm" x-text="errors.vaccineName"></span>
+                <!-- Error message for vaccine name -->
             </div>
             <div class="mb-4">
                 <label for="vaccinationDate" class="block text-gray-700 font-semibold">Vaccination Date:</label>
                 <input type="date" id="vaccinationDate" x-model="vaccinationRecord.vaccinationDate"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
                 <span class="text-red-500 text-sm" x-text="errors.vaccinationDate"></span>
-                <!-- Error for vaccination date -->
+                <!-- Error message for vaccination date -->
             </div>
             <div class="mb-4">
                 <label for="administeredBy" class="block text-gray-700 font-semibold">Administered By:</label>
                 <input type="text" id="administeredBy" x-model="vaccinationRecord.administeredBy"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
                 <span class="text-red-500 text-sm" x-text="errors.administeredBy"></span>
-                <!-- Error for administered by -->
+                <!-- Error message for administered by -->
             </div>
             <div class="mb-4">
                 <label for="nextDueDate" class="block text-gray-700 font-semibold">Next Due Date:</label>
                 <input type="date" id="nextDueDate" x-model="vaccinationRecord.nextDueDate"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.nextDueDate"></span> <!-- Error for next due date -->
+                <span class="text-red-500 text-sm" x-text="errors.nextDueDate"></span>
+                <!-- Error message for next due date -->
             </div>
         </div>
 
-        <!-- Treatment Plan Fields -->
+        <!-- Treatment Plan Fields (if selected) -->
         <div x-show="selectedCategory === 'treatment-plan'">
             <div class="mb-4">
                 <label for="planDate" class="block text-gray-700 font-semibold">Plan Date:</label>
                 <input type="date" id="planDate" x-model="treatmentPlan.planDate"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.planDate"></span> <!-- Error for plan date -->
+                <span class="text-red-500 text-sm" x-text="errors.planDate"></span> <!-- Error message for plan date -->
             </div>
             <div class="mb-4">
                 <label for="treatmentPlanDescription" class="block text-gray-700 font-semibold">Treatment
                     Description:</label>
                 <textarea id="treatmentPlanDescription" x-model="treatmentPlan.description" rows="4"
                           class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
-                <span class="text-red-500 text-sm" x-text="errors.description"></span> <!-- Error for description -->
+                <span class="text-red-500 text-sm" x-text="errors.description"></span>
+                <!-- Error message for description -->
             </div>
             <div class="mb-4">
                 <label for="treatmentPlanPractitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
                 <input type="text" id="treatmentPlanPractitioner" x-model="treatmentPlan.practitioner"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.practitioner"></span> <!-- Error for practitioner -->
+                <span class="text-red-500 text-sm" x-text="errors.practitioner"></span>
+                <!-- Error message for practitioner -->
             </div>
             <div class="mb-4">
                 <label for="treatmentPlanNotes" class="block text-gray-700 font-semibold">Notes:</label>
@@ -121,26 +127,29 @@
             </div>
         </div>
 
-        <!-- Medical Diagnosis Fields -->
+        <!-- Medical Diagnosis Fields (if selected) -->
         <div x-show="selectedCategory === 'medical-history'">
             <div class="mb-4">
                 <label for="medicalHistoryEventDate" class="block text-gray-700 font-semibold">Diagnosis Date:</label>
                 <input type="date" id="medicalHistoryEventDate" x-model="medicalHistory.eventDate"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.eventDate"></span> <!-- Error for event date -->
+                <span class="text-red-500 text-sm" x-text="errors.eventDate"></span>
+                <!-- Error message for diagnosis date -->
             </div>
             <div class="mb-4">
                 <label for="medicalHistoryTreatment" class="block text-gray-700 font-semibold">Diagnosis
                     Treatment:</label>
                 <textarea id="medicalHistoryTreatment" x-model="medicalHistory.treatment" rows="4"
                           class="w-full border border-gray-300 px-4 py-2 rounded-md"></textarea>
-                <span class="text-red-500 text-sm" x-text="errors.treatment"></span> <!-- Error for treatment -->
+                <span class="text-red-500 text-sm" x-text="errors.treatment"></span>
+                <!-- Error message for treatment -->
             </div>
             <div class="mb-4">
                 <label for="medicalHistoryPractitioner" class="block text-gray-700 font-semibold">Practitioner:</label>
                 <input type="text" id="medicalHistoryPractitioner" x-model="medicalHistory.practitioner"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.practitioner"></span> <!-- Error for practitioner -->
+                <span class="text-red-500 text-sm" x-text="errors.practitioner"></span>
+                <!-- Error message for practitioner -->
             </div>
             <div class="mb-4">
                 <label for="medicalHistoryNotes" class="block text-gray-700 font-semibold">Diagnosis Description
@@ -150,13 +159,13 @@
             </div>
         </div>
 
-        <!-- Physical Exam Fields -->
+        <!-- Physical Exam Fields (if selected) -->
         <div x-show="selectedCategory === 'physical-exam'">
             <div class="mb-4">
                 <label for="physicalExamDate" class="block text-gray-700 font-semibold">Exam Date:</label>
                 <input type="date" id="physicalExamDate" x-model="physicalExam.examDate"
                        class="w-full border border-gray-300 px-4 py-2 rounded-md">
-                <span class="text-red-500 text-sm" x-text="errors.examDate"></span> <!-- Error for exam date -->
+                <span class="text-red-500 text-sm" x-text="errors.examDate"></span> <!-- Error message for exam date -->
             </div>
             <div class="mb-4">
                 <label for="physicalExamNotes" class="block text-gray-700 font-semibold">Notes:</label>
@@ -165,6 +174,7 @@
             </div>
         </div>
 
+        <!-- Submit and Cancel Buttons -->
         <div class="flex justify-between mt-6">
             <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600">Upload
                 Record
@@ -175,15 +185,16 @@
         </div>
     </form>
 
+    <!-- Alpine.js Methods for Handling Form Submission -->
     <script>
         function uploadMedicalRecords() {
             return {
                 selectedCategory: 'medical-history',
-                weightRecord: { weight: '', date: '' },
-                vaccinationRecord: { vaccineName: '', vaccinationDate: '', administeredBy: '', nextDueDate: '' },
-                treatmentPlan: { planDate: '', description: '', practitioner: '', notes: '' },
-                medicalHistory: { eventDate: '', treatment: '', practitioner: '', notes: '' },
-                physicalExam: { examDate: '', notes: '' },
+                weightRecord: {weight: '', date: ''},
+                vaccinationRecord: {vaccineName: '', vaccinationDate: '', administeredBy: '', nextDueDate: ''},
+                treatmentPlan: {planDate: '', description: '', practitioner: '', notes: ''},
+                medicalHistory: {eventDate: '', treatment: '', practitioner: '', notes: ''},
+                physicalExam: {examDate: '', notes: ''},
                 appointmentId: null,
                 errors: {}, // Object to store errors
 
@@ -191,6 +202,7 @@
                     this.setAppointmentIdFromURL();
                 },
 
+                // Fetch appointment ID from the URL parameters
                 setAppointmentIdFromURL() {
                     const urlParams = new URLSearchParams(window.location.search);
                     this.appointmentId = urlParams.get('appointment-id');
@@ -212,12 +224,16 @@
                     return selectedDate > today;
                 },
 
-                // Validate input fields
+                // Validate input fields based on the selected category
                 validateFields() {
                     this.errors = {}; // Reset errors
+
+                    // Validation for weight record
                     if (this.selectedCategory === 'weight-record') {
                         if (!this.weightRecord.weight) this.errors.weight = 'Weight is required.';
                         if (!this.weightRecord.date) this.errors.date = 'Date is required.';
+
+                        // Validation for vaccination record
                     } else if (this.selectedCategory === 'vaccination') {
                         if (!this.vaccinationRecord.vaccineName) this.errors.vaccineName = 'Vaccine name is required.';
                         if (!this.vaccinationRecord.vaccinationDate) this.errors.vaccinationDate = 'Vaccination date is required.';
@@ -227,16 +243,22 @@
                         } else if (!this.isFutureDate(this.vaccinationRecord.nextDueDate)) {
                             this.errors.nextDueDate = 'Next due date must be in the future.';
                         }
+
+                        // Validation for treatment plan
                     } else if (this.selectedCategory === 'treatment-plan') {
                         if (!this.treatmentPlan.planDate) this.errors.planDate = 'Plan date is required.';
                         if (!this.isFutureDate(this.treatmentPlan.planDate)) this.errors.planDate = 'Plan date must be in the future.';
                         if (!this.treatmentPlan.description) this.errors.description = 'Description is required.';
                         if (!this.treatmentPlan.practitioner) this.errors.practitioner = 'Practitioner is required.';
+
+                        // Validation for medical history
                     } else if (this.selectedCategory === 'medical-history') {
                         if (!this.medicalHistory.eventDate) this.errors.eventDate = 'Event date is required.';
                         if (!this.medicalHistory.treatment) this.errors.treatment = 'Treatment is required.';
                         if (!this.medicalHistory.practitioner) this.errors.practitioner = 'Practitioner is required.';
                         if (!this.medicalHistory.notes) this.errors.notes = 'Notes are required.';
+
+                        // Validation for physical exam
                     } else if (this.selectedCategory === 'physical-exam') {
                         if (!this.physicalExam.examDate) this.errors.examDate = 'Exam date is required.';
                         if (!this.physicalExam.notes) this.errors.notes = 'Notes are required.';
@@ -245,13 +267,14 @@
                     return Object.keys(this.errors).length === 0; // Return true if no errors
                 },
 
+                // Upload the selected medical record
                 uploadMedicalRecord() {
                     if (!this.appointmentId || !this.selectedCategory) {
                         alert('Please fill in all fields.');
                         return;
                     }
 
-                    // Validate fields
+                    // Validate fields before uploading
                     if (!this.validateFields()) {
                         return; // Don't proceed if validation fails
                     }
@@ -268,7 +291,7 @@
                     formData.append('category', this.selectedCategory);
                     formData.append('veterinarianId', user.id); // Include veterinarian ID from local storage
 
-                    // Prepare form data based on category and format the dates
+                    // Prepare form data based on selected category and format the dates
                     if (this.selectedCategory === 'weight-record') {
                         formData.append('weight', this.weightRecord.weight);
                         formData.append('date', this.formatDate(this.weightRecord.date)); // Format date
@@ -292,9 +315,9 @@
                         formData.append('notes', this.physicalExam.notes);
                     }
 
-                    // Submit the form data using axios
+                    // Submit the form data using Axios
                     axios.post('/api/medical-records/upload-records', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
+                        headers: {'Content-Type': 'multipart/form-data'}
                     })
                         .then(response => {
                             alert('Medical record uploaded successfully!');
@@ -315,7 +338,9 @@
         }
     </script>
 
-        </div>
+</div>
+
+<!-- Footer Fragment -->
 <div th:replace="~{fragments/footer :: footer}" class="mt-auto"></div>
 </body>
 </html>

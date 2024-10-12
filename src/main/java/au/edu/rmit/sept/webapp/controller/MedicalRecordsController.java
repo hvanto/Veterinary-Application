@@ -2,12 +2,11 @@ package au.edu.rmit.sept.webapp.controller;
 
 import au.edu.rmit.sept.webapp.model.*;
 import au.edu.rmit.sept.webapp.service.*;
-import com.github.javafaker.App;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +16,15 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Controller to handle medical records related operations such as fetching, downloading,
+ * uploading, and seeding default data for the pet's medical records.
+ */
 @Controller
 @RequestMapping("/api/medical-records")
 public class MedicalRecordsController {
 
+    // Autowire service classes for handling different business logic
     @Autowired
     private PetService petService;
 
@@ -54,6 +58,7 @@ public class MedicalRecordsController {
     /**
      * Fetches all pets for the logged-in user.
      * This is used to display the pet selection screen.
+     *
      * @param userId The ID of the logged-in user.
      * @return List of the user's pets.
      */
@@ -72,6 +77,7 @@ public class MedicalRecordsController {
 
     /**
      * Seeds default data for a user if they have no pets.
+     *
      * @param userId The ID of the logged-in user.
      */
     private void seedDataForUser(Long userId) {
@@ -191,10 +197,18 @@ public class MedicalRecordsController {
         medicalHistoryService.save(history6);
     }
 
+    /**
+     * Fetches detailed medical records for the selected pet.
+     *
+     * @param selectedPetId The ID of the selected pet.
+     * @return A response object containing all the medical records of the selected pet.
+     */
     @GetMapping("/{selectedPetId}")
     @ResponseBody
     public MedicalRecordsResponse getMedicalRecords(@PathVariable Long selectedPetId) {
         Pet selectedPet = petService.getPetById(selectedPetId);
+
+        // Fetch associated medical records for the pet
         List<MedicalHistory> medicalHistoryList = medicalHistoryService.getMedicalHistoryByPetId(selectedPetId);
         List<PhysicalExam> physicalExamList = physicalExamService.getPhysicalExamsByPetId(selectedPetId);
         List<Vaccination> vaccinationList = vaccinationService.getVaccinationsByPetId(selectedPetId);
@@ -204,28 +218,33 @@ public class MedicalRecordsController {
         return new MedicalRecordsResponse(selectedPet, medicalHistoryList, physicalExamList, vaccinationList, weightRecords, treatmentPlanList);
     }
 
+    /**
+     * Downloads the medical records in either PDF or XML format.
+     *
+     * @param selectedPetId The ID of the selected pet.
+     * @param format        The file format, either "pdf" or "xml".
+     * @param sections      Sections to include in the report.
+     * @return A ResponseEntity containing the file as InputStreamResource.
+     */
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadMedicalRecords(
             @RequestParam("selectedPetId") Long selectedPetId,
             @RequestParam("format") String format,
             @RequestParam("sections") List<String> sections) {
 
-        System.out.println("Selected Pet ID: " + selectedPetId);
-        System.out.println("Requested format: " + format);
-        System.out.println("Sections: " + sections);
-
         Pet selectedPet = petService.getPetById(selectedPetId);
         if (selectedPet == null) {
-            System.out.println("Pet not found for ID: " + selectedPetId);
             return ResponseEntity.badRequest().body(null);
         }
 
+        // Fetch all records
         List<MedicalHistory> medicalHistoryList = medicalHistoryService.getMedicalHistoryByPetId(selectedPetId);
         List<PhysicalExam> physicalExamList = physicalExamService.getPhysicalExamsByPetId(selectedPetId);
         List<Vaccination> vaccinationList = vaccinationService.getVaccinationsByPetId(selectedPetId);
         List<TreatmentPlan> treatmentPlanList = treatmentPlanService.getTreatmentPlansByPetId(selectedPetId);
         List<WeightRecord> weightRecordList = weightRecordService.getWeightRecordsByPetId(selectedPetId);
 
+        // Generate file based on the selected format
         ByteArrayInputStream inputStream;
         if ("pdf".equalsIgnoreCase(format)) {
             inputStream = fileGenerationService.generatePDF(selectedPet, medicalHistoryList, physicalExamList, vaccinationList, treatmentPlanList, weightRecordList, sections);
@@ -242,6 +261,14 @@ public class MedicalRecordsController {
                 .body(new InputStreamResource(inputStream));
     }
 
+    /**
+     * Uploads a medical record for a specific appointment and category.
+     *
+     * @param appointmentId  The ID of the appointment.
+     * @param category       The type of record being uploaded (e.g., weight-record, vaccination).
+     * @param veterinarianId The ID of the veterinarian associated with the record.
+     * @return A ResponseEntity indicating success or failure.
+     */
     @PostMapping("/upload-records")
     public ResponseEntity<String> uploadMedicalRecord(
             @RequestParam("appointmentId") Long appointmentId,
@@ -301,8 +328,7 @@ public class MedicalRecordsController {
 
                 case "medical-history":
                     if (eventDate != null && treatment != null && practitioner != null && notes != null) {
-                        MedicalHistory medicalHistory = new MedicalHistory(
-                                pet, practitioner, treatment, vet, java.sql.Date.valueOf(eventDate), notes, null);
+                        MedicalHistory medicalHistory = new MedicalHistory(pet, practitioner, treatment, vet, java.sql.Date.valueOf(eventDate), notes, null);
                         medicalHistoryService.save(medicalHistory);
                         return ResponseEntity.ok("Medical history uploaded successfully.");
                     }
