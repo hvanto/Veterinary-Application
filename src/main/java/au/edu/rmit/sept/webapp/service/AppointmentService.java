@@ -99,4 +99,16 @@ public class AppointmentService {
     public Pet getAppointmentPet(Long appointmentId) {
         return appointmentRepository.getPetByAppointmentId(appointmentId);
     }
+
+    public void cancelAppointment(Appointment appointment) {
+        appointmentRepository.markAppointmentAsDeleted(appointment.getId());
+
+        Veterinarian veterinarian = appointment.getVeterinarian();
+
+        // Send a notification after the appointment is successfully cancelled
+        String confirmationMessage = String.format("Your appointment with Dr. %s is cancelled.",
+                veterinarian.getFirstName() + " " + veterinarian.getLastName());
+
+        notificationService.createNotification(appointmentRepository.getUserByAppointmentId(appointment.getId()), confirmationMessage);
+    }
 }

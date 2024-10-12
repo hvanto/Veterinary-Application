@@ -2,10 +2,13 @@ package au.edu.rmit.sept.webapp.repository;
 
 import au.edu.rmit.sept.webapp.model.Appointment;
 import au.edu.rmit.sept.webapp.model.Pet;
+import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.model.Veterinarian;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -23,9 +26,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("SELECT a FROM Appointment a WHERE a.user.id = :userId")
     List<Appointment> findAllByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT a.user FROM Appointment a WHERE a.id = :appointmentId")
+    User getUserByAppointmentId(Long appointmentId);
+
     @Query("SELECT a.veterinarian FROM Appointment a WHERE a.id = :appointmentId")
     Veterinarian getVeterinarianByAppointmentId(Long appointmentId);
 
     @Query("SELECT a.pet FROM Appointment a WHERE a.id = :appointmentId")
     Pet getPetByAppointmentId(Long appointmentId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Appointment a SET a.deleted = true WHERE a.id = :appointmentId")
+    void markAppointmentAsDeleted(@Param("appointmentId") Long appointmentId);
 }

@@ -86,4 +86,15 @@ public class AppointmentController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    // Delete pet by ID
+    @PostMapping("/cancel/{id}")
+    public ResponseEntity<?> deleteAppointment(@PathVariable Long id) throws Exception {
+        Appointment appointment = appointmentService.getAppointmentById(id);
+        if (appointment == null) {
+            return ResponseEntity.badRequest().body("Appointment not found");
+        }
+        appointmentService.cancelAppointment(appointment);
+        return ResponseEntity.ok("Appointment cancelled successfully!");
+    }
 }

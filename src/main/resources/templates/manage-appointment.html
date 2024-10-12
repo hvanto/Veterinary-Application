@@ -7,12 +7,11 @@
 </head>
 
 <body class="">
-<main x-data="appointmentsData" class="max-w-screen-2xl mx-auto my-10 bg-white shadow-xl rounded-xl py-10 px-10" th:fragment="main">
+<main x-data="appointmentsData" x-init="[fetchData()]" class="max-w-screen-2xl mx-auto my-10 bg-white shadow-xl rounded-xl py-10 px-10" th:fragment="main">
     <!-- Related Scripts -->
     <link rel="stylesheet" type="text/css" th:href="@{/css/toastify.css}">
     <script type="text/javascript" th:src="@{/js/toastify.js}"></script>
     <script th:src="@{/js/manage-appointment.js}"></script>
-
 
     <div class="mb-6">
         <h1 class="font-semibold text-4xl">Bookings</h1>
@@ -50,97 +49,107 @@
             </div>
         </div>
         <div class="mt-8 flex flex-col">
-            <div class="my-4 mx-2.5">
-                <span class="text-gray-700 font-semibold text-lg">May</span>
-            </div>
-            <div class="flex border border-zinc-200 rounded-xl p-6 bg-zinc-50 mb-4">
-                <!-- Day and Date Section -->
-                <div class="flex flex-col w-24 border-r border-zinc-200 grow-0">
-                    <span class="text-lg w-fit mx-auto">Mon</span>
-                    <span class="text-3xl w-fit mx-auto font-bold text-sky-600">30</span>
-                </div>
-                <!-- Time and Clinic Section -->
-                <div class="flex flex-col px-8 justify-around py-1 mr-16 grow-0">
-                    <div class="flex space-x-2 items-center">
-                        <svg fill="#000000" height="800px" width="800px" version="1.1" id="Capa_1"
-                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                             viewBox="0 0 86.285 86.285" xml:space="preserve" class="w-5 h-5">
-                                <g>
-                                    <path
-                                            d="M9.83,40.531c0-10.4,4.728-20.016,12.969-26.381c1.577-1.218,1.868-3.484,0.65-5.062c-1.219-1.577-3.484-1.87-5.063-0.65                                    C8.362,16.181,2.613,27.878,2.613,40.531c0,4.96,0.885,9.803,2.631,14.396c0.548,1.441,1.919,2.327,3.374,2.327                                    c0.426,0,0.859-0.076,1.281-0.236c1.863-0.708,2.799-2.792,2.091-4.655C10.557,48.592,9.83,44.611,9.83,40.531z" />
-                                    <path
-                                            d="M43.143,0c-4.357,0-8.644,0.689-12.743,2.046c-1.893,0.626-2.918,2.668-2.292,4.56c0.626,1.892,2.668,2.916,4.56,2.292                                    c3.367-1.115,6.892-1.68,10.476-1.68c18.368,0,33.312,14.944,33.312,33.313c0,18.37-14.944,33.316-33.312,33.316                                    c-4.274,0-8.415-0.816-12.288-2.357l4.341-0.578c1.976-0.264,3.364-2.078,3.101-4.054c-0.264-1.977-2.091-3.36-4.054-3.101                                    l-13.864,1.848c-1.976,0.264-3.364,2.078-3.101,4.054c0.024,0.179,0.07,0.348,0.118,0.517c0.015,0.537,0.139,1.077,0.402,1.578                                    l6.624,12.601c0.646,1.229,1.899,1.931,3.197,1.931c0.566,0,1.141-0.134,1.676-0.415c1.765-0.928,2.443-3.109,1.516-4.873                                    L29.64,78.77c4.29,1.516,8.836,2.295,13.503,2.295c22.348,0,40.529-18.183,40.529-40.533C83.672,18.182,65.49,0,43.143,0z" />
-                                    <path
-                                            d="M41.477,36.553c0-3.083-2.577-5.129-5.811-5.129c-2.325,0-4.195,0.581-5.61,1.288c-0.379,0.202-0.556,0.506-0.556,0.936                                    c0,0.556,0.404,0.984,0.96,0.984c0.202,0,0.43-0.101,0.48-0.126c1.137-0.505,2.603-0.909,4.321-0.909                                    c2.931,0,3.992,1.339,3.992,3.133c0,4.119-10.107,5.938-10.107,11.27c0,0.784,0.556,1.314,1.339,1.314h9.754                                    c0.606,0,1.087-0.455,1.087-1.062c0-0.606-0.48-1.086-1.087-1.086h-8.794C32.81,44.209,41.477,41.758,41.477,36.553z" />
-                                    <path
-                                            d="M54.31,49.439c0.632,0,1.162-0.505,1.162-1.137v-3.437h1.921c0.581,0,1.035-0.43,1.035-1.011                                    c0-0.581-0.454-1.036-1.035-1.036h-1.921v-9.805c0-0.809-0.581-1.465-1.466-1.465h-0.505c-0.506,0-0.985,0.252-1.264,0.607                                    l-7.935,10.133C44.126,42.517,44,42.87,44,43.198v0.228c0,0.809,0.657,1.44,1.466,1.44h7.706v3.437                                    C53.172,48.935,53.678,49.439,54.31,49.439z M46.451,42.819l6.721-8.667v8.667H46.451z" />
-                                    <path
-                                            d="M28.158,24.259c3.995-3.487,9.119-5.407,14.429-5.407c12.105,0,21.953,9.85,21.953,21.956c0,0.996,0.809,1.805,1.805,1.805                                    c0.996,0,1.805-0.809,1.805-1.805c0-14.096-11.468-25.564-25.563-25.564c-6.183,0-12.149,2.236-16.802,6.297                                    c-0.751,0.655-0.828,1.795-0.173,2.546C26.268,24.836,27.408,24.914,28.158,24.259z" />
-                                </g>
-                            </svg>
-                        <span>09:00 - 09:30</span>
-                    </div>
-                    <div class="flex space-x-2 items-center">
-                        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
-                             xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-                            <path
-                                    d="M12 13V7M15 10.0008L9 10M19 10.2C19 14.1764 15.5 17.4 12 21C8.5 17.4 5 14.1764 5 10.2C5 6.22355 8.13401 3 12 3C15.866 3 19 6.22355 19 10.2Z"
-                                    stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <template x-for="(appointment, index) in currentAppointmentsDisplay" :key="appointment.id">
+                <div class="">
+                    <template x-if="index === 0 || (getMonthFromTimestamp(appointment.appointmentDate) !== getMonthFromTimestamp(currentAppointmentsDisplay[index - 1].appointmentDate))">
+                        <div class="my-4 mx-2.5">
+                            <span class="text-gray-700 font-semibold text-lg" x-text="getMonthFromTimestamp(appointment.appointmentDate)"></span>
+                        </div>
+                    </template>
+
+                    <div class="flex border border-zinc-200 rounded-xl p-6 bg-zinc-50 mb-4">
+                        <!-- Day and Date Section -->
+                        <div class="flex flex-col w-24 border-r border-zinc-200 grow-0">
+                            <span class="text-lg w-fit mx-auto" x-text="getDayFromTimestamp(appointment.appointmentDate)"></span>
+                            <span class="text-3xl w-fit mx-auto font-bold text-sky-600" x-text="getDateFromTimestamp(appointment.appointmentDate)"></span>
+                        </div>
+                        <!-- Time and Clinic Section -->
+                        <div class="flex flex-col px-8 justify-around py-1 mr-16 grow-0">
+                            <div class="flex space-x-2 items-center">
+                                <svg fill="#000000" height="800px" width="800px" version="1.1" id="Capa_1"
+                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                     viewBox="0 0 86.285 86.285" xml:space="preserve" class="w-5 h-5">
+                            <g>
+                                <path
+                                        d="M9.83,40.531c0-10.4,4.728-20.016,12.969-26.381c1.577-1.218,1.868-3.484,0.65-5.062c-1.219-1.577-3.484-1.87-5.063-0.65                                    C8.362,16.181,2.613,27.878,2.613,40.531c0,4.96,0.885,9.803,2.631,14.396c0.548,1.441,1.919,2.327,3.374,2.327                                    c0.426,0,0.859-0.076,1.281-0.236c1.863-0.708,2.799-2.792,2.091-4.655C10.557,48.592,9.83,44.611,9.83,40.531z" />
+                                <path
+                                        d="M43.143,0c-4.357,0-8.644,0.689-12.743,2.046c-1.893,0.626-2.918,2.668-2.292,4.56c0.626,1.892,2.668,2.916,4.56,2.292                                    c3.367-1.115,6.892-1.68,10.476-1.68c18.368,0,33.312,14.944,33.312,33.313c0,18.37-14.944,33.316-33.312,33.316                                    c-4.274,0-8.415-0.816-12.288-2.357l4.341-0.578c1.976-0.264,3.364-2.078,3.101-4.054c-0.264-1.977-2.091-3.36-4.054-3.101                                    l-13.864,1.848c-1.976,0.264-3.364,2.078-3.101,4.054c0.024,0.179,0.07,0.348,0.118,0.517c0.015,0.537,0.139,1.077,0.402,1.578                                    l6.624,12.601c0.646,1.229,1.899,1.931,3.197,1.931c0.566,0,1.141-0.134,1.676-0.415c1.765-0.928,2.443-3.109,1.516-4.873                                    L29.64,78.77c4.29,1.516,8.836,2.295,13.503,2.295c22.348,0,40.529-18.183,40.529-40.533C83.672,18.182,65.49,0,43.143,0z" />
+                                <path
+                                        d="M41.477,36.553c0-3.083-2.577-5.129-5.811-5.129c-2.325,0-4.195,0.581-5.61,1.288c-0.379,0.202-0.556,0.506-0.556,0.936                                    c0,0.556,0.404,0.984,0.96,0.984c0.202,0,0.43-0.101,0.48-0.126c1.137-0.505,2.603-0.909,4.321-0.909                                    c2.931,0,3.992,1.339,3.992,3.133c0,4.119-10.107,5.938-10.107,11.27c0,0.784,0.556,1.314,1.339,1.314h9.754                                    c0.606,0,1.087-0.455,1.087-1.062c0-0.606-0.48-1.086-1.087-1.086h-8.794C32.81,44.209,41.477,41.758,41.477,36.553z" />
+                                <path
+                                        d="M54.31,49.439c0.632,0,1.162-0.505,1.162-1.137v-3.437h1.921c0.581,0,1.035-0.43,1.035-1.011                                    c0-0.581-0.454-1.036-1.035-1.036h-1.921v-9.805c0-0.809-0.581-1.465-1.466-1.465h-0.505c-0.506,0-0.985,0.252-1.264,0.607                                    l-7.935,10.133C44.126,42.517,44,42.87,44,43.198v0.228c0,0.809,0.657,1.44,1.466,1.44h7.706v3.437                                    C53.172,48.935,53.678,49.439,54.31,49.439z M46.451,42.819l6.721-8.667v8.667H46.451z" />
+                                <path
+                                        d="M28.158,24.259c3.995-3.487,9.119-5.407,14.429-5.407c12.105,0,21.953,9.85,21.953,21.956c0,0.996,0.809,1.805,1.805,1.805                                    c0.996,0,1.805-0.809,1.805-1.805c0-14.096-11.468-25.564-25.563-25.564c-6.183,0-12.149,2.236-16.802,6.297                                    c-0.751,0.655-0.828,1.795-0.173,2.546C26.268,24.836,27.408,24.914,28.158,24.259z" />
+                            </g>
                         </svg>
-                        <span class="my-auto">VetCare LaTrobe</span>
-                    </div>
-                </div>
-                <!-- Pet and Doctor Section -->
-                <div class="flex flex-col justify-around py-1 grow-0">
-                    <div class="flex">
-                        <span>Booked By: Someone</span> <span>(Pet)</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <img th:src="'/assets/profile_picture.jpg'" alt="Doctor Profile"
-                             class="w-5 h-5 rounded-full" />
-                        <span>Dr. Someone</span>
-                    </div>
-                </div>
-                <!-- Edit Options -->
-                <div class="grow flex flex-row-reverse items-center">
-                    <button type="button" x-click="toggleAppointmentEditMenu()"
-                            class="relative flex justify-center items-center w-20 h-9 bg-sky-800 text-white rounded-lg cursor-pointer">
-                        <span class="mr-1.5">Edit</span>
-                        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
-                             xmlns="http://www.w3.org/2000/svg" class="w-4 h-4">
-                            <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"
-                                  stroke-linejoin="round" />
-                        </svg>
-                        <div
-                                class="absolute text-black w-56 bg-white shadow-xl -bottom-28 right-0 py-1.5 px-1.5 rounded-lg z-20">
-                            <div class="hover:bg-zinc-100 py-2.5 rounded-lg flex items-center px-2.5 mb-1" x-click="">
-                                <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
-                                    <path
-                                            d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
-                                            stroke="#000000" stroke-width="1.5" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                    <path d="M12 6V12" stroke="#000000" stroke-width="1.5" stroke-linecap="round"
-                                          stroke-linejoin="round" />
-                                    <path d="M16.24 16.24L12 12" stroke="#000000" stroke-width="1.5"
-                                          stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span>Reschedule Booking</span>
+                                <span x-text="formatTimeRange(appointment.startTime, appointment.endTime)"></span>
                             </div>
-                            <div class="py-2.5 rounded-lg flex items-center px-2.5 bg-red-600 bg-opacity-40 hover:bg-opacity-50" x-click="">
+                            <div class="flex space-x-2 items-center">
                                 <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                     xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
                                     <path
-                                            d="M16 8L8 16M12 12L16 16M8 8L10 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-                                            stroke="#000000" stroke-width="1.5" stroke-linecap="round"
-                                            stroke-linejoin="round" />
+                                            d="M12 13V7M15 10.0008L9 10M19 10.2C19 14.1764 15.5 17.4 12 21C8.5 17.4 5 14.1764 5 10.2C5 6.22355 8.13401 3 12 3C15.866 3 19 6.22355 19 10.2Z"
+                                            stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <span>Cancel</span>
+                                <span class="my-auto" x-text="getClinicInfo(appointment)"></span>
                             </div>
                         </div>
-                    </button>
+                        <!-- Pet and Doctor Section -->
+                        <div class="flex flex-col justify-around py-1 grow-0">
+                            <div class="flex">
+                                <span x-text="`Booked By: ${user.firstName} `"></span> <span class="ml-2.5" x-text="`(For: ${appointment.pet.name})`"></span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <img :src="`/assets/${appointment.veterinarian.image}`" alt="Doctor Profile"
+                                     class="w-5 h-5 rounded-full" />
+                                <span x-text="getDoctorName(appointment)"></span>
+                            </div>
+                        </div>
+                        <!-- Edit Options -->
+                        <div class="grow flex flex-row-reverse items-center" x-data="{ showEditMenu: false }">
+                            <button type="button" @click="selectedAppointmentSection === 'upcoming' ? showEditMenu = !showEditMenu : showEditMenu = false"
+                                    class="relative flex justify-center items-center w-20 h-9 text-white rounded-lg cursor-pointer"
+                                    :class="{'bg-zinc-500': selectedAppointmentSection !== 'upcoming', 'bg-sky-800': selectedAppointmentSection === 'upcoming'}">
+                            <span class="mr-1.5">Edit</span>
+                                <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg" class="w-4 h-4">
+                                    <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"
+                                          stroke-linejoin="round" />
+                                </svg>
+                                <!-- Toggle view onclick Edit Button -->
+                                <div class="absolute text-black w-56 bg-white shadow-xl -bottom-28 right-0 py-1.5 px-1.5 rounded-lg z-20"
+                                     x-show.transition.in="showEditMenu"
+                                     @click.away="showEditMenu = false">
+                                    <div class="hover:bg-zinc-100 py-2.5 rounded-lg flex items-center px-2.5 mb-1" @click="rescheduleAppointment(appointment.id)">
+                                        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
+                                             xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                            <path
+                                                    d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
+                                                    stroke="#000000" stroke-width="1.5" stroke-linecap="round"
+                                                    stroke-linejoin="round" />
+                                            <path d="M12 6V12" stroke="#000000" stroke-width="1.5" stroke-linecap="round"
+                                                  stroke-linejoin="round" />
+                                            <path d="M16.24 16.24L12 12" stroke="#000000" stroke-width="1.5"
+                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <span>Reschedule Booking</span>
+                                    </div>
+                                    <div class="py-2.5 rounded-lg flex items-center px-2.5 bg-red-600 bg-opacity-40 hover:bg-opacity-50" @click="cancelAppointment(appointment.id)">
+                                        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none"
+                                             xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2">
+                                            <path
+                                                    d="M16 8L8 16M12 12L16 16M8 8L10 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                                                    stroke="#000000" stroke-width="1.5" stroke-linecap="round"
+                                                    stroke-linejoin="round" />
+                                        </svg>
+                                        <span>Cancel</span>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </template>
         </div>
     </div>
     <!-- Loading Spinner Section -->

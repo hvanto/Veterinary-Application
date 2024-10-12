@@ -50,10 +50,14 @@ public class Appointment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date UpdatedOn;
 
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean deleted;
+
     @PrePersist
     protected void onCreate() {
         CreatedOn = new Date();
         UpdatedOn = new Date();
+        deleted = false;
     }
 
     @PreUpdate
@@ -141,5 +145,13 @@ public class Appointment {
 
     public void setPet(Pet pet) {
         this.pet = pet;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
