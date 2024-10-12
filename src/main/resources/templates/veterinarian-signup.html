@@ -5,12 +5,18 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
+
+<!-- Main Veterinarian Sign-Up Section -->
 <main th:fragment="main" class="max-w-screen-2xl mx-auto flex justify-center items-center h-screen signup-content">
 
+    <!-- Sign-Up Form Container -->
     <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md signup-form">
         <h1 class="text-2xl font-semibold text-center mb-6">Veterinarian Sign Up</h1>
+
+        <!-- Veterinarian Sign-Up Form -->
         <form id="vetSignupForm" class="space-y-6" onsubmit="return false">
-            <!-- First Name -->
+
+            <!-- First Name Input -->
             <div class="form-group">
                 <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
                 <input type="text" id="firstName" name="firstName"
@@ -20,7 +26,7 @@
                     letters.</p>
             </div>
 
-            <!-- Last Name -->
+            <!-- Last Name Input -->
             <div class="form-group">
                 <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
                 <input type="text" id="lastName" name="lastName"
@@ -29,7 +35,7 @@
                 <p id="lastNameError" class="text-red-600 text-sm mt-2 hidden">Last name must contain only letters.</p>
             </div>
 
-            <!-- Email -->
+            <!-- Email Input -->
             <div class="form-group">
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="email" name="email"
@@ -39,7 +45,7 @@
                 <p id="emailTakenError" class="text-red-600 text-sm mt-2 hidden">Email already exists.</p>
             </div>
 
-            <!-- Contact (Mobile) -->
+            <!-- Contact Input -->
             <div class="form-group">
                 <label for="contact" class="block text-sm font-medium text-gray-700">Contact</label>
                 <input type="text" id="contact" name="contact"
@@ -48,7 +54,7 @@
                 <p id="contactError" class="text-red-600 text-sm mt-2 hidden">Contact must contain only numbers.</p>
             </div>
 
-            <!-- Clinic Name (optional for independent veterinarians) -->
+            <!-- Clinic Name (Optional) -->
             <div class="form-group">
                 <label for="clinicName" class="block text-sm font-medium text-gray-700">Clinic Name (Optional)</label>
                 <input type="text" id="clinicName" name="clinicName"
@@ -56,7 +62,7 @@
                 <p id="clinicNameError" class="text-red-600 text-sm mt-2 hidden">Clinic name is required.</p>
             </div>
 
-            <!-- Password -->
+            <!-- Password Input -->
             <div class="form-group">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                 <input type="password" id="password" name="password"
@@ -66,7 +72,7 @@
                     characters long.</p>
             </div>
 
-            <!-- Confirm Password -->
+            <!-- Confirm Password Input -->
             <div class="form-group">
                 <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
                 <input type="password" id="confirmPassword" name="confirmPassword"
@@ -75,20 +81,26 @@
                 <p id="passwordError" class="text-red-600 text-sm mt-2 hidden">Passwords do not match.</p>
             </div>
 
-            <!-- Submit Button -->
+            <!-- Sign-Up Button -->
             <button type="button"
                     class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     onclick="validateVetForm()">Sign Up
             </button>
         </form>
 
-        <!-- Response Message -->
+        <!-- Response Message Container -->
         <div id="responseMessage" class="text-center mt-6"></div>
     </div>
 
+    <!-- Axios Script -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
+        /**
+         * Validates the Veterinarian Sign-Up form.
+         * Checks for valid input fields and shows error messages if needed.
+         * Calls submitVetForm if the form is valid.
+         */
         function validateVetForm() {
             const firstNameError = document.getElementById('firstNameError');
             const lastNameError = document.getElementById('lastNameError');
@@ -100,7 +112,7 @@
             const passwordErrorLength = document.getElementById('passwordErrorLength');
             const responseMessage = document.getElementById('responseMessage');
 
-            // Reset response message between submissions
+            // Reset error messages and response message
             responseMessage.innerText = '';
             responseMessage.classList.remove('text-red-600', 'text-green-600');
 
@@ -113,6 +125,7 @@
             passwordError.classList.add('hidden');
             passwordErrorLength.classList.add('hidden');
 
+            // Extract input values
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const email = document.getElementById('email').value.trim();
@@ -121,47 +134,59 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
+            // Input validation patterns
             const namePattern = /^[A-Za-z]+$/;
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const contactPattern = /^[0-9]+$/;
 
             let valid = true;
 
+            // Validate First Name
             if (!namePattern.test(firstName)) {
                 firstNameError.classList.remove('hidden');
                 valid = false;
             }
 
+            // Validate Last Name
             if (!namePattern.test(lastName)) {
                 lastNameError.classList.remove('hidden');
                 valid = false;
             }
 
+            // Validate Email
             if (!emailPattern.test(email)) {
                 emailError.classList.remove('hidden');
                 valid = false;
             }
 
+            // Validate Contact Number
             if (!contactPattern.test(contact)) {
                 contactError.classList.remove('hidden');
                 valid = false;
             }
 
+            // Validate Password Length
             if (password.length < 8) {
                 passwordErrorLength.classList.remove('hidden');
                 valid = false;
             }
 
+            // Check if Passwords Match
             if (password !== confirmPassword) {
                 passwordError.classList.remove('hidden');
                 valid = false;
             }
 
+            // If form is valid, submit the form
             if (valid) {
                 submitVetForm();
             }
         }
 
+        /**
+         * Submits the veterinarian sign-up form.
+         * Sends form data to the backend via Axios and handles the response.
+         */
         function submitVetForm() {
             const formData = {
                 firstName: document.getElementById('firstName').value,
@@ -172,6 +197,7 @@
                 password: document.getElementById('password').value
             };
 
+            // Send data to the backend using Axios
             axios.post('/api/veterinarian/signup', formData)
                 .then(function (response) {
                     const responseMessage = document.getElementById('responseMessage');
@@ -185,6 +211,7 @@
                 })
                 .catch(function (error) {
                     const responseMessage = document.getElementById('responseMessage');
+                    // Handle specific errors
                     if (error.response && error.response.data === "Clinic not found. Please register the clinic first.") {
                         responseMessage.innerText = "Error: " + error.response.data;
                         responseMessage.classList.add('text-red-600');

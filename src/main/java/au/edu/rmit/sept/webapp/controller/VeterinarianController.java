@@ -6,14 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for managing veterinarian-related actions.
+ * Provides endpoints for retrieving, registering, updating, and managing veterinarians.
+ */
 @RestController
 @RequestMapping("/api/veterinarian")
 public class VeterinarianController {
 
+    // Services injected to handle business logic
     private final VeterinarianService veterinarianService;
     private final ClinicService clinicService;
 
@@ -23,61 +29,93 @@ public class VeterinarianController {
         this.clinicService = clinicService;
     }
 
-    // Get all veterinarians
+    /**
+     * Retrieves all veterinarians from the database.
+     *
+     * @return A ResponseEntity containing a list of all veterinarians.
+     */
     @PostMapping("/all")
     public ResponseEntity<?> getAllVeterinarians() {
         try {
             List<Veterinarian> veterinarians = veterinarianService.getAllVeterinarians();
-            return ResponseEntity.ok(veterinarians);
+            return ResponseEntity.ok(veterinarians);  // Return the list of veterinarians
         } catch (Exception e) {
+            // Return error message if fetching fails
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Get veterinarians by clinic_id
+    /**
+     * Retrieves veterinarians by clinic ID.
+     *
+     * @param clinicID The ID of the clinic to filter veterinarians.
+     * @return A ResponseEntity containing a list of veterinarians for the specified clinic.
+     */
     @PostMapping("/clinic/{clinicID}")
     public ResponseEntity<?> getVeterinariansByClinic(@PathVariable Long clinicID) {
         try {
             List<Veterinarian> veterinarians = veterinarianService.getVeterinariansByClinicId(clinicID);
-            return ResponseEntity.ok(veterinarians);
+            return ResponseEntity.ok(veterinarians);  // Return the veterinarians in the specified clinic
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Get veterinarians by service ID
+    /**
+     * Retrieves veterinarians by service ID.
+     *
+     * @param serviceID The ID of the service provided by the veterinarians.
+     * @return A ResponseEntity containing a list of veterinarians offering the specified service.
+     */
     @PostMapping("/service/{serviceID}")
     public ResponseEntity<?> getVeterinariansByService(@PathVariable Long serviceID) {
         try {
             List<Veterinarian> veterinarians = veterinarianService.getVeterinariansByServiceId(serviceID);
-            return ResponseEntity.ok(veterinarians);
+            return ResponseEntity.ok(veterinarians);  // Return the veterinarians offering the specified service
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Get veterinarians by clinic ID & service ID
+    /**
+     * Retrieves veterinarians by both clinic ID and service ID.
+     *
+     * @param clinicID  The clinic ID to filter veterinarians.
+     * @param serviceID The service ID to filter veterinarians.
+     * @return A ResponseEntity containing veterinarians matching both clinic and service criteria.
+     */
     @PostMapping("/clinic/{clinicID}/service/{serviceID}")
     public ResponseEntity<?> getVeterinariansByClinicAndService(@PathVariable Long clinicID, @PathVariable Long serviceID) {
         try {
             List<Veterinarian> veterinarians = veterinarianService.getVeterinariansByClinicIdAndServiceId(clinicID, serviceID);
-            return ResponseEntity.ok(veterinarians);
+            return ResponseEntity.ok(veterinarians);  // Return veterinarians by both clinic and service
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Get all services by veterinarian ID
+    /**
+     * Retrieves services offered by a specific veterinarian.
+     *
+     * @param veterinarianId The ID of the veterinarian.
+     * @return A ResponseEntity containing a list of services offered by the veterinarian.
+     */
     @PostMapping("/{veterinarianId}/services")
     public ResponseEntity<?> getServicesByVeterinarianId(@PathVariable Long veterinarianId) {
         List<Service> services = veterinarianService.getServicesByVeterinarianId(veterinarianId);
         if (services != null) {
-            return ResponseEntity.ok(services);
+            return ResponseEntity.ok(services);  // Return the services offered by the veterinarian
         } else {
             return ResponseEntity.status(404).body("Veterinarian not found or no services available.");
         }
     }
 
+    /**
+     * Handles veterinarian signup.
+     *
+     * @param signupData The data required for signing up a veterinarian (email, name, contact, clinic, etc.).
+     * @return Success or error message depending on the outcome of the signup process.
+     */
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> signup(@RequestBody Map<String, Object> signupData) {
         try {
@@ -118,7 +156,7 @@ public class VeterinarianController {
                 veterinarian.setClinic(clinic);
             }
 
-            // Set the password directly without encryption for now
+            // Set the password directly with encryption for now
             veterinarian.setPassword(password);
 
             // Save the veterinarian to the database
@@ -134,6 +172,12 @@ public class VeterinarianController {
         }
     }
 
+    /**
+     * Handles veterinarian login.
+     *
+     * @param loginRequest The login credentials provided by the veterinarian (email, password, clinicName).
+     * @return A map containing veterinarian details and redirection URL upon successful login.
+     */
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
         try {
@@ -159,37 +203,52 @@ public class VeterinarianController {
         }
     }
 
-    // Update veterinarian details
+    /**
+     * Updates veterinarian details.
+     *
+     * @param updatedVeterinarian The veterinarian object containing updated details.
+     * @return The updated veterinarian details or an error message if the update fails.
+     */
     @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Veterinarian> updateVeterinarian(@RequestBody Veterinarian updatedVeterinarian) {
         try {
             Veterinarian veterinarian = veterinarianService.updateVeterinarian(updatedVeterinarian);
-            return ResponseEntity.ok(veterinarian);
+            return ResponseEntity.ok(veterinarian);  // Return updated veterinarian details
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    // Handle password update
+    /**
+     * Handles password update for a veterinarian.
+     *
+     * @param veterinarian The veterinarian object containing the new password.
+     * @return A success or error message depending on the outcome of the update.
+     */
     @PutMapping(value = "/updatePassword", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> updatePassword(@RequestBody Veterinarian veterinarian) {
         Map<String, String> response = new HashMap<>();
         try {
             veterinarianService.updatePassword(veterinarian.getId(), veterinarian.getPassword());
             response.put("message", "Password updated successfully!");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);  // Return success message
         } catch (Exception e) {
             response.put("error", "Failed to update password: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
 
-    // Get veterinarians by clinic_id
+    /**
+     * Retrieves appointments for a specific veterinarian.
+     *
+     * @param veterinarianID The ID of the veterinarian whose appointments are to be fetched.
+     * @return A ResponseEntity containing the appointments for the veterinarian.
+     */
     @PostMapping("/{veterinarianID}/appointments")
     public ResponseEntity<?> getAppointmentsByVeterinarian(@PathVariable Long veterinarianID) {
         try {
             List<Appointment> appointments = veterinarianService.getAppointmentsByVeterinarian(veterinarianID);
-            return ResponseEntity.ok(appointments);
+            return ResponseEntity.ok(appointments);  // Return appointments for the veterinarian
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

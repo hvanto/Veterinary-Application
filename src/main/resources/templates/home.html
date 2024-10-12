@@ -12,34 +12,49 @@
 <!-- Main Fragment -->
 <div th:fragment="main">
 
-    <!-- Hero Section -->
+    <!--
+        Hero Section
+        This section displays a large, welcoming banner with a background image and overlay,
+        providing a welcoming introduction to the VetCare service.
+    -->
     <section class="hero-section">
-        <!-- Faded Overlay -->
+        <!-- Faded Overlay to increase text readability -->
         <div class="hero-overlay"></div>
 
-        <!-- Hero Text Content -->
+        <!-- Text content over the hero image -->
         <div class="hero-text">
             <h1>Working with you for the health and happiness of your pet</h1>
             <p>Because they deserve to be pampered.</p>
         </div>
     </section>
 
-    <!-- Service Selection (Service Cards) -->
+    <!--
+        Service Selection Section
+        This section contains clickable service cards that allow users to navigate to different services,
+        such as Medical Records, Prescriptions, Appointments, and Educational Resources.
+    -->
     <section class="pt-20 pb-16 bg-gray-100">
         <div class="container mx-auto text-center">
             <h2 class="text-3xl font-bold text-gray-800 mb-8">Select a Service</h2>
         </div>
 
+        <!-- Container for service cards -->
         <div class="flex flex-wrap justify-center gap-6 p-4 bg-gray-50 rounded-lg container mx-auto">
+
+            <!-- Service Card: Medical Records -->
             <a th:href="@{/medical-records}" class="block">
                 <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
                     <div class="block">
+                        <!-- Card Title -->
                         <div class="bg-blue-100 p-4">
                             <h3 class="text-xl font-semibold text-gray-800">Medical Records</h3>
                         </div>
+                        <!-- Image Section -->
                         <div class="w-full h-40 flex justify-center items-center bg-gray-200">
-                            <img src="/assets/Medical-Record.jpg" alt="Medical Records" class="object-contain h-full w-full">
+                            <img src="/assets/Medical-Record.jpg" alt="Medical Records"
+                                 class="object-contain h-full w-full">
                         </div>
+                        <!-- Card Description -->
                         <div class="p-4 text-center">
                             <p class="text-gray-600">Access and manage all your pet's medical history.</p>
                         </div>
@@ -50,56 +65,70 @@
             <!-- Service Card: Prescriptions -->
             <a th:href="@{/prescription}" class="block">
                 <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
-                <div class="block">
-                    <div class="bg-orange-100 p-4">
-                        <h3 class="text-xl font-semibold text-gray-800">Prescriptions</h3>
-                    </div>
-                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
-                        <img src="/assets/prescription_service.jpg" alt="Prescriptions" class="object-contain h-full w-full">
-                    </div>
-                    <div class="p-4 text-center">
-                        <p class="text-gray-600">Review, refill, and track your pet's prescriptions.</p>
+                    <div class="block">
+                        <!-- Card Title -->
+                        <div class="bg-orange-100 p-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Prescriptions</h3>
+                        </div>
+                        <!-- Image Section -->
+                        <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                            <img src="/assets/prescription_service.jpg" alt="Prescriptions"
+                                 class="object-contain h-full w-full">
+                        </div>
+                        <!-- Card Description -->
+                        <div class="p-4 text-center">
+                            <p class="text-gray-600">Review, refill, and track your pet's prescriptions.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </a>
 
             <!-- Service Card: Manage Appointments -->
             <a th:href="@{/book-appointment}" class="block">
                 <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
-                <div class="block">
-                    <div class="bg-green-100 p-4">
-                        <h3 class="text-xl font-semibold text-gray-800">Book & Manage Appointments</h3>
-                    </div>
-                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
-                        <img src="/assets/manage_appointment_service.png" alt="Appointments" class="object-contain h-full w-full">
-                    </div>
-                    <div class="p-4 text-center">
-                        <p class="text-gray-600">Book and Manage your pet's appointments with the veterinarians. </p>
+                    <div class="block">
+                        <!-- Card Title -->
+                        <div class="bg-green-100 p-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Book & Manage Appointments</h3>
+                        </div>
+                        <!-- Image Section -->
+                        <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                            <img src="/assets/manage_appointment_service.png" alt="Appointments"
+                                 class="object-contain h-full w-full">
+                        </div>
+                        <!-- Card Description -->
+                        <div class="p-4 text-center">
+                            <p class="text-gray-600">Book and manage your pet's appointments with veterinarians.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </a>
 
-            <!-- Service Card: Educational Services -->
+            <!-- Service Card: Educational Resources -->
             <a th:href="@{/article}" class="block">
                 <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 max-w-xs w-full hover:shadow-2xl hover:border-blue-500 transition-all transform hover:scale-105 cursor-pointer">
-                <div class="block">
-                    <div class="bg-yellow-100 p-4">
-                        <h3 class="text-xl font-semibold text-gray-800">Educational Resources</h3>
-                    </div>
-                    <div class="w-full h-40 flex justify-center items-center bg-gray-200">
-                        <img src="/assets/educational_resources_service.jpeg" alt="Educational Resources" class="object-contain h-full w-full">
-                    </div>
-                    <div class="p-4 text-center">
-                        <p class="text-gray-600">View Educational Resources for learn more about pampering your pet. </p>
+                    <div class="block">
+                        <!-- Card Title -->
+                        <div class="bg-yellow-100 p-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Educational Resources</h3>
+                        </div>
+                        <!-- Image Section -->
+                        <div class="w-full h-40 flex justify-center items-center bg-gray-200">
+                            <img src="/assets/educational_resources_service.jpeg" alt="Educational Resources"
+                                 class="object-contain h-full w-full">
+                        </div>
+                        <!-- Card Description -->
+                        <div class="p-4 text-center">
+                            <p class="text-gray-600">Learn more about pampering your pet with our resources.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </a>
 
         </div>
     </section>
+
+    <!-- Custom Styling for Hero Section -->
     <style>
         /* Styling the Hero Section */
         .hero-section {
@@ -113,7 +142,7 @@
             align-items: center;
         }
 
-        /* Overlay for fading effect */
+        /* Overlay for a fading effect over the hero image */
         .hero-overlay {
             position: absolute;
             top: 0;
@@ -123,7 +152,7 @@
             background: rgba(255, 255, 255, 0.6); /* Slight fade to make text visible */
         }
 
-        /* Styling for text */
+        /* Hero text styling */
         .hero-text {
             position: relative;
             z-index: 2;
@@ -133,7 +162,7 @@
         .hero-text h1 {
             font-size: 4rem;
             font-weight: bold;
-            color: #2d3748; /* Dark gray color for readability */
+            color: #2d3748; /* Dark gray for readability */
         }
 
         .hero-text p {
