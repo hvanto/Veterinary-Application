@@ -194,6 +194,17 @@ document.addEventListener('alpine:init', () => {
             return clinicInfo;
         },
 
+        getDirectionsToClinic(appointment) {
+            // Encode the address to make it URL-friendly
+            const encodedAddress = encodeURIComponent(appointment.clinic.address);
+
+            // Construct the Google Maps URL for directions
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+
+            // Redirect the user to the Google Maps URL
+            window.open(googleMapsUrl, '_blank');
+        },
+
         getDoctorName(appointment) {
             if (!appointment.veterinarian) return 'Loading Veterinarian Data...';
             const doctor = `Dr. ${appointment.veterinarian.firstName} ${appointment.veterinarian.lastName}`;
