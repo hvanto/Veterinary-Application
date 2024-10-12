@@ -49,11 +49,14 @@ public class Refill {
     @Temporal(TemporalType.TIMESTAMP) // Use this for timestamp
     private Date submissionDate; // New field for submission date
 
+    @Column(name = "order_tracking", nullable = false)
+    private String tracking;
+
 
     // Constructors
     public Refill() {}
 
-    public Refill(Prescription prescription, String firstName, String lastName, String userPhone, String address, String creditCardNumber, double cost, Long userId, String expiryDate, Long cvv, Date submissionDate) {
+    public Refill(Prescription prescription, String firstName, String lastName, String userPhone, String address, String creditCardNumber, double cost, Long userId, String expiryDate, Long cvv, Date submissionDate, String tracking) {
         this.prescription = prescription;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -66,6 +69,7 @@ public class Refill {
         this.userId = userId;
         this.expiryDate = expiryDate;
         this.submissionDate = submissionDate;
+        this.tracking = tracking;
     }
 
     // Getters and Setters
@@ -172,4 +176,8 @@ public class Refill {
     public void setSubmissionDate(Date submissionDate) {
         this.submissionDate = submissionDate;
     }
+
+    public String getTracking() {return tracking;}
+
+    public void setTracking(String tracking) {this.tracking = tracking;}
 }

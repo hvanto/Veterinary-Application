@@ -21,14 +21,14 @@
 
 </style>
 <body>
-<div th:fragment="main" x-data="prescriptionsData()" x-init="init()" class="flex justify-center items-center mb-8">
+<div th:fragment="main" x-data="prescriptionsData()" x-init="init()" class="flex flex-col md:flex-row justify-center items-center mb-8 px-4">
 
     <div x-show="!isAuthenticated" class="flex flex-col items-center justify-center h-72">
         <h2 class="font-bold text-xl">Please log in to access your prescriptions</h2>
         <button @click="window.location.href='/login'" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Login</button>
     </div>
 
-    <div x-show="isAuthenticated && !selectedPet">
+    <div x-show="isAuthenticated && !selectedPet" class="w-full md:w-3/4 lg:w-1/2">
         <div class="text-center py-4">
             <h2 class="font-bold text-3xl text-gray-800">Select a Pet</h2>
         </div>
@@ -50,13 +50,13 @@
         </div>
     </div>
 
-    <div x-show="isAuthenticated && selectedPet" id="petData" :data-pet-id="selectedPet.id" class="flex flex-col mb-8">
+    <div x-show="isAuthenticated && selectedPet" id="petData" :data-pet-id="selectedPet.id" class="flex flex-col w-full md:w-3/4 lg:w-1/2 mb-8">
         <!-- Left Column: Text Information -->
         <div class="w-full p-4">
             <h2 class="text-2xl font-bold text-left" x-text="`${selectedPet.name}'s Prescriptions`"></h2>
         </div>
-        <div class="flex justify-center items-center mb-8">
-            <div class="w-1/2 p-4">
+        <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+            <div class="w-full md:w-1/2 p-4">
                 <h3 class="text-2xl font-semibold text-gray-800 mb-4">General Overview</h3>
                 <p class="text-gray-600">Species: <span x-text="selectedPet.species"></span></p>
                 <p class="text-gray-600">Breed: <span x-text="selectedPet.breed"></span></p>
@@ -67,7 +67,7 @@
             </div>
 
             <!-- Right Column: Pet Image -->
-            <div class="w-1/2 flex justify-center items-center">
+            <div class="w-full md:w-1/2 flex justify-center items-center p-4">
                 <img :src="selectedPet.imagePath ? '/assets/' + selectedPet.imagePath : '/assets/default.png'" alt="Pet Image" class="object-cover rounded-lg shadow-lg w-full h-full">
             </div>
         </div>
@@ -79,7 +79,7 @@
                 <span x-show="prescriptionOpen" class="text-gray-500">▲</span>
             </h2>
             <table x-show="prescriptionOpen" class="table-auto w-full border border-gray-300">
-                <input type="text" placeholder="Search Current Prescriptions" x-model="searchPrescriptions" class="input-field" />
+                <input type="text" placeholder="Search" x-model="searchPrescriptions" class="input-field" />
                 <thead>
                 <tr>
                     <th @click="sortCurrentTable('practitioner')">Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i></th>
@@ -89,7 +89,6 @@
                     <th @click="sortCurrentTable('dosage')">Dosage <i :class="`fas ${getSortIcon('dosage')}`"></i></th>
                     <th @click="sortCurrentTable('endDate')">Refill Date <i :class="`fas ${getSortIcon('endDate')}`"></i></th>
                     <th class="border border-gray-300 px-4 py-2">Product Description</th>
-                    <th class="border border-gray-300 px-4 py-2">Order Tracking</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -102,11 +101,10 @@
                         <td class="border border-gray-300 px-4 py-2" x-text="prescription.dosage"></td>
                         <td class="border border-gray-300 px-4 py-2" x-text="prescription.endDate"></td>
                         <td class="border border-gray-300 px-4 py-2" x-text="prescription.description"></td>
-                        <td class="border border-gray-300 px-4 py-2" x-text="prescription.orderTracking"></td>
                         <td class="border border-gray-300 px-4 py-2">
 <!--                            <button @click="openEditPrescriptionModal(prescription)" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 hide-on-print">Edit</button>-->
 <!--                            <button @click="openDeleteConfirmationModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Delete</button>-->
-                            <button @click="openRefillModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Refill</button>
+                            <button @click="openRefillModal(prescription.id)" class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 hide-on-print">Refill</button>
                         </td>
                     </tr>
                 </template>
@@ -121,7 +119,7 @@
                 <span x-show="prescriptionHistoryOpen" class="text-gray-500">▲</span>
             </h2>
             <table x-show="prescriptionHistoryOpen" class="table-auto w-full border border-gray-300">
-                <input type="text" placeholder="Search Prescription History" x-model="searchPrescriptionHistory" class="input-field" />
+                <input type="text" placeholder="Search" x-model="searchPrescriptionHistory" class="input-field" />
                 <thead>
                 <tr>
                     <th @click="sortHistoryTable('practitioner')">Practitioner <i :class="`fas ${getSortIcon('practitioner')}`"></i></th>
@@ -149,7 +147,44 @@
             </table>
         </div>
 
-<!--        <button @click="openAddPrescriptionModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hide-on-print">-->
+        <div class="mb-4">
+            <h2 @click="toggleSection('refills')" class="cursor-pointer text-2xl font-bold text-gray-800">
+                Refills
+                <span x-show="!refillOpen" class="text-gray-500">▼</span>
+                <span x-show="refillOpen" class="text-gray-500">▲</span>
+            </h2>
+            <table x-show="refillOpen" class="table-auto w-full border border-gray-300">
+                <input type="text" placeholder="Search" x-model="refillSearch" class="input-field" />
+                <thead>
+                <tr>
+                    <th @click="sortRefillTable('id')">Order Number <i :class="`fas ${getSortIcon('id')}`"></i></th>
+                    <th @click="sortRefillTable('prescriptionId')">Prescription ID <i :class="`fas ${getSortIcon('prescriptionId')}`"></i></th>
+                    <th @click="sortRefillTable('cost')">Price <i :class="`fas ${getSortIcon('cost')}`"></i></th>
+                    <th @click="sortRefillTable('tracking')">Tracking Number <i :class="`fas ${getSortIcon('tracking')}`"></i></th>
+                    <th @click="sortRefillTable('submissionDate')">Date Ordered <i :class="`fas ${getSortIcon('submissionDate')}`"></i></th>
+                    <th @click="sortRefillTable('fulfilled')">Fulfilled <i :class="`fas ${getSortIcon('fulfilled')}`"></i></th>
+                </tr>
+                </thead>
+                <tbody>
+                <template x-for="refill in filteredRefills" :key="refill.id">
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2" x-text="refill.id"></td>
+                        <td class="border border-gray-300 px-4 py-2" x-text="refill.prescription.prescription"></td>
+                        <td class="border border-gray-300 px-4 py-2" x-text="new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(refill.cost)"></td>
+                        <td class="border border-gray-300 px-4 py-2" x-text="refill.tracking"></td>
+                        <td class="border border-gray-300 px-4 py-2" x-text="formatDate(refill.submissionDate)"></td>
+                        <td class="border border-gray-300 px-4 py-2" x-text="refill.fulfilled ? 'Yes' : 'No'"></td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <button @click="openDeleteRefillConfirmationModal(refill.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Cancel Order</button>
+                        </td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </div>
+
+
+        <!--        <button @click="openAddPrescriptionModal()" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 hide-on-print">-->
 <!--            Add Prescription-->
 <!--        </button>-->
 
@@ -362,6 +397,17 @@
         </div>
     </div>
 
+    <!-- Delete Refill Confirmation Modal -->
+    <div x-show="showDeleteRefillConfirmationModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <h2 class="text-lg font-bold mb-4">Confirm Delete</h2>
+            <p>Are you sure you want to cancel this order?</p>
+            <div class="mt-4 flex justify-end">
+                <button @click="closeDeleteRefillConfirmationModal" class="mr-2 bg-gray-300 text-gray-800 py-2 px-4 rounded">Cancel</button>
+                <button @click="deleteRefill" class="bg-red-600 text-white py-2 px-4 rounded">Delete</button>
+            </div>
+        </div>
+    </div>
 
 
 

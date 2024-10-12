@@ -220,9 +220,9 @@
                                       placeholder="Enter description"></textarea>
                         </div>
                         <div class="mb-4">
-                            <label for="orderTracking" class="block text-gray-700">Order Tracking</label>
-                            <input type="text" id="orderTracking" x-model="newPrescription.orderTracking" class="input-field"
-                                   placeholder="Enter order tracking info">
+                            <label for="cost" class="block text-gray-700">Cost</label>
+                            <input type="number" id="cost" x-model="newPrescription.cost" class="input-field"
+                                   placeholder="$00.00">
                         </div>
                         <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Add Prescription</button>
                         <button type="button" @click="closeAddPrescriptionModal()" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Cancel</button>

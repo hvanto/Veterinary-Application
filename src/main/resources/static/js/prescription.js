@@ -33,6 +33,13 @@ document.addEventListener('alpine:init', () => {
         cvv: null,
         submissionDate: new Date(),
         showSuccessModal: false,
+        refills: [],
+        refillSearch: '', // Added for searching refills
+        refillSortKey: '', // Added for sorting refills
+        refillSortAsc: true, // Added for ascending/descending order for refills
+        refillOpen: true, // State for showing/hiding refills section
+        refillToDeleteId: null, // For storing the refill ID to delete
+        showDeleteRefillConfirmationModal: false, // For controlling the modal visibility
 
         init() {
             this.fetchInitialData();
@@ -66,6 +73,8 @@ document.addEventListener('alpine:init', () => {
                 console.error('User not logged in, user ID is missing, or no pet selected.');
                 return;
             }
+
+            this.prescriptionsCurrent = [];
 
             axios.get(`/api/prescriptions/all`, {
                 params: {
@@ -107,6 +116,7 @@ document.addEventListener('alpine:init', () => {
                     this.selectedPet = data.selectedPet;
                     this.fetchCurrentPrescriptions(); // Fetch current prescriptions
                     this.fetchPrescriptionHistory();   // Fetch prescription history
+                    this.fetchRefills();
                 })
                 .catch(error => {
                     console.error('Error', error);
@@ -123,6 +133,8 @@ document.addEventListener('alpine:init', () => {
                 this.prescriptionOpen = !this.prescriptionOpen;
             } else if (section === 'prescriptionsHistory') {
                 this.prescriptionHistoryOpen = !this.prescriptionHistoryOpen;
+            } else if (section === 'refills') {
+                this.refillOpen = !this.refillOpen; // Toggle refill section
             }
         },
 
@@ -428,6 +440,84 @@ document.addEventListener('alpine:init', () => {
         },
         returnToHomepage() {
             window.location.href = '/'; // Change this to your homepage URL if it's different
+        },
+
+        fetchRefills() {
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+            if (!user || !user.id) {
+                console.error('User not logged in or user ID is missing.');
+                return;
+            }
+
+            this.refills = []; // Reset the refills array
+
+            axios.get(`/api/prescriptions/refills/user/${user.id}`)
+                .then(response => {
+                    console.log('API Response:', response.data);
+                    this.refills = response.data; // Assuming the API returns a list of refills
+                })
+                .catch(error => {
+                    console.error('Error fetching refills:', error);
+                });
+        },
+
+        get filteredRefills() {
+            return this.refills.filter(refill => {
+                return refill.firstName.toLowerCase().includes(this.refillSearch.toLowerCase()) ||
+                    refill.lastName.toLowerCase().includes(this.refillSearch.toLowerCase()) ||
+                    refill.address.toLowerCase().includes(this.refillSearch.toLowerCase()) ||
+                    refill.prescriptionId.toString().includes(this.refillSearch.toLowerCase());
+            });
+        },
+
+        sortRefillTable(key) {
+            if (this.refillSortKey === key) {
+                this.refillSortAsc = !this.refillSortAsc;
+            } else {
+                this.refillSortKey = key;
+                this.refillSortAsc = true;
+            }
+
+            const sortFunction = (a, b) => {
+                let comparison = 0;
+                if (a[key] < b[key]) {
+                    comparison = -1;
+                } else if (a[key] > b[key]) {
+                    comparison = 1;
+                }
+                return this.refillSortAsc ? comparison : -comparison;
+            };
+
+            this.refills.sort(sortFunction);
+        },
+
+        // Open the delete confirmation modal for refill
+        openDeleteRefillConfirmationModal(refillId) {
+            this.refillToDeleteId = refillId; // Store the ID of the refill to delete
+            this.showDeleteRefillConfirmationModal = true; // Show the modal
+        },
+
+        // Close the delete confirmation modal for refill
+        closeDeleteRefillConfirmationModal() {
+            this.showDeleteRefillConfirmationModal = false; // Hide the modal
+            this.refillToDeleteId = null; // Clear the ID
+        },
+
+        // Method to delete a refill
+        deleteRefill() {
+            if (this.refillToDeleteId) {
+                axios.delete(`/api/prescriptions/refills/${this.refillToDeleteId}`)
+                    .then(response => {
+                        console.log('Refill deleted:', response.data);
+                        this.fetchRefills(); // Refresh the list after deletion
+                        this.closeDeleteRefillConfirmationModal(); // Close the modal
+                    })
+                    .catch(error => {
+                        console.error('Error deleting refill:', error);
+                    });
+            }
         }
+
+
     }));
 });
