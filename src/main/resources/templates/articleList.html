@@ -3,6 +3,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/toastify.css}">
     <script type="text/javascript" th:src="@{/js/toastify.js}"></script>
     <script th:src="@{/js/articleList.js}"></script>
+    <script th:src="@{/js/userGuide.js}"></script>
     <div th:if="${error}">
         <p th:text="${error}"></p>
     </div>
@@ -10,11 +11,11 @@
 
     <form action="/article/search" method="get" class="flex justify-center lg:w-4/5 sm:w-11/12 mx-auto my-10">
         <div class="lg:w-1/2 sm:w-full">
-            <input type="text" placeholder="Search articles" name="keyword" th:value="${keyword}"
+            <input type="text" placeholder="Search articles" name="keyword" th:value="${keyword}" id="guide-article-search"
                 class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required>
         </div>
-        <button th:if="${mode == 'default'}" type="button"
+        <button th:if="${mode == 'default'}" type="button" id="guide-bookmark-list"
             class="p-2.5 ms-2 text-sm font-medium text-white bg-orange-700 rounded-lg border border-orange-700 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800"
             onclick="bookmarkPage()">
             Bookmark
@@ -58,7 +59,7 @@
             </a>
 
             <div class="flex lg:flex-col sm:flex-row">
-                <button>
+                <button id="guide-bookmark">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6 mb-1.5"
                         th:attr="onclick=|addBookmark(this, '${article.title}', '${article.link}', '${article.author}', '${#dates.format(article.publishedDate, 'yyyy-MM-dd')}', '${article.description}', '${article.imageUrl}')|">
@@ -66,7 +67,7 @@
                             d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                     </svg>
                 </button>
-                <button>
+                <button id="guide-download">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6 mb-1.5"
                         th:attr="onclick=|downloadArticle('${article.link}')|">
@@ -78,7 +79,7 @@
 
                 <div class="relative inline-block">
                     <!-- Share button -->
-                    <button class="share-button">
+                    <button class="share-button" id="guide-share">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6 mb-1.5">
                             <path stroke-linecap="round" stroke-linejoin="round"
