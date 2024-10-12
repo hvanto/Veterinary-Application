@@ -198,13 +198,20 @@ function startDashBoardGuide() {
             scrollToElement: true
         })
 
-        guide.onchange(function () {
-            // Open the first pet tab
-            if (guide.currentStep() === 4) {
-                document.querySelector("#mailbox-button").click()
+        guide.onchange(function () {if (guide.currentStep() === 3) {
+                document.body.click();
+
+            } else if (guide.currentStep() === 4) {
+                document.querySelector("#mailbox-button").click();
+
+            } else if (guide.currentStep() == 5) {
+                document.body.click();
 
             } else if (guide.currentStep() === 6) {
-                document.querySelector("#user-menu-button").click()
+                document.querySelector("#user-menu-button").click();
+
+            } else if (guide.currentStep() == 7) {
+                document.body.click();
 
             } else if (guide.currentStep() === 8) {
                 // Store the next step to resume
@@ -228,13 +235,14 @@ function startMedicalRecordsGuide() {
     loadIntroJs(function () {
         const guide = introJs();
 
+        const firstPet = document.querySelector(".guide-select-pet")
         guide.setOptions({
             steps: [
                 {
                     intro: "This is the medical records page where you can view your pet's medical records."
                 },
                 {
-                    element: "#guide-select-pet",
+                    element: firstPet,
                     intro: "Let's have a look at Buddy's medical record."
                 },
                 {
@@ -282,7 +290,7 @@ function startMedicalRecordsGuide() {
             // Open the first pet's tab
             if (guide.currentStep() === 2) {
                 // Click on the pet card
-                document.querySelector("#guide-select-pet").click()
+                firstPet.click();
 
             } else if (guide.currentStep() === 10) {
                 // Store the next step to resume
@@ -305,11 +313,26 @@ function startMedicalRecordsGuide() {
 function startPrescriptionGuide() {
     loadIntroJs(function () {
         const guide = introJs();
-
+        const firstPet = document.querySelector(".guide-select-pet-prescription");
         guide.setOptions({
             steps: [
                 {
-                    intro: "This is the prescriptions page where you can view and manage your pet's current prescriptions.",
+                    intro: "This is the prescriptions page where you can view your pet's current and past prescriptions.",
+                },
+                {
+                    element: firstPet,
+                    intro: "Let's have a look at Buddy's prescription details."
+                },
+                {
+                    intro: "We are now in Buddy's profile."
+                },
+                {
+                    element: "#guide-pet-current-prescription",
+                    intro: "You can view Buddy's current prescriptions."
+                },
+                {
+                    element: "#guide-pet-prescription-history",
+                    intro: "You can view Buddy's prescription history."
                 },
                 {
                     intro: "Let's explore the book appointment page next."
@@ -327,6 +350,10 @@ function startPrescriptionGuide() {
 
         guide.onchange(function () {
             if (guide.currentStep() === 2) {
+                // Click on the pet card
+                firstPet.click();
+
+            } else if (guide.currentStep() === 6) {
                 // Store the next step to resume
                 localStorage.setItem("currentGuide", "bookAppointment");
                 // Redirect to next page
@@ -351,20 +378,28 @@ function startBookAppointmentGuide() {
         guide.setOptions({
             steps: [
                 {
-                    intro: "This is the book appointment page where you can book an appointment with the vet.",
+                    intro: "This is the appointment page where you can book and manage an appointment with the vet.",
                 },
                 {
-                    element: "#guide-book-filter-panel",
-                    intro: "You can filter the appointment by services or doctors."
+                    element: "#guide-manage-appointment-button",
+                    intro: "You can manage your appointments."
                 },
                 {
-                    intro: "Let's explore the article page next."
+                    element: "#appointment-services",
+                    intro: "You can filter the availability by services."
+                },
+                {
+                    element: "#guide-appointment-doctors",
+                    intro: "You can also filter the availability by doctors."
+                },
+                {
+                    intro: "Let's explore the articles page next."
                 },
                 {
                     intro: "Taking you to the articles page..."
                 },
                 {
-                    intro: "Taking you to the articles page..."
+                    intro: "Please wait..."
                 }
 
             ],
@@ -375,7 +410,7 @@ function startBookAppointmentGuide() {
         })
 
         guide.onchange(function () {
-            if (guide.currentStep() === 3) {
+            if (guide.currentStep() === 5) {
                 // Store the next step to resume
                 localStorage.setItem("currentGuide", "article");
                 // Redirect to next page
@@ -391,9 +426,6 @@ function startBookAppointmentGuide() {
         guide.start()
     });
 }
-
-// TODO: Add guide for manage appointment page
-function startManageAppointmentGuide() {}
 
 
 function startArticleGuide() {
