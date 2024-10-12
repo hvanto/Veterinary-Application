@@ -46,6 +46,10 @@ public class Clinic {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public List<Veterinarian> getVeterinarians() {
         return veterinarians;
     }
