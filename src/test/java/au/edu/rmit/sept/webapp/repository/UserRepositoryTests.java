@@ -19,38 +19,42 @@ public class UserRepositoryTests {
 
     @BeforeEach
     public void setUp() {
-        // Clear all users before each test to ensure consistency
-        userRepository.deleteAll();
     }
 
     @Test
     public void testFindByEmail() {
+        // Generate a unique identifier (e.g., current timestamp) to ensure unique email addresses
+        String uniqueIdentifier = String.valueOf(System.currentTimeMillis());
+
         // Create and save a user
         User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
-        user.setEmail("john.doe@example.com");
+        user.setEmail("john.doe" + uniqueIdentifier + "@example.com");
         user.setPassword("password123");
         userRepository.save(user);
 
         // Find the user by email
-        Optional<User> foundUser = userRepository.findByEmail("john.doe@example.com");
+        Optional<User> foundUser = userRepository.findByEmail("john.doe" + uniqueIdentifier +"@example.com");
         assertTrue(foundUser.isPresent());
         assertEquals("John", foundUser.get().getFirstName());
     }
 
     @Test
     public void testExistsByEmail() {
+        // Generate a unique identifier (e.g., current timestamp) to ensure unique email addresses
+        String uniqueIdentifier = String.valueOf(System.currentTimeMillis());
+
         // Create and save a user
         User user = new User();
         user.setFirstName("Jane");
         user.setLastName("Doe");
-        user.setEmail("jane.doe@example.com");
+        user.setEmail("jane.doe" + uniqueIdentifier + "@example.com");
         user.setPassword("password123");
         userRepository.save(user);
 
         // Check if the email exists in the repository
-        assertTrue(userRepository.existsByEmail("jane.doe@example.com"));
-        assertFalse(userRepository.existsByEmail("john.doe@example.com"));
+        assertTrue(userRepository.existsByEmail("jane.doe" + uniqueIdentifier + "@example.com"));
+        assertFalse(userRepository.existsByEmail("john.doe" + uniqueIdentifier + "@example.com"));
     }
 }
