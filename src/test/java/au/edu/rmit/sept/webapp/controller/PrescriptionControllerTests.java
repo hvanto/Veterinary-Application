@@ -301,7 +301,7 @@ public class PrescriptionControllerTests {
 
     @Test
     public void testAddRefill_success() throws Exception {
-        prescriptionRepository.save(prescription);
+        Prescription saved = prescriptionRepository.save(prescription);
         prescriptionRepository.flush();
         // Refill request JSON data (sample)
         String refillJson = "{\n" +
@@ -311,14 +311,13 @@ public class PrescriptionControllerTests {
                 "    \"address\": \"123 Main St\",\n" +
                 "    \"creditCardNumber\": \"4111111111111111\",\n" +
                 "    \"cost\": 2.3,\n" +
-                "    \"prescription\": { \"id\": 1 },\n" +  // Prescription object with ID
+                "    \"prescription\": { \"id\": " + saved.getId() + " },\n" +  // Prescription object with ID
                 "    \"userId\": 1,\n" +
                 "    \"expiryDate\": \"12/25\",\n" +
                 "    \"cvv\": \"123\",\n" +
                 "    \"submissionDate\": \"2023-10-12\",\n" +
                 "    \"recurring\": \"Weekly\" \n" +
                 "}";
-
         // Call handler with mock mvc to add refill
         mockMvc.perform(post("/api/prescriptions/refills/add")
                         .contentType(MediaType.APPLICATION_JSON)
