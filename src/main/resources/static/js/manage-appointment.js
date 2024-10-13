@@ -281,6 +281,10 @@ END:VCALENDAR`;
             }
         },
 
+        contactClinic(appointment) {
+            window.location.href = `tel:${appointment.clinic.contact}`
+        },
+
         init() {
             console.log("Initializing appointment data component.");
             this.$watch('selectedAppointmentSection', () => {
