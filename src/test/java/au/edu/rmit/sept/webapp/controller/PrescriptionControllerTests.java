@@ -126,7 +126,7 @@ public class PrescriptionControllerTests {
         prescription = new Prescription(
                 pet,
                 "Amoxicillin-" + UUID.randomUUID(),
-                "Dr. John Doe",
+                "Dr. John Doe" + UUID.randomUUID(),
                 "250mg twice a day",
                 new Date(1727568000000L),
                 new Date(1729296000000L),
@@ -134,12 +134,12 @@ public class PrescriptionControllerTests {
                 2.3);
     }
 
-//    @BeforeEach
-//    public void prepare() {
-//        // wipe table to remove variables
-//        refillRepository.deleteAll();
-//        prescriptionRepository.deleteAll();
-//    }
+    @BeforeEach
+    public void prepare() {
+        // wipe table to remove variables
+        refillRepository.deleteAll();
+        prescriptionRepository.deleteAll();
+    }
 //
 //    @AfterAll
 //    public void teardown() {
