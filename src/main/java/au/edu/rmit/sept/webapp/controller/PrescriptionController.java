@@ -129,6 +129,24 @@ public class PrescriptionController {
         prescriptionRepository.save(prescription2);
 
         System.out.println("Prescriptions seeded.");
+
+        // Seed refill
+        User user = pet.getUser();
+        Refill refill = new Refill(prescription1,
+                user.getFirstName(),
+                user.getLastName(),
+                user.getContact(),
+                "",
+                "",
+                0.0,
+                user.getId(),
+                "",
+                123l,
+                new Date(),
+                generateTrackingNumber());
+        refillRepository.save(refill);
+
+        System.out.println("Refill seeded.");
     }
 
     /**
@@ -257,7 +275,8 @@ public class PrescriptionController {
     }
 
     /**
-     * Seeds default perscription or prescription history into the database for a vet.
+     * Seeds default perscription or prescription history into the database for a
+     * vet.
      */
     private void seedDataForVet(Long vetId) {
         // Get vet
@@ -265,20 +284,22 @@ public class PrescriptionController {
 
         // Seed user
         User user = userService.saveUser(new User("John", "Doe", "john.doe@example.com", "password123", "123456789"));
-        
+
         // Seed pets
-        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch", "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
+        Pet pet = new Pet(user, "Buddy", "Dog", "Golden Retriever", "Male", true, "Loves to play fetch",
+                "2_buddy_retriever.png", LocalDate.of(2018, 1, 5));
         petService.save(pet);
 
         // Convert LocalDate to Date for medical history event dates
         Date historyDate1 = Date.from(LocalDate.of(2023, 1, 10).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         // Seed medical history
-        MedicalHistory history = new MedicalHistory(pet, vet.getFullName(), "Routine checkup", vet, historyDate1, "All good", null);
+        MedicalHistory history = new MedicalHistory(pet, vet.getFullName(), "Routine checkup", vet, historyDate1,
+                "All good", null);
 
         // Save the medical history records
         medicalHistoryService.save(history);
-        
+
         seedPrescriptions(pet.getId());
         seedPrescriptionHistories(pet.getId());
     }
@@ -307,7 +328,6 @@ public class PrescriptionController {
         Refill savedRefill = refillRepository.save(refillRequest);
         return ResponseEntity.ok(savedRefill);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Prescription> getPrescriptionById(@PathVariable Long id) {
@@ -339,6 +359,12 @@ public class PrescriptionController {
         return refillRepository.findByUserId(userId);
     }
 
+    @GetMapping("/refills/pet/{petId}")
+    public List<Refill> getRefillsByPetId(@PathVariable Long petId) {
+        Long userId = petService.getPetById(petId).getUser().getId();
+        return refillRepository.findByUserId(userId);
+    }
+
     /**
      * Deletes a refill by its ID.
      *
@@ -355,7 +381,17 @@ public class PrescriptionController {
         }
     }
 
+    @PutMapping("/refills/fulfill/{id}")
+    public ResponseEntity<Void> fulfillRefill(@PathVariable Long id) {
+        Optional<Refill> optionalRefill = refillRepository.findById(id);
 
-
-
+        if (optionalRefill.isPresent()) {
+            Refill refill = optionalRefill.get();
+            refill.setFulfilled(true); // Set fulfilled to true
+            refillRepository.save(refill); // Save the updated refill
+            return ResponseEntity.noContent().build(); // Return no content (204)
+        } else {
+            return ResponseEntity.notFound().build(); // Return 404 if not found
+        }
+    }
 }
