@@ -89,4 +89,12 @@ public class VeterinarianAvailability {
     public void setEndTime(String endTime) {
         EndTime = endTime;
     }
+
+    public Veterinarian getVeterinarian() {
+        return veterinarian;
+    }
+
+    public void setVeterinarian(Veterinarian veterinarian) {
+        this.veterinarian = veterinarian;
+    }
 }
