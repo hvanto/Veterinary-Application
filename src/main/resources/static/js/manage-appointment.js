@@ -212,6 +212,75 @@ document.addEventListener('alpine:init', () => {
             return doctor;
         },
 
+        convertToISO(appointmentDate, startTime, endTime) {
+            // Convert the appointmentDate (milliseconds since epoch) to a Date object
+            const date = new Date(appointmentDate);
+
+            // Extract the year, month, and day from the appointmentDate
+            const year = date.getUTCFullYear();
+            const month = (date.getUTCMonth() + 1).toString().padStart(2, '0'); // months are 0-indexed
+            const day = date.getUTCDate().toString().padStart(2, '0');
+
+            // Create the startDateTime and endDateTime by combining date with time
+            const startDateTime = new Date(`${year}-${month}-${day}T${startTime}`);
+            const endDateTime = new Date(`${year}-${month}-${day}T${endTime}`);
+
+            // Return the ISO string format for both startDateTime and endDateTime
+            return {
+                startDateTime: startDateTime.toISOString(),
+                endDateTime: endDateTime.toISOString()
+            };
+        },
+
+        addToCalendar(appointment) {
+            const title = `Appointment for ${appointment.pet.name}`;
+            const description = `Appointment booking with Dr. ${appointment.veterinarian.firstName} ${appointment.veterinarian.lastName} for ${appointment.pet.name}`;
+            const location = appointment.clinic.location;
+            const startDateTime = this.convertToISO(appointment.appointmentDate, appointment.startTime, appointment.endTime).startDateTime;
+            const endDateTime =  this.convertToISO(appointment.appointmentDate, appointment.startTime, appointment.endTime).endDateTime;
+
+            // Format dates for calendar (ISO format)
+            const formattedStartDate = new Date(startDateTime).toISOString().replace(/-|:|\.\d\d\d/g,"").slice(0,-5) + "Z";
+            const formattedEndDate = new Date(endDateTime).toISOString().replace(/-|:|\.\d\d\d/g,"").slice(0,-5) + "Z";
+
+            // Check if the device is running iOS
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const isMacOS = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent);
+
+            if (isIOS || isMacOS) {
+                // Create .ics file content for Apple Calendar
+                const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:${title.substring(0, 62)}
+DESCRIPTION:${description.substring(0, 62)}
+LOCATION:${location.substring(0, 62)}
+DTSTART:${formattedStartDate}
+DTEND:${formattedEndDate}
+END:VEVENT
+END:VCALENDAR`;
+
+                // Create a blob from the icsContent
+                const blob = new Blob([icsContent], { type: 'text/calendar' });
+
+                // Create a link to download the .ics file
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${title}.ics`;
+
+                // Simulate a click to download the file
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                // Create Google Calendar event URL
+                const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}&dates=${formattedStartDate}/${formattedEndDate}`;
+
+                // Open Google Calendar in a new tab
+                window.open(googleCalendarUrl, '_blank');
+            }
+        },
+
         init() {
             console.log("Initializing appointment data component.");
             this.$watch('selectedAppointmentSection', () => {
