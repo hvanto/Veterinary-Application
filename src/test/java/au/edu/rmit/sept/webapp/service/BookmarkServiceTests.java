@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
+import java.util.UUID;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -20,7 +20,6 @@ import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.repository.ArticleRepository;
 import au.edu.rmit.sept.webapp.repository.BookmarkRepository;
 import au.edu.rmit.sept.webapp.repository.UserRepository;
-import au.edu.rmit.sept.webapp.service.BookmarkService;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -39,36 +38,32 @@ public class BookmarkServiceTests {
     User testUser2;
 
     Article article1;
-    // article 2 is not in database
-    Article article2 = new Article("Curabitur non justo", "https://somelink2.com", "Congue tristique",
-            "Donec Maximus", new Date(), "https://imagelink.com");
+    Article article2;
 
     @BeforeEach
     public void setUp() {
-        bookmarkRepository.deleteAll();
-        articleRepository.deleteAll();
-        userRepository.deleteAll();
+        // Use unique emails for each user to avoid conflicts
+        String uniqueEmailUser1 = "john.doe-" + UUID.randomUUID() + "@example.com";
+        String uniqueEmailUser2 = "john.doe2-" + UUID.randomUUID() + "@example.com";
 
-        testUser1 = userRepository.save(new User("John", "Doe", "john.doe@example.com", "password123", "123456789"));
-        testUser2 = userRepository.save(new User("John2", "Doe2", "john.doe2@example.com", "password223", "223456789"));
+        // Create users with unique emails
+        testUser1 = userRepository.save(new User("John", "Doe", uniqueEmailUser1, "password123", "123456789"));
+        testUser2 = userRepository.save(new User("John2", "Doe2", uniqueEmailUser2, "password223", "223456789"));
 
+        // Create articles with unique data
         article1 = articleRepository.save(new Article("Lorem Ipsum", "https://somelink1.com", "Dolor amet",
                 "Nullam Volutpat", new Date(), "https://imagelink.com"));
-        
-                bookmarkRepository.save(new Bookmark(testUser1, article1));
-    }
-    
-    @AfterAll
-    public void teardown() {
-        bookmarkRepository.deleteAll();
-        articleRepository.deleteAll();
-        userRepository.deleteAll();
+        article2 = new Article("Curabitur non justo", "https://somelink2.com", "Congue tristique",
+                "Donec Maximus", new Date(), "https://imagelink.com");
+
+        // Save a bookmark for testUser1
+        bookmarkRepository.save(new Bookmark(testUser1, article1));
     }
 
     @Test
     public void testFindByUser_success() {
         Page<Bookmark> bookmarks = service.findByUser(testUser1, 0);
-        // 1 bookmarks should be returned
+        // 1 bookmark should be returned
         assertEquals(1, bookmarks.getContent().size());
     }
 
@@ -89,7 +84,7 @@ public class BookmarkServiceTests {
     @Test
     public void testAddBookmark_success() {
         Bookmark bookmark = service.addBookmark(testUser1, article2);
-        // both article and bookmark are added to database
+        // both article and bookmark are added to the database
         assertTrue(articleRepository.findById(article2.getId()).isPresent());
         assertTrue(bookmarkRepository.findById(bookmark.getId()).isPresent());
     }
@@ -111,7 +106,7 @@ public class BookmarkServiceTests {
 
     @Test
     public void testRemoveBookmark_notPresent() {
-        // Bookmark does not exists
+        // Bookmark does not exist
         // method should return false
         assertFalse(service.removeBookmark(testUser2, article1));
     }

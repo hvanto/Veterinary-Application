@@ -3,15 +3,13 @@ package au.edu.rmit.sept.webapp.service;
 import au.edu.rmit.sept.webapp.model.Notification;
 import au.edu.rmit.sept.webapp.model.User;
 import au.edu.rmit.sept.webapp.repository.NotificationRepository;
-import au.edu.rmit.sept.webapp.service.NotificationService;
-import au.edu.rmit.sept.webapp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,50 +29,55 @@ public class NotificationServiceTests {
 
     @BeforeEach
     public void setUp() {
-        notificationRepository.deleteAll();
-        userService.deleteAllUsers();
+        // Use a unique email for each test to avoid conflicts with existing users
+        String uniqueEmail = "testuser-" + UUID.randomUUID() + "@example.com";
 
+        // Create a user with a unique email
         testUser = new User();
         testUser.setFirstName("Test");
         testUser.setLastName("User");
-        testUser.setEmail("testuser@example.com");
+        testUser.setEmail(uniqueEmail);  // Unique email to ensure no conflicts
         testUser.setPassword("password123");
         userService.saveUser(testUser);
     }
 
-    @AfterEach
-    public void tearDown() {
-        notificationRepository.deleteAll();
-        userService.deleteAllUsers();
-    }
-
     @Test
     public void testCreateNotification() {
-
+        // Create notification for the user
         List<Notification> notifications = notificationService.getUserNotifications(testUser);
-        assertEquals(1, notifications.size()); 
+
+        // Verify the default notification exists
+        assertEquals(1, notifications.size());
         assertEquals("Welcome to VetCare! We're excited to have you.", notifications.get(0).getMessage());
     }
 
     @Test
     public void testGetUserNotifications() {
+        // Create multiple notifications with unique messages
         notificationService.createNotification(testUser, "Notification 1");
         notificationService.createNotification(testUser, "Notification 2");
 
+        // Retrieve notifications for the user
         List<Notification> notifications = notificationService.getUserNotifications(testUser);
+
+        // Verify all notifications exist (including default one)
         assertEquals(3, notifications.size());
     }
 
     @Test
     public void testMarkNotificationAsRead() {
+        // Create a notification for the user
         notificationService.createNotification(testUser, "New notification");
-        List<Notification> notifications = notificationService.getUserNotifications(testUser);
 
+        // Retrieve notifications and mark one as read
+        List<Notification> notifications = notificationService.getUserNotifications(testUser);
         Notification notification = notifications.get(0);
         assertFalse(notification.isRead());
 
+        // Mark notification as read
         notificationService.markAsRead(notification.getId());
 
+        // Verify the notification is marked as read
         Notification updatedNotification = notificationRepository.findById(notification.getId()).orElse(null);
         assertNotNull(updatedNotification);
         assertTrue(updatedNotification.isRead());
