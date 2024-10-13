@@ -285,6 +285,10 @@ END:VCALENDAR`;
             window.location.href = `tel:${appointment.clinic.contact}`
         },
 
+        bookFollowUpAppointment() {
+            window.location.href = "/book-appointment";
+        },
+
         init() {
             console.log("Initializing appointment data component.");
             this.$watch('selectedAppointmentSection', () => {
