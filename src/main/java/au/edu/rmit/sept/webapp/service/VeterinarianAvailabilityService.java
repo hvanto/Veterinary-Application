@@ -21,4 +21,9 @@ public class VeterinarianAvailabilityService {
     public List<VeterinarianAvailability> getAvailabilityByVeterinarianId(Long veterinarianId) {
         return veterinarianAvailabilityRepository.findAllByVeterinarian_Id(veterinarianId);
     }
+
+    // Save new veterinarian availability
+    public VeterinarianAvailability saveVeterinarianAvailability(VeterinarianAvailability availability) {
+        return veterinarianAvailabilityRepository.save(availability);
+    }
 }
