@@ -101,7 +101,7 @@ public class PrescriptionControllerTests {
         json = "{\n" +
         "    \"id\": " + pet.getId() + ",\n" +
         "    \"pet\": {\n" +
-        "        \"id\": 1,\n" +
+        "        \"id\": " + pet.getId() + ",\n" +
         "        \"name\": \"Buddy-" + UUID.randomUUID() + "\",\n" +
         "        \"gender\": \"Male\",\n" +
         "        \"species\": \"Dog\",\n" +
