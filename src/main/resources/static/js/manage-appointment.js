@@ -156,6 +156,7 @@ document.addEventListener('alpine:init', () => {
 
         async rescheduleAppointment(appointmentId) {
             console.log(`Rescheduling appointment with ID: ${appointmentId}`);
+            window.location.href = `/book-appointment?appointmentId=${appointmentId}`;
         },
 
         getMonthFromTimestamp(timestamp) {

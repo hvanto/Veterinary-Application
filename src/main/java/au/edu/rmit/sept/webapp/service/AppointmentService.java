@@ -67,6 +67,48 @@ public class AppointmentService {
         return savedAppointment;
     }
 
+
+    // Method to edit an existing appointment
+    public Appointment editAppointment(Long appointmentId, String day, String year, String startTime, String endTime, Long veterinarianId, Long petId, String notes) throws Exception {
+        // Retrieve existing appointment
+        Appointment existingAppointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new Exception("Appointment not found with ID: " + appointmentId));
+
+        // Convert day, year, startTime, endTime to Date types
+        String dateString = day + " " + year;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        Date appointmentDate = dateFormat.parse(dateString);
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        Date start = timeFormat.parse(startTime);
+        Date end = timeFormat.parse(endTime);
+
+        // Fetch veterinarian and pet
+        Veterinarian veterinarian = veterinarianRepository.findById(veterinarianId)
+                .orElseThrow(() -> new Exception("Veterinarian not found"));
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new Exception("Pet not found"));
+
+        // Update appointment details
+        existingAppointment.setAppointmentDate(appointmentDate);
+        existingAppointment.setStartTime(start);
+        existingAppointment.setEndTime(end);
+        existingAppointment.setVeterinarian(veterinarian);
+        existingAppointment.setPet(pet);
+        existingAppointment.setNotes(notes != null ? notes : existingAppointment.getNotes());
+
+        // Save the updated appointment
+        Appointment updatedAppointment = appointmentRepository.save(existingAppointment);
+
+        // Send notification for appointment update
+        String notificationMessage = String.format("Your appointment has been updated to %s at %s with Dr. %s.",
+                day + " " + year, startTime, veterinarian.getFirstName() + " " + veterinarian.getLastName());
+        notificationService.createNotification(existingAppointment.getUser(), notificationMessage);
+
+        return updatedAppointment;
+    }
+
+
     // Method to find appointments by veterinarian and date
     public List<Appointment> getAppointmentsByVeterinarianAndDay(Long veterinarianId, String day, String year) throws Exception {
         // Convert day and year to Date format

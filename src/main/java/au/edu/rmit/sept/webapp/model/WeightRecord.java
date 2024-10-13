@@ -89,10 +89,24 @@ public class WeightRecord {
     }
 
     /**
+     * sets the date of the record
+     */
+    public void setRecordDate(Date recordDate) {
+        this.recordDate = recordDate;
+    }
+
+    /**
      * @return the weight of the pet on the recorded date.
      */
     public Double getWeight() {
         return weight;
+    }
+
+    /**
+     * sets the weight of the pet.
+     */
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 
     /**
