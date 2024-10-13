@@ -212,13 +212,13 @@ function startDashBoardGuide() {
             } else if (guide.currentStep() === 4) {
                 document.querySelector("#mailbox-button").click();
 
-            } else if (guide.currentStep() == 5) {
+            } else if (guide.currentStep() === 5) {
                 document.body.click();
 
             } else if (guide.currentStep() === 6) {
                 document.querySelector("#user-menu-button").click();
 
-            } else if (guide.currentStep() == 7) {
+            } else if (guide.currentStep() === 7) {
                 document.body.click();
 
             } else if (guide.currentStep() === 8) {
@@ -242,8 +242,8 @@ function startDashBoardGuide() {
 function startMedicalRecordsGuide() {
     loadIntroJs(function () {
         const guide = introJs();
-
         const firstPet = document.querySelector(".guide-select-pet")
+
         guide.setOptions({
             steps: [
                 {
@@ -322,6 +322,7 @@ function startPrescriptionGuide() {
     loadIntroJs(function () {
         const guide = introJs();
         const firstPet = document.querySelector(".guide-select-pet-prescription");
+
         guide.setOptions({
             steps: [
                 {
@@ -343,10 +344,18 @@ function startPrescriptionGuide() {
                     intro: "You can view Buddy's prescription history."
                 },
                 {
-                    intro: "Let's explore the book appointment page next."
+                    element: "#guide-refill-table",
+                    intro: "You can view the Buddy's prescription refill history."
                 },
                 {
-                    intro: "Taking you to the book appointment page..."
+                    element: "#downloadButton",
+                    intro: "You can download the whole prescriptions page."
+                },
+                {
+                    intro: "Let's explore the appointment page next."
+                },
+                {
+                    intro: "Taking you to the appointment page..."
                 }
 
             ],
@@ -361,7 +370,7 @@ function startPrescriptionGuide() {
                 // Click on the pet card
                 firstPet.click();
 
-            } else if (guide.currentStep() === 6) {
+            } else if (guide.currentStep() === 8) {
                 // Store the next step to resume
                 localStorage.setItem("currentGuide", "bookAppointment");
                 // Redirect to next page
@@ -432,6 +441,11 @@ function startBookAppointmentGuide() {
             }
         });
 
+        guide.onexit(function() {
+            updateLocalStorageGuideStatus(true);
+            updateGuideStatus(true);
+        });
+
         guide.start()
     });
 }
@@ -500,39 +514,41 @@ function startArticleGuide() {
 
 // Automatically start the guide when the page is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const user = localStorage.getItem("loggedInUser")
-    const completedGuide = getGuideStatus();
+    setTimeout(() => {
+        const user = localStorage.getItem("loggedInUser")
+        const completedGuide = getGuideStatus();
 
-    // Check if user is logged in and not completed the guide
-    if (user && !completedGuide) {
-        const currentGuide = localStorage.getItem("currentGuide");
+        // Check if user is logged in and not completed the guide
+        if (user && !completedGuide) {
+            const currentGuide = localStorage.getItem("currentGuide");
 
-        // Check if there is guide to resume
-        if (currentGuide) {
-            if (currentGuide === "medicalRecords") {
-                localStorage.removeItem("currentGuide");
-                startMedicalRecordsGuide();
+            // Check if there is guide to resume
+            if (currentGuide) {
+                if (currentGuide === "medicalRecords") {
+                    localStorage.removeItem("currentGuide");
+                    startMedicalRecordsGuide();
 
-            } else if (currentGuide === "prescriptions") {
-                localStorage.removeItem("currentGuide");
-                startPrescriptionGuide();
+                } else if (currentGuide === "prescriptions") {
+                    localStorage.removeItem("currentGuide");
+                    startPrescriptionGuide();
 
-            } else if (currentGuide === "bookAppointment") {
-                localStorage.removeItem("currentGuide");
-                startBookAppointmentGuide();
+                } else if (currentGuide === "bookAppointment") {
+                    localStorage.removeItem("currentGuide");
+                    startBookAppointmentGuide();
 
-            } else if (currentGuide === "article") {
-                localStorage.removeItem("currentGuide");
-                startArticleGuide();
-            }
+                } else if (currentGuide === "article") {
+                    localStorage.removeItem("currentGuide");
+                    startArticleGuide();
+                }
 
-        } else {
-            // Redirect user to home page if there is no current guide to resume
-            if (window.location.pathname !== "/") {
-                window.location.href = "/";
             } else {
-                startDashBoardGuide();
+                // Redirect user to home page if there is no current guide to resume
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/";
+                } else {
+                    startDashBoardGuide();
+                }
             }
         }
-    }
+    }, 500);
 });

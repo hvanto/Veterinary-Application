@@ -25,7 +25,8 @@
 <body>
 
 <div th:fragment="main" x-data="prescriptionsData()" x-init="init()" class="flex flex-col md:flex-row justify-center items-center mb-8 px-4">
-  
+    <script th:src="@{/js/userGuide.js}"></script>
+
     <div x-show="!isAuthenticated" class="flex flex-col items-center justify-center h-72">
         <h2 class="font-bold text-xl">Please log in to access your prescriptions</h2>
         <button @click="window.location.href='/login'" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Login</button>
@@ -107,7 +108,7 @@
                         <td class="border border-gray-300 px-4 py-2">
 <!--                            <button @click="openEditPrescriptionModal(prescription)" class="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 hide-on-print">Edit</button>-->
 <!--                            <button @click="openDeleteConfirmationModal(prescription.id)" class="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 hide-on-print">Delete</button>-->
-                            <button @click="openRefillModal(prescription.id)" class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 hide-on-print">Refill</button>
+                            <button @click="openRefillModal(prescription.id)" class="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 hide-on-print" id="guide-refill-button">Refill</button>
                         </td>
                     </tr>
                 </template>
@@ -150,7 +151,7 @@
             </table>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4" id="guide-refill-table">
             <h2 @click="toggleSection('refills')" class="cursor-pointer text-2xl font-bold text-gray-800">
                 Refills
                 <span x-show="!refillOpen" class="text-gray-500">▼</span>
