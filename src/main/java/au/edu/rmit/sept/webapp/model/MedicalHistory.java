@@ -1,6 +1,5 @@
 package au.edu.rmit.sept.webapp.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -29,7 +28,6 @@ public class MedicalHistory {
     // Reference to the veterinarian who handled the case
     @ManyToOne
     @JoinColumn(name = "veterinarian_id", nullable = false)
-    @JsonBackReference("veterinarian-medical-history")
     private Veterinarian veterinarian;
 
     // The date when the medical event or treatment occurred
