@@ -128,6 +128,10 @@ public class MedicalHistory {
         return treatment;
     }
 
+    public void setTreatment(String treatment) {
+        this.treatment = treatment;
+    }
+
     /**
      * Returns the veterinarian associated with this medical history.
      *

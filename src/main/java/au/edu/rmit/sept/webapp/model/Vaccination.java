@@ -88,10 +88,24 @@ public class Vaccination {
     }
 
     /**
-     * @return the date the vaccination was administered
+     * @return the name of the vaccine administered
+     */
+    public void setVaccineName(String vaccineName) {
+        this.vaccineName = vaccineName;
+    }
+
+    /**
+     * sets the vaccination name
      */
     public Date getVaccinationDate() {
         return vaccinationDate;
+    }
+
+    /**
+     * sets the vaccination date
+     */
+    public void setVaccinationDate(Date vaccinationDate) {
+        this.vaccinationDate = vaccinationDate;
     }
 
     /**
@@ -100,6 +114,11 @@ public class Vaccination {
     public String getAdministeredBy() {
         return administeredBy;
     }
+
+    /**
+     * sets the administered by
+     */
+    public void setAdministeredBy(String administeredBy) {this.administeredBy = administeredBy;}
 
     /**
      * @return the next scheduled vaccination date, if applicable
