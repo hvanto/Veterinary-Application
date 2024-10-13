@@ -16,6 +16,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.UUID;
+
 @SpringBootTest
 public class PrescriptionHistoryRepositoryTests {
 
@@ -36,20 +38,20 @@ public class PrescriptionHistoryRepositoryTests {
     @BeforeEach
     public void setUp() {
         // Delete all prescription histories before each test
-        medicalHistoryRepository.deleteAll();
-        prescriptionHistoryRepository.deleteAll();
-        petRepository.deleteAll();
-        userRepository.deleteAll();
+//        medicalHistoryRepository.deleteAll();
+//        prescriptionHistoryRepository.deleteAll();
+//        petRepository.deleteAll();
+//        userRepository.deleteAll();
 
         // Add a test User (owner of the pet)
         User testUser = new User();
         testUser.setFirstName("John");
         testUser.setLastName("Doe");
-        testUser.setEmail("johndoe@example.com");
+        testUser.setEmail("johndoe" + UUID.randomUUID() + "@example.com");
         userRepository.save(testUser);
 
         // Add a test Pet
-        testPet = new Pet(testUser, "Buddy", "Dog", "Golden Retriever", "Male", true, "Healthy", "/images/buddy.png", LocalDate.of(2018, 6, 12));
+        testPet = new Pet(testUser, "Buddy" + UUID.randomUUID(), "Dog", "Golden Retriever", "Male", true, "Healthy", "/images/buddy.png", LocalDate.of(2018, 6, 12));
         petRepository.save(testPet);
 
         // Add test data to PrescriptionHistory
