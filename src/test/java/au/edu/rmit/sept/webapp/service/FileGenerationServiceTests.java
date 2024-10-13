@@ -1,8 +1,6 @@
 package au.edu.rmit.sept.webapp.service;
 
 import au.edu.rmit.sept.webapp.model.*;
-import au.edu.rmit.sept.webapp.service.FileGenerationService;
-import au.edu.rmit.sept.webapp.service.VeterinarianService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,5 +106,47 @@ public class FileGenerationServiceTests {
         assertFalse(xmlContent.contains("<PhysicalExams>"));
         assertFalse(xmlContent.contains("<Vaccinations>"));
         assertFalse(xmlContent.contains("<TreatmentPlans>"));
+    }
+
+    @Test
+    public void testGeneratePDF() throws IOException {
+        // Test generating PDF with all sections
+        List<String> sections = Arrays.asList("full", "physicalExams", "vaccinations", "treatmentPlans", "weightRecords");
+        ByteArrayInputStream pdfStream = fileGenerationService.generatePDF(testPet, medicalHistoryList, physicalExamList, vaccinationList, treatmentPlanList, weightRecordList, sections);
+
+        // Verify the PDF content is generated and not empty
+        assertNotNull(pdfStream);
+        byte[] pdfBytes = pdfStream.readAllBytes();
+        assertTrue(pdfBytes.length > 0);
+
+        // You can check for specific elements in the PDF if you use a PDF parsing library
+        // For now, just verify that some content exists in the byte array
+    }
+
+    @Test
+    public void testGeneratePDF_EmptyData() throws IOException {
+        // Test generating PDF with no data
+        List<String> sections = Arrays.asList("full", "physicalExams", "vaccinations", "treatmentPlans", "weightRecords");
+        ByteArrayInputStream pdfStream = fileGenerationService.generatePDF(testPet, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), sections);
+
+        // Verify the PDF content is generated and not empty
+        assertNotNull(pdfStream);
+        byte[] pdfBytes = pdfStream.readAllBytes();
+        assertTrue(pdfBytes.length > 0);
+    }
+
+    @Test
+    public void testGeneratePDF_WeightRecordsOnly() throws IOException {
+        // Test generating PDF with only weight records
+        List<String> sections = Collections.singletonList("weightRecords");
+        ByteArrayInputStream pdfStream = fileGenerationService.generatePDF(testPet, medicalHistoryList, physicalExamList, vaccinationList, treatmentPlanList, weightRecordList, sections);
+
+        // Verify the PDF content is generated and not empty
+        assertNotNull(pdfStream);
+        byte[] pdfBytes = pdfStream.readAllBytes();
+        assertTrue(pdfBytes.length > 0);
+
+        // Further assertions could be added to verify weight records specific content
     }
 }

@@ -181,4 +181,9 @@ public class Pet {
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
+
+    // Getter and Setter for imagePath
+    public String getImagePath() {
+        return imagePath;
+    }
 }

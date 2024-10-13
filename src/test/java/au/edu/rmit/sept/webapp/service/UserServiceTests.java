@@ -25,15 +25,17 @@ public class UserServiceTests {
 
     @BeforeEach
     public void setUp() {
-        userRepository.deleteAll();
     }
 
     @Test
     public void testSaveUser_WithEncryption() {
+        // Generate a unique identifier (e.g., current timestamp) to ensure unique email addresses
+        String uniqueIdentifier = String.valueOf(System.currentTimeMillis());
+
         User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
-        user.setEmail("john.doe@example.com");
+        user.setEmail("john.doe" + uniqueIdentifier + "@example.com");
         user.setPassword("password123");
 
         // Save the user and verify that the password is encrypted
@@ -44,48 +46,57 @@ public class UserServiceTests {
 
     @Test
     public void testEmailExists() {
+        // Generate a unique identifier (e.g., current timestamp) to ensure unique email addresses
+        String uniqueIdentifier = String.valueOf(System.currentTimeMillis());
+
         // Add a user to test the email existence check
         User user = new User();
         user.setFirstName("Jane");
         user.setLastName("Doe");
-        user.setEmail("jane.doe@example.com");
+        user.setEmail("jane.doe" + uniqueIdentifier + "@example.com");
         user.setPassword("password123");
         userService.saveUser(user);
 
         // Check if the email exists in the database
-        assertTrue(userService.emailExists("jane.doe@example.com"));
-        assertFalse(userService.emailExists("john.doe@example.com"));
+        assertTrue(userService.emailExists("jane.doe" + uniqueIdentifier + "@example.com"));
+        assertFalse(userService.emailExists("john.doe" + uniqueIdentifier + "@example.com"));
     }
 
     @Test
     public void testValidateUserCredentials_Success() throws Exception {
+        // Generate a unique identifier (e.g., current timestamp) to ensure unique email addresses
+        String uniqueIdentifier = String.valueOf(System.currentTimeMillis());
+
         // Setup: Create and save a user
         User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
-        user.setEmail("john.doe@example.com");
+        user.setEmail("john.doe" + uniqueIdentifier + "@example.com");
         user.setPassword("password123");
         userService.saveUser(user);
 
         // Validate credentials with correct email and password
-        User validatedUser = userService.validateUserCredentials("john.doe@example.com", "password123");
+        User validatedUser = userService.validateUserCredentials("john.doe" + uniqueIdentifier + "@example.com", "password123");
         assertNotNull(validatedUser);
         assertEquals("John", validatedUser.getFirstName());
     }
 
     @Test
     public void testValidateUserCredentials_IncorrectPassword() {
+        // Generate a unique identifier (e.g., current timestamp) to ensure unique email addresses
+        String uniqueIdentifier = String.valueOf(System.currentTimeMillis());
+
         // Setup: Create and save a user
         User user = new User();
         user.setFirstName("Jane");
         user.setLastName("Doe");
-        user.setEmail("jane.doe@example.com");
+        user.setEmail("jane.doe" + uniqueIdentifier + "@example.com");
         user.setPassword("password123");
         userService.saveUser(user);
 
         // Attempt to validate credentials with incorrect password
         Exception exception = assertThrows(Exception.class, () -> {
-            userService.validateUserCredentials("jane.doe@example.com", "wrongpassword");
+            userService.validateUserCredentials("jane.doe" + uniqueIdentifier + "@example.com", "wrongpassword");
         });
 
         // Check that the error message is as expected

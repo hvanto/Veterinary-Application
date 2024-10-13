@@ -156,6 +156,7 @@ document.addEventListener('alpine:init', () => {
 
         async rescheduleAppointment(appointmentId) {
             console.log(`Rescheduling appointment with ID: ${appointmentId}`);
+            window.location.href = `/book-appointment?appointmentId=${appointmentId}`;
         },
 
         getMonthFromTimestamp(timestamp) {
@@ -283,6 +284,10 @@ END:VCALENDAR`;
 
         contactClinic(appointment) {
             window.location.href = `tel:${appointment.clinic.contact}`
+        },
+
+        bookFollowUpAppointment() {
+            window.location.href = "/book-appointment";
         },
 
         init() {

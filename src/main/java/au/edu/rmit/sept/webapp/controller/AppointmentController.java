@@ -52,6 +52,24 @@ public class AppointmentController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    // PUT request to edit an appointment
+    @PutMapping("/edit/{appointmentId}")
+    public ResponseEntity<Appointment> editAppointment(
+            @PathVariable Long appointmentId,
+            @RequestParam String day,
+            @RequestParam String year,
+            @RequestParam String startTime,
+            @RequestParam String endTime,
+            @RequestParam Long veterinarian,
+            @RequestParam Long pet,
+            @RequestParam(required = false) String notes) {
+        try {
+            Appointment updatedAppointment = appointmentService.editAppointment(appointmentId, day, year, startTime, endTime, veterinarian, pet, notes);
+            return ResponseEntity.ok(updatedAppointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
     // POST request to get appointments by veterinarian and day using path variables
     @PostMapping("/user/{userId}")
