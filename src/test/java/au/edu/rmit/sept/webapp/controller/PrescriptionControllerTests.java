@@ -197,16 +197,16 @@ public class PrescriptionControllerTests {
         assertNotEquals("Dr. Null", prescriptionRepository.findById(savedPrescription.getId()).get().getPractitioner());
     }
     
-//    @Test
-//    public void testUpdatePrescription_notFound() throws Exception {
-//        // call handler with mock mvc
-//        // expect a not found response
-//        mockMvc.perform(delete("/api/prescriptions/1")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(json))
-//                .andExpect(status().isNotFound())
-//                .andReturn();
-//    }
+    @Test
+    public void testUpdatePrescription_notFound() throws Exception {
+        // call handler with mock mvc
+        // expect a not found response
+        mockMvc.perform(delete("/api/prescriptions/2222222222")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
 
     @Test
     public void testDeletePrescription_success() throws Exception {
