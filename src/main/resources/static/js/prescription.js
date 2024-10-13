@@ -40,6 +40,8 @@ document.addEventListener('alpine:init', () => {
         refillOpen: true, // State for showing/hiding refills section
         refillToDeleteId: null, // For storing the refill ID to delete
         showDeleteRefillConfirmationModal: false, // For controlling the modal visibility
+        recurring: '',
+        isRecurring: false,
 
         init() {
             this.fetchInitialData();
@@ -374,7 +376,7 @@ document.addEventListener('alpine:init', () => {
                     this.creditCardNumber = '';
                     this.expiryDate = '';
                     this.cvv = '';
-                    //this.submissionDate;
+                    this.recurring = "One Off";
 
                     this.showRefillModal = true;
                 })
@@ -413,7 +415,8 @@ document.addEventListener('alpine:init', () => {
                 userId: this.userId,
                 expiryDate: this.expiryDate,
                 cvv: this.cvv,
-                submissionDate: this.submissionDate
+                submissionDate: this.submissionDate,
+                recurring: this.recurring
             };
 
             fetch(`/api/prescriptions/refills/add`, {
