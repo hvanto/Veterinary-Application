@@ -45,6 +45,11 @@ public class Veterinarian {
     @JsonManagedReference("veterinarian-appointments")
     private List<Appointment> appointments;
 
+    @OneToMany(mappedBy = "veterinarian", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference("veterinarian-medical-history")
+    private List<MedicalHistory> medicalHistories;
+
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date CreatedOn;
