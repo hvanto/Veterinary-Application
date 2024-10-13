@@ -9,13 +9,13 @@ document.addEventListener('alpine:init', () => {
         Toastify({
             text: "Login to book appointment!",
             close: true,
-            destination: "/signin",
+            destination: "/login",
             gravity: 'top',
             position: 'right',
         }).showToast();
 
         setTimeout(() => {
-            window.location.href = '/login'
+            window.location.href = '/login';
         }, 2000);
     }
 
@@ -34,7 +34,18 @@ document.addEventListener('alpine:init', () => {
         selectedDay: null,
         selectedPetId: null,
         showModal: false,
-        petSelectDropdownOpen: false,
+        isUpdate: false,
+        appointmentId: null,
+
+        initPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.appointmentId = urlParams.get('appointmentId');
+
+            // If appointmentId exists in the URL, mark the form for updating
+            if (this.appointmentId) {
+                this.isUpdate = true;
+            }
+        },
 
         fetchData() {
             const getClinic = () => {
@@ -93,7 +104,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         bookAppointment(day, slot) {
-            if (!user) {
+            if (!this.user) {
                 Toastify({
                     text: "Login to book appointment!",
                     close: true,
@@ -103,7 +114,7 @@ document.addEventListener('alpine:init', () => {
                 }).showToast();
 
                 setTimeout(() => {
-                    window.location.href = '/login'
+                    window.location.href = '/login';
                 }, 3000);
             } else {
                 this.selectedSlot = slot;
@@ -113,7 +124,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        bookAppointmentConfirm(pet) {
+        bookAppointmentConfirm() {
             const startTime = String(this.selectedSlot.time).split(' - ')[0];
             const endTime = String(this.selectedSlot.time).split(' - ')[1];
 
@@ -125,31 +136,43 @@ document.addEventListener('alpine:init', () => {
                 endTime: endTime,
                 day: this.selectedDay,
                 year: this.year
-            }
+            };
 
-            // console.log(appointmentData);
-
-            axios.post('/api/appointments/create', null, {
-                params: appointmentData
-            })
-                .then(function (response) {
-                    // console.log('Appointment created successfully:', response.data);
-                    // Redirect or show success message
-                    alert('Appointment created successfully!');
+            if (this.isUpdate) {
+                // Send update request if the appointmentId exists
+                axios.put(`/api/appointments/edit/${this.appointmentId}`, null, {
+                    params: appointmentData
                 })
-                .catch(function (error) {
-                    // console.error('Error creating appointment:', error.response);
-                    // Show error message
-                    alert('Failed to create appointment.');
-                });
+                    .then(response => {
+                        alert('Appointment updated successfully!');
+                        this.showModal = false;
+                    })
+                    .catch(error => {
+                        console.error('Error updating appointment:', error.response);
+                        alert('Failed to update appointment.');
+                    });
+            } else {
+                // Create a new appointment
+                axios.post('/api/appointments/create', null, {
+                    params: appointmentData
+                })
+                    .then(response => {
+                        alert('Appointment created successfully!');
+                        this.showModal = false;
+                    })
+                    .catch(error => {
+                        console.error('Error creating appointment:', error.response);
+                        alert('Failed to create appointment.');
+                    });
+            }
         },
 
         getAppointments(veterinarianId, day, year) {
             axios.post(`/api/appointments/veterinarian/${veterinarianId}/day/${encodeURIComponent(day)}/year/${year}`)
-                .then(function (response) {
+                .then(response => {
                     return response.data;
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.error('Error fetching appointments:', error.response);
                     return error.response;
                 });
@@ -186,26 +209,15 @@ document.addEventListener('alpine:init', () => {
             }
 
             if (this.selectedDoctor == null || this.doctorAvailability == null) {
-                // console.log('Select Doctor to Continue');
-                // for (let i = 0; i < 60; i += 15) {
-                //     const endMinutes = (i + 15) % 60;
-                //     const endHour = (endMinutes === 0) ? startHour + 1 : startHour;
-                //
-                //     let endTime = `${endHour}:${endMinutes === 0 ? '00' : endMinutes} ${ampm}`;
-                //     console.log(`Generated slot: ${startHour}:${i === 0 ? '00' : i} - ${endTime}`);
-                //
-                //     subSlots.push({ time: `${startHour}:${i === 0 ? '00' : i} - ${endTime}`, type: 'available' });
-                // }
+                return [];
             } else {
                 const weekDayName = this.getWeekDayName(`${day} ${this.year}`);
-
                 const dayAvailability = this.doctorAvailability.find(day => day.weekday === weekDayName);
 
                 if (!dayAvailability) {
                     return []; // No availability found for the selected day
                 }
 
-                // Convert the times to integers for easier comparison
                 const availabilityStartHour = parseInt(dayAvailability.startTime.slice(0, 2));
                 const availabilityEndHour = parseInt(dayAvailability.endTime.slice(0, 2));
                 const breakStartHour = Math.floor(dayAvailability.breakStart / 100);
@@ -213,24 +225,20 @@ document.addEventListener('alpine:init', () => {
                 const breakEndHour = Math.floor(dayAvailability.breakEnd / 100);
                 const breakEndMinutes = dayAvailability.breakEnd % 100;
 
-                // If the start hour is not within doctor's availability, return an empty array
                 if (startHour < availabilityStartHour || startHour >= availabilityEndHour) {
                     return [];
                 }
 
-                // Generate slots based on doctor's availability and slot duration
                 let minutes = 0;
                 while (minutes < 60) {
                     const endMinutes = (minutes + dayAvailability.slotDuration) % 60;
                     const nextHour = (endMinutes === 0) ? startHour + 1 : startHour;
-
                     const isWithinBreakTime = (
-                        (startHour === breakStartHour && minutes >= breakStartMinutes) || // During break start hour
-                        (startHour === breakEndHour && endMinutes <= breakEndMinutes) || // During break end hour
-                        (startHour > breakStartHour && startHour < breakEndHour)          // In between break hours
+                        (startHour === breakStartHour && minutes >= breakStartMinutes) ||
+                        (startHour === breakEndHour && endMinutes <= breakEndMinutes) ||
+                        (startHour > breakStartHour && startHour < breakEndHour)
                     );
 
-                    // const endTime = `${nextHour}:${endMinutes === 0 ? '00' : endMinutes} ${ampm}`;
                     const endTime = `${nextHour}:${endMinutes === 0 ? '00' : endMinutes}`;
                     const slotTime = `${startHour}:${minutes === 0 ? '00' : minutes} - ${endTime}`;
 
@@ -242,9 +250,6 @@ document.addEventListener('alpine:init', () => {
 
                     minutes += dayAvailability.slotDuration;
                 }
-
-                // console.log(this.selectedDoctor.id, day, this.year);
-                // console.log(this.getAppointments(this.selectedDoctor.id, day, this.year));
             }
 
             return subSlots;
@@ -252,61 +257,41 @@ document.addEventListener('alpine:init', () => {
 
         getFormattedDate() {
             const today = new Date();
-
             const day = today.getDate();
             const year = today.getFullYear();
-
             const month = MONTH_NAMES[today.getMonth()];
-
             return `${day} ${month} ${year}`;
         },
 
         getWeekDayName(dateString) {
-            // Create a new Date object from the input date string
             const date = new Date(dateString);
-
-            // Array of week day names
             const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-            // Get the day of the week as a number (0 - 6)
-            const dayIndex = date.getDay();
-
-            // Return the name of the day
-            return weekDays[dayIndex].toUpperCase();
+            return weekDays[date.getDay()].toUpperCase();
         },
 
-        // Get all dates in the week of the selected date
         getWeekDays(dateStr) {
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-            // Parse the provided date string into a Date object
             const providedDate = new Date(dateStr);
-
-            // Get the day of the week index (0 for Sunday, 6 for Saturday)
             const dayOfWeek = providedDate.getDay();
-
-            // Compute the start of the week (Sunday) by subtracting the days
             const startOfWeek = new Date(providedDate);
             startOfWeek.setDate(providedDate.getDate() - dayOfWeek);
 
             const weekDays = [];
-
-            // Loop through the days of the week from Sunday to Saturday
             for (let i = 0; i < 7; i++) {
                 const currentDay = new Date(startOfWeek);
                 currentDay.setDate(startOfWeek.getDate() + i);
 
-                const day = currentDay.getDate(); // Day of the month (1-31)
-                const month = monthNames[currentDay.getMonth()]; // Month name (Jan, Feb, etc.)
+                const day = currentDay.getDate();
+                const month = monthNames[currentDay.getMonth()];
 
-                weekDays.push(`${day} ${month}`); // Format the day as "DD Mon"
+                weekDays.push(`${day} ${month}`);
             }
 
             return weekDays;
         },
 
-        // Adding datepicker object to the same data object
         datepicker: {
             showDatepicker: false,
             datepickerValue: '',
@@ -316,7 +301,7 @@ document.addEventListener('alpine:init', () => {
             blankdays: [],
             days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
             today: new Date(),
-            maxDate: new Date(new Date().setFullYear(new Date().getFullYear(), new Date().getMonth() + 12)), // 12 months from today
+            maxDate: new Date(new Date().setFullYear(new Date().getFullYear(), new Date().getMonth() + 12)),
 
             initDate() {
                 let today = new Date();
@@ -334,25 +319,20 @@ document.addEventListener('alpine:init', () => {
             isFutureOrToday(date) {
                 const today = new Date();
                 const selectedDate = new Date(this.year, this.month, date);
-                return selectedDate >= today && selectedDate <= this.maxDate; // Ensure date is between today and maxDate
+                return selectedDate >= today && selectedDate <= this.maxDate;
             },
 
             getDateValue(date, $refs) {
                 if (this.isFutureOrToday(date) || this.isToday(date)) {
                     let selectedDate = new Date(this.year, this.month, date);
                     this.datepickerValue = selectedDate.toDateString();
-
-                    // Set the selected date in hidden input
-                    $refs.date.value = selectedDate.getFullYear() + "-" +
-                        ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
-
+                    $refs.date.value = selectedDate.getFullYear() + "-" + ('0' + (selectedDate.getMonth() + 1)).slice(-2) + "-" + ('0' + selectedDate.getDate()).slice(-2);
                     this.showDatepicker = false;
                 }
             },
 
             getNoOfDays() {
                 let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
-
                 let dayOfWeek = new Date(this.year, this.month).getDay();
                 let blankdaysArray = [];
                 for (let i = 1; i <= dayOfWeek; i++) {
@@ -368,7 +348,6 @@ document.addEventListener('alpine:init', () => {
                 this.no_of_days = daysArray;
             },
 
-            // Disable going to previous months if it’s before today’s month
             prevMonth() {
                 let today = new Date();
                 if (this.year === today.getFullYear() && this.month === today.getMonth()) return;
@@ -383,7 +362,6 @@ document.addEventListener('alpine:init', () => {
                 this.getNoOfDays();
             },
 
-            // Disable going beyond 12 months from today
             nextMonth() {
                 let maxMonth = new Date(this.maxDate).getMonth();
                 let maxYear = new Date(this.maxDate).getFullYear();
@@ -405,7 +383,7 @@ document.addEventListener('alpine:init', () => {
             this.$watch('datepicker.datepickerValue', () => {
                 this.days = this.getWeekDays(this.datepicker.datepickerValue);
                 this.year = this.datepicker.datepickerValue.split(' ')[3];
-            })
+            });
         }
     }));
 });

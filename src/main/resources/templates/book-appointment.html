@@ -6,7 +6,7 @@
     <title>Title</title>
 </head>
 <body>
-<main x-data="clinicServiceData" x-init="[fetchData(), datepicker.initDate(), datepicker.getNoOfDays()]" class="max-w-screen-2xl mx-auto" th:fragment="main">
+<main x-data="clinicServiceData" x-init="[fetchData(), initPage(), datepicker.initDate(), datepicker.getNoOfDays()]" class="max-w-screen-2xl mx-auto" th:fragment="main">
     <!-- Related Scripts -->
     <link rel="stylesheet" type="text/css" th:href="@{/css/toastify.css}">
     <script type="text/javascript" th:src="@{/js/toastify.js}"></script>
@@ -55,23 +55,17 @@
 
         <!-- Booking Panel -->
         <div class="basis-full md:basis-2/3 lg:basis-4/5 bg-gradient-to-l from-zinc-50 to-zinc-200 relative p-8">
-            <!-- Button for expanding/closing filter selections panel -->
-            <button class="absolute top-8 left-0 rounded-full bg-zinc-100 p-2 translate-x-[-50%] shadow-sm border z-20">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                     fill="rgb(82, 82, 91)"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>
-                <svg class="translate-x-1 hidden" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                     fill="rgb(82, 82, 91)"><path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
-            </button>
+            <!-- Add message to indicate the action -->
+            <div>
+                <h2 x-text="isUpdate ? 'Update Appointment' : 'Book New Appointment'" class="text-3xl font-bold mb-6"></h2>
+            </div>
 
             <!-- Booking Calender View -->
             <div class="w-full h-full">
                 <div class="w-full h-26 px-6 py-3 rounded-lg bg-transparent shadow-sm border-2 flex flex-row-reverse justify-between">
                     <div class="flex flex-row-reverse">
-                        <button class="bg-sky-900 px-3 py-2 rounded-lg ml-3 font-semibold text-sm text-zinc-200" id="guide-manage-appointment-button">
+                        <button @click="window.location.href='/manage-appointment'" class="bg-sky-900 px-3 py-2 rounded-lg ml-3 font-semibold text-sm text-zinc-200" id="guide-manage-appointment-button">
                             Manage Appointments
-                        </button>
-                        <button class="bg-sky-900 px-3 py-2 rounded-lg ml-6 font-semibold text-sm text-zinc-200">
-                            All Services
                         </button>
                     </div>
                     <div class="my-auto flex">
@@ -185,9 +179,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!--                                    <button class="rounded-lg py-2 px-4 text-sm font-medium text-gray-500 transition-all duration-300 hover:bg-white hover:text-sky-900">Day</button>-->
-                                <!--                                    <button class="rounded-lg py-2 px-4 text-sm font-medium text-sky-900 bg-white transition-all duration-300 hover:bg-white">Week</button>-->
                             </div>
                         </div>
 
