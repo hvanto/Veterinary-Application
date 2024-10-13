@@ -90,6 +90,8 @@ public class Veterinarian {
         return Id;
     }
 
+    public void setId(Long Id) { this.Id = Id; }
+
     public Date getCreatedOn() {
         return CreatedOn;
     }
