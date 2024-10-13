@@ -45,6 +45,11 @@ public class Veterinarian {
     @JsonManagedReference("veterinarian-appointments")
     private List<Appointment> appointments;
 
+    @OneToMany(mappedBy = "veterinarian", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @JsonManagedReference("veterinarian-medical-history")
+    private List<MedicalHistory> medicalHistories;
+
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date CreatedOn;
@@ -84,6 +89,8 @@ public class Veterinarian {
     public Long getId() {
         return Id;
     }
+
+    public void setId(Long Id) { this.Id = Id; }
 
     public Date getCreatedOn() {
         return CreatedOn;
